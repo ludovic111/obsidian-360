@@ -19,6 +19,7 @@ Laboratoire local d’analyse de la Xbox 360 de Ludovic : matériel, charge de d
 3. [Incidents et expériences](docs/EXPERIMENTS.md).
 4. [Dossier technique détaillé](docs/rapport-initial.txt) et [chronologie historique](docs/historique-installation.txt).
 5. [Mesures structurées](evidence/2026-10-01/mesures.json), [contrôleurs PCI](evidence/2026-10-01/peripheriques-pci.csv) et [sources](docs/SOURCES.md).
+6. [Analyse approfondie : deux défauts mémoire reproduits, vidéo, audio et NAND](docs/DEEP-AUDIT-2026-10-01.md), [correctifs candidats](research/patches/README.md) et [tests hors console](research/tests/README.md).
 
 ## Organisation
 

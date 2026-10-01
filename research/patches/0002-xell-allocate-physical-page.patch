@@ -1,0 +1,11 @@
+--- a/source/lv2/httpd/httpd_flash.c
++++ b/source/lv2/httpd/httpd_flash.c
+@@ -133,7 +133,7 @@
+ 
+ 	if (sfc.initialized == SFCX_INITIALIZED)
+ 	{
+-		unsigned char buffer[sfc.page_sz];
++		unsigned char buffer[sfc.page_sz_phys];
+ 		while (av >= sfc.page_sz_phys)
+ 		{
+ 			//int maxread = sfc.page_sz_phys;

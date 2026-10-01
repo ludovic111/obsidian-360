@@ -1,5 +1,14 @@
 # Prochaines étapes
 
+Priorités issues de l'analyse approfondie :
+
+- Intégrer et compiler le correctif d'allocation graphique dans un noyau candidat distinct, après identification du build installé ; valider le démarrage USB de secours puis le rendu/DMA. Les tests Mac ont confirmé le défaut de source et la correction des bornes, pas le fonctionnement du noyau complet.
+- Pour une acquisition par XeLL, identifier le binaire réellement utilisé et vérifier/corriger le tampon de page physique HTTP ainsi que les erreurs SFCX. Ne pas assimiler une réponse HTTP complète à une sauvegarde NAND validée.
+- Résoudre l'observation de trousseau pacman manquant avant toute nouvelle installation de paquets ; conserver les signatures activées.
+- Porter le pilote audio vers les API 6.18 et revoir DMA, SMC et interruptions avant son activation.
+
+État des étapes historiques :
+
 1. Fait : session récupérée, disque et bureau vérifiés ; erreur de module pkcs8 consignée.
 2. Fait : acquisitions SMC/ANA/GPU rapatriées et contrôlées par SHA-256, sans refaire la sonde NAND.
 3. Manette désormais détectée et événements reçus ; confirmer l’utilisation effective du pointeur, A et Y.

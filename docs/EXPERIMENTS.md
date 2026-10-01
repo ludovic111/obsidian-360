@@ -14,6 +14,13 @@
 | E10 | Lecture mmap PROT_READ de BAR1 du contrôleur flash | SSH et ping perdus, utilisateur confirme écran figé ; aucun dump validé | Sonde bloquée. Cause inconnue ; ne pas relancer. Aucun flash/effacement envoyé |
 | E11 | Redémarrage utilisateur et reconnexion SSH | Racine ext4 interne, IceWM et lanceur actifs ; fichiers SMC/ANA/GPU récupérés et SHA-256 concordants | Incident E10 récupéré, cause encore inconnue |
 | E12 | Lecture du diagnostic de manette après redémarrage | js0 présent, device_open=true, 4 557 événements | Utilisation visible à confirmer |
+| E13 | Inventaire vivant via interfaces noyau standards | SSH, racine, bureau, températures et réseau vérifiés ; `deep-audit/runtime.json` | Aucun accès MMIO/NAND brut |
+| E14 | Décodage hors ligne GPU et comparaison ANA/libxenon | Paramètres horizontaux HDMI 720p concordants ; 109/121 entrées ANA hors sentinelles identiques | Total vertical/horloge non mesurés ; six différences expliquées par écritures de constantes |
+| E15 | Fonction C réelle xenos_blit dans banc ASan sur Mac | Dépassements heap en 720p/1080p reproduits ; allocation arrondie passe quatre tailles | Correctif candidat, noyau complet non compilé, non déployé |
+| E16 | Gestionnaire HTTP XeLL réel avec SFCX simulé sur Mac | Dépassement stack 512/528 reproduit ; correction transmet deux pages intactes | Statut/ECC à traiter ; aucune acquisition réelle de NAND |
+| E17 | Revue du pilote audio et des en-têtes Linux 6.18 | API historiques absentes, risques DMA/SMC/IRQ identifiés | Portage et compilation requis avant activation |
+| E18 | Provenance du noyau et observation pacman | Paquet linux-xenon 6.18.11-1 ; avertissement trousseau public manquant | Binaire non désassemblé ; trousseau à diagnostiquer avant installation |
+| E19 | Vérification finale du journal graphique sur la console | Allocation annoncée 0x384000 = 3 686 400 octets pour 720p ; bureau actif après 22 minutes | Corrobore la taille de F01, sans prouver une corruption ni la cause de E10 |
 
 ## Analyse de l’incident E10
 

@@ -25,6 +25,18 @@ L’incident NAND reste non expliqué : la sonde de lecture a figé la machine. 
 
 Le journal du nouveau démarrage signale le module facultatif `pkcs8_key_parser` introuvable, demandé par `/usr/lib/modules-load.d/pkcs8.conf`. Aucun service n’est en échec au contrôle final. Aucune modification de noyau n’a été effectuée pour ce point ; à examiner séparément si une fonction cryptographique en dépend.
 
+## Analyse approfondie suivante
+
+Console revérifiée vivante en SSH : noyau `6.18.11-xenon`, racine interne, bureau actif, affichage 1280 × 720. Relevé dans `evidence/2026-10-01/deep-audit/`.
+
+Deux défauts mémoire des sources de référence sont reproduits par AddressSanitizer sur le Mac : framebuffer Xenos sous-dimensionné pour les tuiles en 720p/1080p ; tampon HTTP XeLL de 512 octets pour une lecture NAND brute de 528 octets. Deux correctifs candidats et dix cas de test vérifiés, **aucun correctif déployé sur la Xbox**. Correspondance exacte des binaires installés avec ces sources encore à établir ; aucune cause démontrée du gel E10. Lire `docs/DEEP-AUDIT-2026-10-01.md`.
+
+Le journal vivant confirme néanmoins la même taille d'allocation graphique linéaire : `0x384000` octets en 1280 × 720. Contrôle final : bureau actif, SSH accessible, aucun service en échec, uptime 22 minutes. Preuve : `deep-audit/final-console-check.txt`.
+
+Le pilote audio historique exige un portage des API et une revue DMA/SMC avant activation. Le nouveau relevé réseau indique 100 Mbit/s duplex intégral et aucune erreur RX/TX ; il ne valide pas la stabilité prolongée.
+
+Une interrogation du paquet installé a également signalé un trousseau public pacman absent ; `/etc/pacman.d/gnupg/pubring.gpg` n'existe pas au contrôle. Diagnostic incomplet, aucune modification de la politique de signatures. À résoudre avant une prochaine installation de paquets. Preuve : `deep-audit/package-access.txt`.
+
 ## Accès et sauvegardes
 
 Configuration d’accès dans `.local/ssh_config`, ignorée. La clé privée reste à son emplacement original hors dépôt. Accès root par clé uniquement.
