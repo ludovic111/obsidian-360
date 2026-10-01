@@ -28,3 +28,12 @@ Horodatages en UTC. Les expériences antérieures E01–E38 sont décrites dans 
 - Résultat : OBJECTIVE, RESEARCH-MAP et BLOCKED mis à jour.
 - Interprétation : la publication n'autorise pas l'envoi des données confidentielles ni de l'ancien historique privé.
 - Suite : export public contrôlé, licence et instructions reproductibles. Aucun reboot demandé à l'utilisateur absent.
+
+## 2026-10-01 — 22:01 UTC — E40
+
+- Objectif : publier le projet autorisé sans exporter l'historique privé.
+- Action : export textuel à sélection explicite, contrôle des empreintes, recherche de secrets/identifiants, compilation syntaxique des scripts Python, nouveau Git avec identité de projet, audit des objets atteignables puis création/push GitHub.
+- Observation : première revue trouve l'adresse MAC dans deux relevés ; ajout d'une règle bloquante et masquage dans les dérivés. Originaux locaux intacts. Attributions amont distinguées des données personnelles de l'opérateur.
+- Résultat : 187 fichiers publics, 17 chemins exclus de la sélection initiale ; premier commit f9da49e sans parent. L'API GitHub confirme visibilité publique et arbre identique à l'export contrôlé.
+- Interprétation : publication de connaissances/outils et de preuves sélectionnées, pas distribution de firmware ou de jeux. Le scanner de motifs n'est pas une preuve universelle d'absence de secrets.
+- Suite : maintenir les deux historiques séparés, actualiser les exports après audit, poursuivre les mesures et l'analyse de formats avec échantillons synthétiques en attendant des supports légitimes accessibles.
