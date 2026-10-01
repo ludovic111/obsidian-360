@@ -36,6 +36,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--disassemble', action='store_true')
+    parser.add_argument('--symbol', action='append', help='Limit disassembly to named functions; repeat as needed.')
     args = parser.parse_args()
     result = {'ready': False, 'checks': {}, 'actions': []}
     checks = result['checks']
@@ -61,7 +62,7 @@ def main():
                 checks['powerpc64_support'] = {'ok': formats['returncode'] == 0 and 'elf64-powerpc' in formats['stdout'], **formats}
     result['ready'] = bool(checks.get('powerpc64_support', {}).get('ok')) and all(c['ok'] for c in checks.values())
     if result['ready'] and args.disassemble:
-        for symbol in SYMBOLS:
+        for symbol in (args.symbol or SYMBOLS):
             command = ['docker', 'run', '--rm', '--network', 'none', '--mount', f'type=bind,source={binary.parent},target=/input,readonly', IMAGE, 'objdump', '-d', '--disassemble=' + symbol, '/input/' + binary.name]
             output = run(command)
             ok = output['returncode'] == 0 and f'<{symbol}>:' in output['stdout']

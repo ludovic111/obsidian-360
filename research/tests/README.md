@@ -30,3 +30,9 @@ Collecte vivante, après lecture de STATE et EXPERIMENTS :
 ```
 
 Cette collecte utilise `/proc`, des attributs sysfs standards et des commandes d'état. Elle ne lit ni BAR PCI, ni `/dev/mem`, ni NAND, ni eFuses ; elle ne relève pas d'adresse IP ou de clé. Les sorties restent des instantanés et les erreurs sont conservées.
+
+## Cache SMC et compilation
+
+`check-smc-cache.py --original CHEMIN_SOURCE --candidate CHEMIN_CORRIGE` compile le tableau et la fonction de recherche réels dans un processus ASan local. Les identifiants connus et l'ensemble des 256 valeurs possibles sont testés dans les deux variantes. Aucun périphérique n'est ouvert. Les chemins et SHA-256 de l'expérience sont décrits dans `docs/SMC-AUDIT-2026-10-01.md` et `smc-audit/cache-bounds.json`.
+
+`tools/build-kernel.py --source CHEMIN_SOURCE --output CHEMIN_BUILD --jobs 4` compile une arborescence déjà préparée, avec son `.config`, dans l'image locale LLVM 16. Il ne télécharge, n'installe et ne démarre rien sur la Xbox. Conserver le journal et suivre le processus existant avant toute reprise ; voir `docs/SESSION-RECOVERY.md`. Le succès de `vmlinux` ne vaut pas validation des modules, du chargeur ni du fonctionnement physique.

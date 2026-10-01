@@ -43,7 +43,17 @@ La recette exacte du paquet pointe vers `techflashYT/linux-custom@a293dd19311668
 
 Neuf fonctions du noyau ont été désassemblées avec succès dans l'environnement Docker multiarchitecture. Les multiplications de la taille graphique sont confirmées dans le binaire. Un troisième défaut concerne `xenon_ipi_send_mask`, qui perd le masque des destinataires ; le chemin SMP ordinaire utilise une autre fonction correcte. Test du callback réel hors console : 256 combinaisons avant et après correction candidate. Aucun correctif déployé ; aucune cause du gel E10 démontrée. Lire `docs/BINARY-AUDIT-2026-10-01.md`.
 
-`tools/audit-session.py` vérifie les prérequis et conserve les résultats de chaque étape, sans refaire les acquisitions. L'environnement est opérationnel ; une compilation complète PowerPC reste à réaliser.
+`tools/audit-session.py` vérifie les prérequis et conserve les résultats de chaque étape, sans refaire les acquisitions.
+
+## Cache SMC et première compilation candidate
+
+La recherche du cache SMC dépasse son tableau pour les identifiants absents : reproduction ASan hors console et boucle confirmée dans le binaire installé. Le correctif borné passe les 256 identifiants possibles. Aucun message inconnu envoyé au matériel. Analyse du transport, des attentes et de la concurrence dans `docs/SMC-AUDIT-2026-10-01.md`.
+
+Le noyau candidat `6.18.11-xenon-obsidian1` a terminé sa compilation `vmlinux` le 1 octobre à 21:00:03 UTC, code 0. Format ELF64 PowerPC big-endian vérifié ; correctifs Linux 0001, 0003 et 0004 inclus. SHA-256 : `34da8563558009ef6473e56b6f44fccea31a9c080d7d6382af8b5ec5e0dd16df`. Preuves, configuration et journal dans `evidence/2026-10-01/kernel-build/`.
+
+Le build comporte un avertissement de variable non initialisée dans `xenon_led_init`, à corriger avant essai. Modules et conditionnement de démarrage non validés ; aucun déploiement ni démarrage du candidat. Cette compilation LLVM 16 n'est pas une reconstruction bit à bit du paquet GCC installé. L'affichage candidat reste configuré en 720p, le son désactivé.
+
+Les interruptions de session répétées sont identifiées par `cyber_policy` dans les événements Codex ; le build local a continué malgré elles. Diagnostic et procédure de reprise dans `docs/SESSION-RECOVERY.md`. La rétro-ingénierie reste incomplète.
 
 ## Accès et sauvegardes conservés
 

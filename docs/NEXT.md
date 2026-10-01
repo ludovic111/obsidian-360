@@ -2,7 +2,8 @@
 
 Priorités issues de l'analyse approfondie :
 
-- Build installé désormais identifié et désassemblé : intégrer et compiler le correctif d'allocation graphique dans cette branche comme noyau candidat distinct ; valider le démarrage USB de secours puis le rendu/DMA. Les tests Mac et le binaire confirment le défaut de calcul, pas le fonctionnement d'un noyau corrigé complet.
+- Premier vmlinux candidat compilé avec les corrections graphique, IPI et cache SMC. Corriger l'avertissement de retour non initialisé dans le pilote LED, vérifier les modules et le conditionnement de démarrage, puis valider le démarrage USB de secours et le rendu/DMA. La compilation ne prouve pas le fonctionnement sur console.
+- Poursuivre la revue SMC : sérialisation des transactions, propagation des interruptions/délais et contrat du gestionnaire IRQ. Ne pas déclencher de commandes inconnues sur le matériel pour reproduire le défaut de cache.
 - Évaluer la correction du masque IPI dans cette branche, avec compilation puis test ciblé du chemin concerné ; ne pas attribuer au callback dormant les symptômes du chemin SMP ordinaire.
 - Pour une acquisition par XeLL, identifier le binaire réellement utilisé et vérifier/corriger le tampon de page physique HTTP ainsi que les erreurs SFCX. Ne pas assimiler une réponse HTTP complète à une sauvegarde NAND validée.
 - Résoudre l'observation de trousseau pacman manquant avant toute nouvelle installation de paquets ; conserver les signatures activées.

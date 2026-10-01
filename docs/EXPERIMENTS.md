@@ -27,6 +27,14 @@
 | E23 | Callback IPI réel testé avec MMIO simulée | 252/256 masques perdus dans l'original ; 256/256 corrects avec le candidat ; anomalie également présente dans le binaire | Le chemin SMP ordinaire utilise une autre fonction ; impact vivant non établi |
 | E24 | Corriger le chemin d'outillage | Incompatibilités PowerPC64 des anciens outils contournées ; environnement multiarchitecture construit et audit complet réussi | Aucun échec ne doit être assimilé à une preuve ; compilation noyau encore à faire |
 
+## Expériences suivantes hors console
+
+| ID | Action | Résultat et preuve | Suite |
+|---|---|---|---|
+| E25 | Audit du cache SMC, test du C réel et désassemblage installé | Dépassement de tableau confirmé ; quatre cas ASan aux résultats attendus, recherche corrigée sur 256 identifiants ; `smc-audit/` | Aucun message matériel ; concurrence et attentes encore à traiter |
+| E26 | Archive source vérifiée, LLVM 16, olddefconfig puis build vmlinux avec trois correctifs Linux | Code 0, ELF64 PowerPC big-endian vérifié, `6.18.11-xenon-obsidian1` ; `kernel-build/` | Avertissement du pilote LED restant ; modules, image de démarrage et essai réel non validés |
+| E27 | Diagnostic des interruptions Codex et suivi du build existant | Erreur structurée `cyber_policy` sur cinq tours ; processus local encore vivant puis terminé avec succès | Contrôle de plateforme non modifiable par les scripts ; voir SESSION-RECOVERY |
+
 ## Analyse de l’incident E10
 
 La documentation décrit une fenêtre flash en lecture seule, sans ECC. Cela ne garantissait pas que la méthode de lecture large employée fonctionnerait sur cette combinaison matériel/noyau. Le programme a ouvert `resource1` avec O_RDONLY, utilisé PROT_READ, et ne contenait aucune commande d’effacement ou de programmation. Le gel est corrélé à cette lecture ; son mécanisme exact n’a pas été établi.

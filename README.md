@@ -21,6 +21,7 @@ Laboratoire local d’analyse de la Xbox 360 de Ludovic : matériel, charge de d
 5. [Mesures structurées](evidence/2026-10-01/mesures.json), [contrôleurs PCI](evidence/2026-10-01/peripheriques-pci.csv) et [sources](docs/SOURCES.md).
 6. [Analyse approfondie : deux défauts mémoire reproduits, vidéo, audio et NAND](docs/DEEP-AUDIT-2026-10-01.md), [correctifs candidats](research/patches/README.md) et [tests hors console](research/tests/README.md).
 7. [Noyau réellement installé : désassemblage, DMA, PCI et défaut IPI](docs/BINARY-AUDIT-2026-10-01.md).
+8. [Cache et protocole SMC ; premier noyau candidat compilé](docs/SMC-AUDIT-2026-10-01.md) et [diagnostic des interruptions de session](docs/SESSION-RECOVERY.md).
 
 ## Organisation
 
