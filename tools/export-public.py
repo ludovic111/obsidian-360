@@ -25,6 +25,7 @@ PATTERNS = {
     'cloud-key': r'\bAKIA[A-Z0-9]{16}\b',
     'local-home': r'/Users/[A-Za-z0-9_.-]+/',
     'private-ip': r'\b(?:192\.168\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})\b',
+    'mac-address': r'(?i)\b(?!(?:ff:){5}ff\b|(?:00:){5}00\b)(?:[0-9a-f]{2}:){5}[0-9a-f]{2}\b',
     'secret-assignment': r'(?i)(?:cpu.?key|dvd.?key|api.?key|access.?token|password)\s*[=:]\s*["\x27]?[A-Za-z0-9+/=_-]{16,}',
 }
 
