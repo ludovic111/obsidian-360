@@ -34,6 +34,9 @@
 | E25 | Audit du cache SMC, test du C réel et désassemblage installé | Dépassement de tableau confirmé ; quatre cas ASan aux résultats attendus, recherche corrigée sur 256 identifiants ; `smc-audit/` | Aucun message matériel ; concurrence et attentes encore à traiter |
 | E26 | Archive source vérifiée, LLVM 16, olddefconfig puis build vmlinux avec trois correctifs Linux | Code 0, ELF64 PowerPC big-endian vérifié, `6.18.11-xenon-obsidian1` ; `kernel-build/` | Avertissement du pilote LED restant ; modules, image de démarrage et essai réel non validés |
 | E27 | Diagnostic des interruptions Codex et suivi du build existant | Erreur structurée `cyber_policy` sur cinq tours ; processus local encore vivant puis terminé avec succès | Contrôle de plateforme non modifiable par les scripts ; voir SESSION-RECOVERY |
+| E28 | Revue du pilote LED, désassemblage et injection de fautes hors console | 21 cas ASan/UBSan passent pour le candidat ; allocation/nettoyage/init/exit et envoi corrigés ; `led-audit/` | Aucun ordre SMP réel ni état visuel validé |
+| E29 | Compiler le pilote LED comme module PowerPC | Original : redéfinitions init/exit ; premier correctif : symbole SMC absent ; après export GPL : succès sans diagnostic | Échecs intermédiaires conservés ; module non chargé |
+| E30 | Construire noyau, modules et image XeLL obsidian3 | Codes 0 ; 65 modules et six sections de contenu vérifiés ; `kernel-build-obsidian3/` | Deux avertissements Makefile de recette concurrente ; initramfs, ensemble séparé et démarrage réel non validés |
 
 ## Analyse de l’incident E10
 

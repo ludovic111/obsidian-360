@@ -36,3 +36,13 @@ Cette collecte utilise `/proc`, des attributs sysfs standards et des commandes d
 `check-smc-cache.py --original CHEMIN_SOURCE --candidate CHEMIN_CORRIGE` compile le tableau et la fonction de recherche réels dans un processus ASan local. Les identifiants connus et l'ensemble des 256 valeurs possibles sont testés dans les deux variantes. Aucun périphérique n'est ouvert. Les chemins et SHA-256 de l'expérience sont décrits dans `docs/SMC-AUDIT-2026-10-01.md` et `smc-audit/cache-bounds.json`.
 
 `tools/build-kernel.py --source CHEMIN_SOURCE --output CHEMIN_BUILD --jobs 4` compile une arborescence déjà préparée, avec son `.config`, dans l'image locale LLVM 16. Il ne télécharge, n'installe et ne démarre rien sur la Xbox. Conserver le journal et suivre le processus existant avant toute reprise ; voir `docs/SESSION-RECOVERY.md`. Le succès de `vmlinux` ne vaut pas validation des modules, du chargeur ni du fonctionnement physique.
+
+## Cycle de vie LED
+
+```sh
+python3 research/tests/check-led-lifecycle.py --source CHEMIN_LED_CORRIGE --output CHEMIN_RAPPORT.json
+```
+
+Le fichier C réel est compilé avec ASan/UBSan et des modèles de ressources/FIFO. Les 21 cas comprennent neuf échecs d'allocation, huit échecs d'enregistrement LED, les erreurs de création du pilote/périphérique, le report de probe et le succès avec retrait. Les en-têtes et le main du banc sont adjacents au script. Aucune vérification de concurrence physique ; voir `docs/LED-AUDIT-2026-10-01.md`.
+
+`tools/check-kernel-artifacts.py` vérifie le format et la version des modules de `modules.order`, ainsi que six sections entre le noyau et son image. Le rapport est publié seulement si ces contrôles passent ; il ne prouve pas un démarrage.

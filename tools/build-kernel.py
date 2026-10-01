@@ -17,6 +17,7 @@ def main():
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--jobs',type=int,default=2,choices=range(1,5))
     parser.add_argument('--target',default='vmlinux',choices=['vmlinux','modules','zImage.xenon'])
+    parser.add_argument('--localversion',default='-obsidian1')
     args=parser.parse_args()
     source=args.source.resolve();output=args.output.resolve()
     if not (source/'Makefile').is_file() or not (output/'.config').is_file():
@@ -31,11 +32,13 @@ def main():
         parser.error('Verified kernel toolchain image is absent')
     stamp=datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S.%fZ')
     log=output.parent/('build-'+stamp+'.log');state=output.parent/'build-state.json'
-    report={'target':args.target,'started_utc':stamp,'status':'starting','container':name,'image_id':image.stdout.strip(),'log':log.name,'jobs':args.jobs}
+    if not args.localversion.startswith('-') or not all(c.isalnum() or c in '-._' for c in args.localversion):
+        parser.error('localversion must be a hyphen-prefixed release suffix')
+    report={'target':args.target,'localversion':args.localversion,'started_utc':stamp,'status':'starting','container':name,'image_id':image.stdout.strip(),'log':log.name,'jobs':args.jobs}
     def save():
         pending=state.with_suffix('.pending');pending.write_text(json.dumps(report,indent=2)+'\n');pending.replace(state)
     save()
-    command=['docker','run','--rm','--name',name,'--network','none','--mount',f'type=bind,source={source},target=/src,readonly','--mount',f'type=bind,source={output},target=/build',report['image_id'],'make','-C','/src','O=/build','ARCH=powerpc','LLVM=1','LOCALVERSION=-obsidian1','-j'+str(args.jobs),args.target]
+    command=['docker','run','--rm','--name',name,'--network','none','--mount',f'type=bind,source={source},target=/src,readonly','--mount',f'type=bind,source={output},target=/build',report['image_id'],'make','-C','/src','O=/build','ARCH=powerpc','LLVM=1','LOCALVERSION='+args.localversion,'-j'+str(args.jobs),args.target]
     with log.open('w') as stream:
         child=subprocess.Popen(command,stdout=stream,stderr=subprocess.STDOUT)
         report.update(status='running',host_pid=child.pid);save()

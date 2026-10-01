@@ -55,6 +55,14 @@ Le build comporte un avertissement de variable non initialisée dans `xenon_led_
 
 Les interruptions de session répétées sont identifiées par `cyber_policy` dans les événements Codex ; le build local a continué malgré elles. Diagnostic et procédure de reprise dans `docs/SESSION-RECOVERY.md`. La rétro-ingénierie reste incomplète.
 
+## Pilote LED et candidat obsidian3
+
+Le retour non initialisé a été corrigé avec le cycle init/exit, les ressources LED et l'envoi SMC sans réponse. Les 21 tests hors console passent. Le test de compilation en module a révélé une fonction SMC non exportée ; son export GPL rétablit le lien. Les échecs initiaux et le succès sont conservés dans `led-audit/`.
+
+Le candidat **6.18.11-xenon-obsidian3** est construit : noyau, 65 modules et image `zImage.xenon`. Formats PowerPC, versions des modules et six sections entre noyau et image contrôlés. Les compilations noyau/modules ne signalent aucun avertissement ; la fabrication de l'image signale deux règles concurrentes dans le Makefile amont, à nettoyer. Lire `docs/LED-AUDIT-2026-10-01.md` et `docs/KERNEL-CANDIDATE-2026-10-01.md`.
+
+Aucun candidat installé ou démarré ; l'initramfs et l'ensemble de démarrage séparé restent à préparer. Toujours aucun 1080p ni démarrage indépendant validé. Aucune nouvelle mesure matérielle dans E28–E30.
+
 ## Accès et sauvegardes conservés
 
 Configuration d’accès dans `.local/ssh_config`, ignorée. La clé privée reste à son emplacement original hors dépôt. Accès root par clé uniquement.
