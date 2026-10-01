@@ -8,7 +8,7 @@
 | Affichage | 1280 × 720, framebuffer 32 bits, Xorg modesetting | Mode hérité de XeLL ; pas de 1080p validé |
 | SMC | PCI `1414:580d`, réponses version et AV cohérentes | Pas d’analyse complète du firmware |
 | Stockage | Deux SATA `5802/5803`, Hitachi 120 Go, USB SanDisk | Linux persistant fonctionne |
-| DVD | PLDS DG-16D2S répond à l’identification | Mécanique/laser signalé hors service, non réparé |
+| DVD | PLDS DG-16D2S répond à l’identification ; tiroir fonctionnel selon utilisateur | Aucun disque lu ; cause inconnue, mécanique/laser non diagnostiqués |
 | USB | Deux OHCI et deux EHCI | Changement de port a rendu le clavier utilisable |
 | Manette | Récepteur `045e:0291`, pilote xpad | js0 et événements désormais reçus ; usage visible à confirmer |
 | Réseau | PCI `580a`, sis190 adapté Xenon | Watchdog TX déjà observé, cause non corrigée |

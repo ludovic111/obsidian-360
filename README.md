@@ -9,7 +9,8 @@ Laboratoire local d’analyse de la Xbox 360 de Ludovic : matériel, charge de d
 - ArchPOWER installé et démarré sur le disque interne de 120 Go ; swap de 2 Gio.
 - Bureau IceWM personnalisé en 1280 × 720, clavier visuel et moteur de saisie testés.
 - Douze fonctions PCI relevées ; GPU identifié par sa signature PCI comme famille Jasper ; six threads CPU visibles.
-- **Récupération vérifiée après le gel : SSH rétabli, racine sur disque interne, bureau relancé automatiquement. Les acquisitions SMC/ANA/GPU sont sauvegardées dans ce dépôt.**
+- La récupération du premier gel avait été vérifiée. Le dernier essai montre un écran bloqué pendant l'initialisation ; le noyau choisi n'est pas identifié et un retour à linux_hdd est demandé. Les acquisitions SMC/ANA/GPU et les fichiers fonctionnels sont conservés.
+- Le candidat obsidian4, ses modules et son initramfs sont préparés sous une entrée optionnelle ; linux_hdd reste le choix par défaut. Son démarrage n'est pas confirmé.
 - Ni 1080p, ni démarrage indépendant du système Xbox, ni rétro-ingénierie intégrale réalisés.
 
 ## Lire et continuer
@@ -23,6 +24,7 @@ Laboratoire local d’analyse de la Xbox 360 de Ludovic : matériel, charge de d
 7. [Noyau réellement installé : désassemblage, DMA, PCI et défaut IPI](docs/BINARY-AUDIT-2026-10-01.md).
 8. [Cache et protocole SMC ; premier noyau candidat compilé](docs/SMC-AUDIT-2026-10-01.md) et [diagnostic des interruptions de session](docs/SESSION-RECOVERY.md).
 9. [Pilote LED et nettoyage des ressources](docs/LED-AUDIT-2026-10-01.md), [noyau candidat, modules et image vérifiés](docs/KERNEL-CANDIDATE-2026-10-01.md).
+10. [Objectif étendu et critères de preuve](docs/OBJECTIVE.md), [préparation et essai obsidian4](docs/BOOT-PREFLIGHT-2026-10-01.md), [diagnostic initial du lecteur](docs/OPTICAL-DRIVE.md).
 
 ## Organisation
 

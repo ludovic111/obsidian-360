@@ -1,6 +1,6 @@
 # Noyau candidat Linux — validation des fichiers
 
-Dernier candidat : **6.18.11-xenon-obsidian3**, compilé sur le Mac dans Docker Linux ARM64 avec Clang/LLVM 16. Il n'a pas été installé ni démarré sur la Xbox.
+Point de contrôle E30 : **6.18.11-xenon-obsidian3**, compilé sur le Mac dans Docker Linux ARM64 avec Clang/LLVM 16. Cette version n'a pas été installée ni démarrée sur la Xbox. Elle est suivie d'obsidian4 : voir [préparation et essai du dernier candidat](BOOT-PREFLIGHT-2026-10-01.md) et [état courant](STATE.md).
 
 ## Provenance et différences
 

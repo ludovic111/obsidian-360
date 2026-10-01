@@ -2,7 +2,9 @@
 
 Priorités issues de l'analyse approfondie :
 
-- Candidat obsidian3 construit avec corrections graphique, IPI, SMC et LED ; 65 modules et image vérifiés. Nettoyer les recettes concurrentes de zImage.xenon, préparer un initramfs et un ensemble de démarrage séparé, puis valider le démarrage USB de secours et le rendu/DMA. La compilation ne prouve pas le fonctionnement sur console.
+- Priorité : retrouver linux_hdd après l'écran bloqué, puis identifier le noyau avec uname avant toute attribution de cause. La sélection obsidian4 n'était pas confirmée. Ensuite seulement comparer un démarrage candidat choisi explicitement. Candidat, 65 modules, initramfs et entrée optionnelle sont préparés ; linux_hdd reste par défaut.
+- Lecteur : identifier la cause du refus de page de capacités et des disques non lus, puis confronter les erreurs à un support connu fonctionnel et aux observations physiques. Pas de diagnostic de laser à partir de `Can read DVD: 0`.
+- Établir une référence de performances avant optimisation ; évaluer Rust pour un composant précis au regard de la cible PowerPC. Le périmètre étendu et les critères sont dans `docs/OBJECTIVE.md`.
 - Poursuivre la revue SMC : sérialisation des transactions, propagation des interruptions/délais et contrat du gestionnaire IRQ. Ne pas déclencher de commandes inconnues sur le matériel pour reproduire le défaut de cache.
 - Évaluer la correction du masque IPI dans cette branche, avec compilation puis test ciblé du chemin concerné ; ne pas attribuer au callback dormant les symptômes du chemin SMP ordinaire.
 - Pour une acquisition par XeLL, identifier le binaire réellement utilisé et vérifier/corriger le tampon de page physique HTTP ainsi que les erreurs SFCX. Ne pas assimiler une réponse HTTP complète à une sauvegarde NAND validée.

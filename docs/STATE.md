@@ -1,5 +1,17 @@
 # État courant — 1 octobre 2026
 
+## Dernier point : démarrage bloqué, noyau non identifié
+
+Objectif étendu : démarrage direct sous Linux, bureau, optimisations mesurées et évaluation de Rust, lecteur et jeux sur disque ; voir `docs/OBJECTIVE.md` pour les preuves encore requises.
+
+Le candidat **6.18.11-xenon-obsidian4** est construit sans avertissement, avec 65 modules et un initramfs vérifié. Les nouveaux fichiers sont présents sur la console et sur la clé ; une entrée optionnelle `obsidian4` est ajoutée. **Le défaut reste `linux_hdd` et les fichiers de récupération sont préservés.**
+
+La photo IMG_1372 montre un démarrage arrivé à `/init`, au hook udev et à la détection de la clé SanDisk. L'utilisateur confirme un écran bloqué, mais ne se souvient pas d'une sélection de menu. **Le noyau réellement lancé est inconnu** ; ne pas attribuer l'incident au candidat. SSH n'est pas revenu. Un redémarrage sans Ethernet avec sélection explicite de `linux_hdd` est demandé pour récupérer la référence fonctionnelle. Voir `docs/BOOT-PREFLIGHT-2026-10-01.md`.
+
+Lecteur : PLDS DG-16D2S identifié ; l'utilisateur confirme que le tiroir s'ouvre mais qu'aucun disque n'est lu. Le pilote a utilisé un repli après échec de détection des capacités ; cela n'identifie pas la panne optique. Voir `docs/OPTICAL-DRIVE.md`.
+
+Les sections suivantes conservent les étapes antérieures ; leurs états « non installé » précèdent le staging obsidian4.
+
 ## Récupération vérifiée
 
 SSH est rétabli après le redémarrage physique effectué par l’utilisateur. La racine `/dev/sda1` est montée en ext4 et IceWM ainsi que le lanceur se sont relancés automatiquement. Aucun service systemd actuellement en échec. Preuve : `evidence/2026-10-01/recovery-log.txt`.

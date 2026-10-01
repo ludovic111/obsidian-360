@@ -38,6 +38,17 @@
 | E29 | Compiler le pilote LED comme module PowerPC | Original : redéfinitions init/exit ; premier correctif : symbole SMC absent ; après export GPL : succès sans diagnostic | Échecs intermédiaires conservés ; module non chargé |
 | E30 | Construire noyau, modules et image XeLL obsidian3 | Codes 0 ; 65 modules et six sections de contenu vérifiés ; `kernel-build-obsidian3/` | Deux avertissements Makefile de recette concurrente ; initramfs, ensemble séparé et démarrage réel non validés |
 
+## Préparation du démarrage et lecteur
+
+| ID | Action | Résultat et preuve | Suite |
+|---|---|---|---|
+| E31 | Vérifier SSH, configuration de démarrage et clé montée en lecture seule | Noyau installé vivant, racine interne, zéro service en échec ; empreintes noyau/initramfs/récupération conservées | `boot-preflight/runtime.json` et `usb.json` |
+| E32 | Nettoyer la recette de l'image et construire obsidian4 | Trois cibles terminées code 0 sans avertissement ; 65 modules et six sections vérifiés | `kernel-build-obsidian4/` |
+| E33 | Générer un initramfs depuis les modules candidats dans un répertoire distinct | depmod/mkinitcpio/lsinitcpio codes 0 ; 43 modules extraits identiques et exécutables PPC vérifiés | Copie Mac à empreinte identique ; pas encore de démarrage |
+| E34 | Copier les nouveaux modules et une entrée USB optionnelle | 65 modules présents, kernel/initrd vérifiés, menu sauvegardé ; linux_hdd par défaut et fichiers antérieurs intacts | `boot-preflight/staging-result.json` ; procédure archivée, ne pas rejouer |
+| E35 | Identifier le lecteur via sysfs/proc/journal et analyser le repli du pilote | DG-16D2S ; page de capacités non exploitable ; utilisateur : tiroir s'ouvre, aucun disque lu | Cause non établie ; aucun disque lu ni commande mécanique envoyée |
+| E36 | Premier essai manuel demandé, photo et retour utilisateur | Écran bloqué après /init/udev/détection USB ; aucune sélection obsidian4 confirmée, noyau inconnu, SSH absent | Ne pas attribuer au candidat ; récupération linux_hdd demandée ; `first-boot-observation.json` |
+
 ## Analyse de l’incident E10
 
 La documentation décrit une fenêtre flash en lecture seule, sans ECC. Cela ne garantissait pas que la méthode de lecture large employée fonctionnerait sur cette combinaison matériel/noyau. Le programme a ouvert `resource1` avec O_RDONLY, utilisé PROT_READ, et ne contenait aucune commande d’effacement ou de programmation. Le gel est corrélé à cette lecture ; son mécanisme exact n’a pas été établi.
