@@ -1,0 +1,144 @@
+#!/usr/bin/env bash
+# Authorized target: Hitachi 120 GB, serial REDACTED_DISK_SERIAL.
+# Run once from the known working ArchPOWER USB live environment.
+set -Eeuo pipefail
+trap 'echo "FAILED at line $LINENO; internal installation incomplete" >&2' ERR
+usb=/run/archiso/bootmnt
+disk=/dev/sda
+target=/mnt/xbox-linux
+kernel=6.18.11-xenon
+test "${XBOX_ERASE_AUTHORIZED:-}" = REDACTED_DISK_SERIAL
+test "$(blockdev --getsize64 "$disk")" = 120034123776
+test "$(lsblk -dn -o SERIAL "$disk" | xargs)" = REDACTED_DISK_SERIAL
+test "$(findmnt -n -o SOURCE --target "$usb")" = /dev/sdb1
+test "$(blockdev --getsize64 /dev/sdb)" = 123060879360
+test "$(findmnt -n -o FSTYPE /)" = overlay
+test -f "$usb/Xbox360-system-backup/SHA256SUMS"
+(cd "$usb/Xbox360-system-backup" && sha256sum -c SHA256SUMS)
+test -f "$usb/Content/0000000000000000/5841122D/000D0000/DD774F20C36263F22AFD0A8B6FD742AC9E400B0A58"
+test -f "$usb/Content/0000000000000000/5841122D/00000001/DaTArrest_Xbox360BadUpdate"
+test ! -d "$usb/Content/E0002FF78DFBDE7B"
+test "$(lsblk -nr -o NAME "$disk" | wc -l)" -eq 1
+test -z "$(lsblk -nr -o MOUNTPOINTS "$disk" | tr -d '[:space:]')"
+cmp /usr/lib/modules/$kernel/vmlinuz "$usb/arch/boot/ppc/vmlinuz-linux-xenon"
+test -s /root/.ssh/authorized_keys
+test -f /etc/ssh/ssh_host_ed25519_key
+mkdir -p "$usb/Recovery" "$target"
+cp "$usb/kboot.conf" "$usb/Recovery/kboot-live-before-install.conf"
+
+echo 'PHASE 1: partition and format the authorized Hitachi HDD'
+sectors=$(blockdev --getsz "$disk")
+end=$((sectors / 2048 * 2048))
+swap_start=$((end - 4194304))
+root_size=$((swap_start - 2048))
+sfdisk "$disk" <<EOF
+label: dos
+unit: sectors
+
+start=2048, size=$root_size, type=83
+start=$swap_start, size=4194304, type=82
+EOF
+udevadm settle
+test -b /dev/sda1 && test -b /dev/sda2
+mkfs.ext4 -F -L XBOXROOT /dev/sda1
+mkswap -L XBOXSWAP /dev/sda2
+swapon /dev/sda2
+mount /dev/sda1 "$target"
+
+echo 'PHASE 2: copy the verified working Linux system'
+# This Xenon kernel has CONFIG_EXT4_FS_SECURITY disabled. Preserve all supported
+# metadata, but do not attempt unsupported file capabilities or add setuid bits.
+rsync -aHAX --filter='-x security.capability' --numeric-ids /run/archiso/airootfs/ "$target/"
+mkdir -p "$target/boot" "$target/root/.ssh" "$target/etc/ssh" "$target/etc/systemd/system/multi-user.target.wants"
+install -m 600 /root/.ssh/authorized_keys "$target/root/.ssh/authorized_keys"
+chmod 700 "$target/root/.ssh"
+cp -a /etc/ssh/ssh_host_* "$target/etc/ssh/"
+cp /etc/machine-id "$target/etc/machine-id"
+cp /usr/lib/modules/$kernel/vmlinuz "$target/boot/vmlinuz-linux-xenon"
+root_uuid=$(blkid -s UUID -o value /dev/sda1)
+swap_uuid=$(blkid -s UUID -o value /dev/sda2)
+test -n "$root_uuid" && test -n "$swap_uuid"
+printf 'UUID=%s / ext4 defaults,noatime 0 1\nUUID=%s none swap defaults 0 0\n' "$root_uuid" "$swap_uuid" > "$target/etc/fstab"
+printf 'xbox-linux\n' > "$target/etc/hostname"
+ln -sfn /usr/share/zoneinfo/Europe/Zurich "$target/etc/localtime"
+printf 'LANG=C.UTF-8\n' > "$target/etc/locale.conf"
+printf 'KEYMAP=us\n' > "$target/etc/vconsole.conf"
+printf '[[ -f ~/.bashrc ]] && . ~/.bashrc\n' > "$target/root/.bash_profile"
+printf 'ArchPOWER on the internal Xbox HDD. Boot files remain on the SanDisk USB.\n' > "$target/etc/motd"
+printf 'Installed on internal Hitachi serial REDACTED_DISK_SERIAL\nRoot UUID=%s\n' "$root_uuid" > "$target/root/INSTALLATION-XBOX.txt"
+printf 'Kernel 6.18.11-xenon lacks EXT4_FS_SECURITY and EXT4_FS_POSIX_ACL. newuidmap/newgidmap file capabilities cannot be stored on ext4; unprivileged user-namespace ID mapping is unavailable. No setuid permissions were added.\n' > "$target/root/XENON-LIMITATIONS.txt"
+
+echo 'PHASE 3: remove live-only startup services and configure SSH/network'
+for service in choose-mirror livecd-talk pacman-init livecd-alsa-unmuter cloud-config cloud-final cloud-init-local cloud-init-main cloud-init-network iwd ModemManager hv_fcopy_daemon hv_kvp_daemon hv_vss_daemon vboxservice vmtoolsd vmware-vmblock-fuse; do
+    find "$target/etc/systemd/system" -type l -name "$service.service" -delete
+done
+rm -f "$target/etc/systemd/system/dbus-org.freedesktop.ModemManager1.service"
+rm -f "$target/etc/systemd/system/sysinit.target.wants/systemd-time-wait-sync.service"
+rm -f "$target/etc/systemd/system/network-online.target.wants/systemd-networkd-wait-online.service"
+mkdir -p "$target/etc/cloud"
+touch "$target/etc/cloud/cloud-init.disabled"
+cat > "$target/etc/ssh/sshd_config" <<'EOF'
+PermitRootLogin prohibit-password
+PubkeyAuthentication yes
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PermitEmptyPasswords no
+AuthorizedKeysFile .ssh/authorized_keys
+UsePAM yes
+PrintMotd no
+Subsystem sftp /usr/lib/ssh/sftp-server
+EOF
+for service in sshd systemd-networkd systemd-resolved systemd-timesyncd; do
+    ln -sfn "/usr/lib/systemd/system/$service.service" "$target/etc/systemd/system/multi-user.target.wants/$service.service"
+done
+ln -sfn /run/systemd/resolve/stub-resolv.conf "$target/etc/resolv.conf"
+cat > "$target/etc/systemd/system/xbox-network-settings.service" <<'EOF'
+[Unit]
+Description=Apply tested Xbox Ethernet setting
+After=sys-subsystem-net-devices-enp1s7.device
+Wants=sys-subsystem-net-devices-enp1s7.device
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/ethtool -K enp1s7 gro off
+RemainAfterExit=yes
+[Install]
+WantedBy=multi-user.target
+EOF
+ln -sfn ../xbox-network-settings.service "$target/etc/systemd/system/multi-user.target.wants/xbox-network-settings.service"
+
+echo 'PHASE 4: build an initramfs for the installed root filesystem'
+rm -f "$target/etc/mkinitcpio.conf.d/archiso.conf"
+cat > "$target/etc/mkinitcpio.conf" <<'EOF'
+MODULES=()
+BINARIES=()
+FILES=()
+HOOKS=(base udev modconf block filesystems keyboard fsck)
+COMPRESSION="zstd"
+COMPRESSION_OPTIONS=(-1 -T1)
+EOF
+cat > "$target/etc/mkinitcpio.d/linux-xenon.preset" <<'EOF'
+ALL_config="/etc/mkinitcpio.conf"
+ALL_kver="/boot/vmlinuz-linux-xenon"
+PRESETS=('default')
+default_image="/boot/initramfs-linux-xenon.img"
+EOF
+arch-chroot "$target" passwd -l root
+arch-chroot "$target" mkinitcpio -k "$kernel" -g /boot/initramfs-linux-xenon.img
+arch-chroot "$target" /usr/bin/sshd -t
+test -s "$target/boot/initramfs-linux-xenon.img"
+
+echo 'PHASE 5: stage USB boot files; retain the live recovery entry'
+mkdir -p "$usb/linux-hdd"
+cp "$target/boot/vmlinuz-linux-xenon" "$usb/linux-hdd/vmlinuz-linux-xenon"
+cp "$target/boot/initramfs-linux-xenon.img" "$usb/linux-hdd/initramfs-linux-xenon.img"
+cmp "$target/boot/vmlinuz-linux-xenon" "$usb/linux-hdd/vmlinuz-linux-xenon"
+cmp "$target/boot/initramfs-linux-xenon.img" "$usb/linux-hdd/initramfs-linux-xenon.img"
+{
+    printf 'timeout=10\ndefault=linux_hdd\n'
+    printf 'linux_hdd="uda0:/linux-hdd/vmlinuz-linux-xenon root=UUID=%s initrd=uda0:/linux-hdd/initramfs-linux-xenon.img coherent_pool=16M rw"\n' "$root_uuid"
+    sed '/^timeout=/d; /^default=/d' "$usb/Recovery/kboot-live-before-install.conf"
+} > "$usb/Recovery/kboot-hdd-ready.conf"
+cp "$usb/Recovery/kboot-hdd-ready.conf" "$target/boot/kboot.conf"
+sync
+printf 'READY_FOR_BOOT_ACTIVATION\nRoot UUID: %s\n' "$root_uuid"
+echo 'The live kboot.conf is still active; activate the prepared HDD configuration after validation.'
