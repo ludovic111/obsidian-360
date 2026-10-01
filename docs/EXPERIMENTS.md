@@ -48,6 +48,8 @@
 | E34 | Copier les nouveaux modules et une entrée USB optionnelle | 65 modules présents, kernel/initrd vérifiés, menu sauvegardé ; linux_hdd par défaut et fichiers antérieurs intacts | `boot-preflight/staging-result.json` ; procédure archivée, ne pas rejouer |
 | E35 | Identifier le lecteur via sysfs/proc/journal et analyser le repli du pilote | DG-16D2S ; page de capacités non exploitable ; utilisateur : tiroir s'ouvre, aucun disque lu | Cause non établie ; aucun disque lu ni commande mécanique envoyée |
 | E36 | Premier essai manuel demandé, photo et retour utilisateur | Écran bloqué après /init/udev/détection USB ; aucune sélection obsidian4 confirmée, noyau inconnu, SSH absent | Ne pas attribuer au candidat ; récupération linux_hdd demandée ; `first-boot-observation.json` |
+| E37 | Exécuter hors console les fonctions vidéo f1/f2 réelles avec MMIO simulée | 26 entrées, 1 846 écritures tracées, ASan/UBSan sans erreur ; 12/13 registres communs HDMI 720p concordent avec la capture ancienne | Aucune programmation matérielle ni horloge validée ; `video-mode-trace/modes.json` |
+| E38 | Utilisateur sélectionne obsidian dans XeLL ; vérification SSH du système démarré | obsidian4 confirmé, racine interne, bureau actif, zéro service en échec, udev settle code 0 ; framebuffer corrigé 0x398000 | `obsidian4-first-boot/` ; un démarrage prouvé, stabilité prolongée et cause de E36 inconnues |
 
 ## Analyse de l’incident E10
 

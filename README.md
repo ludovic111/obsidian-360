@@ -9,8 +9,8 @@ Laboratoire local d’analyse de la Xbox 360 de Ludovic : matériel, charge de d
 - ArchPOWER installé et démarré sur le disque interne de 120 Go ; swap de 2 Gio.
 - Bureau IceWM personnalisé en 1280 × 720, clavier visuel et moteur de saisie testés.
 - Douze fonctions PCI relevées ; GPU identifié par sa signature PCI comme famille Jasper ; six threads CPU visibles.
-- La récupération du premier gel avait été vérifiée. Le dernier essai montre un écran bloqué pendant l'initialisation ; le noyau choisi n'est pas identifié et un retour à linux_hdd est demandé. Les acquisitions SMC/ANA/GPU et les fichiers fonctionnels sont conservés.
-- Le candidat obsidian4, ses modules et son initramfs sont préparés sous une entrée optionnelle ; linux_hdd reste le choix par défaut. Son démarrage n'est pas confirmé.
+- obsidian4 a démarré après sélection manuelle dans XeLL : noyau confirmé en SSH, bureau actif, racine interne, zéro service en échec et allocation framebuffer corrigée vérifiée. La cause du blocage précédent reste inconnue.
+- L'entrée obsidian4 reste optionnelle ; linux_hdd demeure le choix par défaut. Stabilité prolongée et redémarrages répétés encore à valider.
 - Ni 1080p, ni démarrage indépendant du système Xbox, ni rétro-ingénierie intégrale réalisés.
 
 ## Lire et continuer
@@ -25,6 +25,7 @@ Laboratoire local d’analyse de la Xbox 360 de Ludovic : matériel, charge de d
 8. [Cache et protocole SMC ; premier noyau candidat compilé](docs/SMC-AUDIT-2026-10-01.md) et [diagnostic des interruptions de session](docs/SESSION-RECOVERY.md).
 9. [Pilote LED et nettoyage des ressources](docs/LED-AUDIT-2026-10-01.md), [noyau candidat, modules et image vérifiés](docs/KERNEL-CANDIDATE-2026-10-01.md).
 10. [Objectif étendu et critères de preuve](docs/OBJECTIVE.md), [préparation et essai obsidian4](docs/BOOT-PREFLIGHT-2026-10-01.md), [diagnostic initial du lecteur](docs/OPTICAL-DRIVE.md).
+11. [Trace hors console des fonctions vidéo et limites du passage 1080p](docs/VIDEO-MODE-TRACE-2026-10-01.md).
 
 ## Organisation
 

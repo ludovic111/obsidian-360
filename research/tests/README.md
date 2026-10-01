@@ -46,3 +46,7 @@ python3 research/tests/check-led-lifecycle.py --source CHEMIN_LED_CORRIGE --outp
 Le fichier C réel est compilé avec ASan/UBSan et des modèles de ressources/FIFO. Les 21 cas comprennent neuf échecs d'allocation, huit échecs d'enregistrement LED, les erreurs de création du pilote/périphérique, le report de probe et le succès avec retrait. Les en-têtes et le main du banc sont adjacents au script. Aucune vérification de concurrence physique ; voir `docs/LED-AUDIT-2026-10-01.md`.
 
 `tools/check-kernel-artifacts.py` vérifie le format et la version des modules de `modules.order`, ainsi que six sections entre le noyau et son image. Le rapport est publié seulement si ces contrôles passent ; il ne prouve pas un démarrage.
+
+## Traces vidéo
+
+`tools/trace-video-modes.py` exécute les fonctions C f1/f2 réelles de libxenon sur le Mac sous ASan/UBSan et remplace les accès GPU par une trace bornée. Les tables standard/Corona sont parcourues, puis les valeurs finales sont comparées à une capture ancienne. L'attente LUT est simulée ; aucune validation d'horloge, d'ANA ou de sortie vidéo physique. Commande et limites dans `docs/VIDEO-MODE-TRACE-2026-10-01.md`.

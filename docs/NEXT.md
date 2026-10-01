@@ -2,7 +2,7 @@
 
 Priorités issues de l'analyse approfondie :
 
-- Priorité : retrouver linux_hdd après l'écran bloqué, puis identifier le noyau avec uname avant toute attribution de cause. La sélection obsidian4 n'était pas confirmée. Ensuite seulement comparer un démarrage candidat choisi explicitement. Candidat, 65 modules, initramfs et entrée optionnelle sont préparés ; linux_hdd reste par défaut.
+- obsidian4 est désormais confirmé en SSH avec bureau actif et framebuffer corrigé. Priorité : stabilité sous charge mesurée et validation des commandes physiques ; répéter ensuite les démarrages avec sélection explicite. Conserver linux_hdd et la récupération ; la cause de l'écran bloqué précédent reste inconnue.
 - Lecteur : identifier la cause du refus de page de capacités et des disques non lus, puis confronter les erreurs à un support connu fonctionnel et aux observations physiques. Pas de diagnostic de laser à partir de `Can read DVD: 0`.
 - Établir une référence de performances avant optimisation ; évaluer Rust pour un composant précis au regard de la cible PowerPC. Le périmètre étendu et les critères sont dans `docs/OBJECTIVE.md`.
 - Poursuivre la revue SMC : sérialisation des transactions, propagation des interruptions/délais et contrat du gestionnaire IRQ. Ne pas déclencher de commandes inconnues sur le matériel pour reproduire le défaut de cache.

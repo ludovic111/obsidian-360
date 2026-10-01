@@ -44,3 +44,11 @@ La photo IMG_1372 montre `Run /init as init process`, le démarrage de systemd-u
 Le menu ayant conservé linux_hdd par défaut, il est impossible de savoir à partir de cette photo si le candidat a été lancé. L'analyse locale de l'initramfs candidat montre que le hook udev déclenche les événements puis appelle `udevadm settle`, avant la résolution et le montage de la racine. Cela situe une piste de diagnostic ; la photo ne distingue pas une attente udev d'un blocage noyau et ne démontre pas une erreur de disque.
 
 Récupération demandée : extinction physique, redémarrage sans Ethernet, sélection explicite de linux_hdd si le menu apparaît, Ethernet après le bureau. Aucune nouvelle modification à distance n'est envoyée pendant cette récupération. Preuve : `boot-preflight/first-boot-observation.json`, photo conservée hors Git.
+
+## Démarrage candidat confirmé — E38
+
+L'utilisateur a finalement repéré le menu XeLL et choisi obsidian. Il confirme l'arrivée au bureau. SSH identifie ensuite `6.18.11-xenon-obsidian4` ; la collecte datée de 21:45:47 UTC indique 132 secondes d'uptime, racine interne ext4 et zéro service en échec. Xorg et IceWM sont actifs, XRandR indique 1280 × 720, udev est actif et sa file se vide dans le délai de cinq secondes. Aucun watchdog réseau ni panique dans les avertissements collectés de ce démarrage.
+
+Le journal `Using 1280x720 (398000) fb` confirme que le chemin d'allocation corrigé est exécuté : 1280 × 736 × 4 = 3 768 320 octets, contre 3 686 400 historiquement. Cela valide l'activation du changement sur la machine ; cela ne démontre pas à lui seul l'absence de toute corruption graphique. Les avertissements précoces ioremap/rodata subsistent ; pas de prétention à un journal sans avertissement.
+
+Preuves : `evidence/2026-10-01/obsidian4-first-boot/{runtime,validation}.json`. La collecte ne lit aucun BAR ni NAND. Aucun redémarrage ni modification de configuration envoyé. Le défaut du menu n'a pas été changé. La cause du gel précédent reste inconnue ; le retour de linux_hdd n'a pas été testé dans cette séquence. L'usage visible de la manette, les redémarrages répétés et la stabilité sous charge restent à établir.

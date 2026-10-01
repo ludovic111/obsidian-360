@@ -1,12 +1,16 @@
 # État courant — 1 octobre 2026
 
-## Dernier point : démarrage bloqué, noyau non identifié
+## Dernier point : obsidian4 démarré et vérifié en SSH
 
 Objectif étendu : démarrage direct sous Linux, bureau, optimisations mesurées et évaluation de Rust, lecteur et jeux sur disque ; voir `docs/OBJECTIVE.md` pour les preuves encore requises.
 
 Le candidat **6.18.11-xenon-obsidian4** est construit sans avertissement, avec 65 modules et un initramfs vérifié. Les nouveaux fichiers sont présents sur la console et sur la clé ; une entrée optionnelle `obsidian4` est ajoutée. **Le défaut reste `linux_hdd` et les fichiers de récupération sont préservés.**
 
-La photo IMG_1372 montre un démarrage arrivé à `/init`, au hook udev et à la détection de la clé SanDisk. L'utilisateur confirme un écran bloqué, mais ne se souvient pas d'une sélection de menu. **Le noyau réellement lancé est inconnu** ; ne pas attribuer l'incident au candidat. SSH n'est pas revenu. Un redémarrage sans Ethernet avec sélection explicite de `linux_hdd` est demandé pour récupérer la référence fonctionnelle. Voir `docs/BOOT-PREFLIGHT-2026-10-01.md`.
+Après avoir trouvé le menu XeLL, l'utilisateur indique avoir choisi obsidian et retrouvé le bureau. **Mesure directe du 1 octobre à 21:45:47 UTC : `6.18.11-xenon-obsidian4`, racine `/dev/sda1` ext4, Xorg/IceWM actifs, zéro service en échec.** udev actif et `udevadm settle --timeout=5` réussit. Le journal confirme l'allocation graphique corrigée `0x398000` (3 768 320 octets) en 1280 × 720. Ethernet à 100 Mbit/s duplex intégral, zéro erreur RX/TX au relevé (14 paquets RX abandonnés). Preuves : `obsidian4-first-boot/runtime.json` et `validation.json`.
+
+La photo IMG_1372 précédente reste un incident à noyau non identifié ; le démarrage réussi ne démontre ni sa cause ni sa résolution définitive. Le 1080p, les essais prolongés, les commandes physiques à la manette et les redémarrages répétés restent à vérifier. Aucun changement du choix par défaut n'a été fait pendant cette validation. Voir `docs/BOOT-PREFLIGHT-2026-10-01.md`.
+
+Analyse vidéo hors console : les fonctions f1/f2 réelles de libxenon ont été exécutées avec écritures simulées sur les 26 entrées des deux familles de tables, sous ASan/UBSan. Douze des treize registres communs du mode HDMI 720p concordent avec l'ancien relevé ; la différence concerne l'adresse du framebuffer. Cette corrélation ne fournit pas les horloges 1080p. Voir `docs/VIDEO-MODE-TRACE-2026-10-01.md`.
 
 Lecteur : PLDS DG-16D2S identifié ; l'utilisateur confirme que le tiroir s'ouvre mais qu'aucun disque n'est lu. Le pilote a utilisé un repli après échec de détection des capacités ; cela n'identifie pas la panne optique. Voir `docs/OPTICAL-DRIVE.md`.
 

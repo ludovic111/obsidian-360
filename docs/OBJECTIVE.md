@@ -9,7 +9,7 @@ L'utilisateur étend ensuite explicitement cette autorisation à une réécritur
 | Demande | Preuve nécessaire | État au dernier point documenté |
 |---|---|---|
 | Démarrage direct Linux | Mise sous tension à froid atteignant Linux et son bureau sans lancement manuel d'un jeu, puis plusieurs redémarrages concordants | Non établi ; chaîne actuelle dépend du système Xbox, de Rock Band Blitz et de XeLL |
-| Bureau utilisable | Affichage, saisie, pointeur/manette et démarrage de session vérifiés réellement | Bureau 720p déjà observé ; candidat obsidian4 en cours d'essai utilisateur |
+| Bureau utilisable | Affichage, saisie, pointeur/manette et démarrage de session vérifiés réellement | Bureau obsidian4 confirmé par utilisateur et SSH ; commandes physiques à revalider, 1080p absent |
 | Optimisation du matériel | Mesures comparables avant/après, charge contrôlée, stabilité et ressources suivies | Pas de campagne de performances complète ; correctifs de fiabilité préparés |
 | Évaluer Rust | Choisir un composant mesurable et compatible PowerPC, comparer correction, mémoire et performances | Aucun portage Rust commencé ; une réécriture n'est pas en soi une optimisation |
 | Réparer le lecteur | Identifier la panne, réaliser la réparation appropriée, lire plusieurs supports connus fonctionnels | DG-16D2S identifié ; utilisateur : tiroir fonctionnel, aucun disque lu ; mécanique/optique non diagnostiquée |
