@@ -2,7 +2,7 @@
 
 **Comprendre la machine. Documenter chaque preuve. Construire son avenir sous Linux.**
 
-Laboratoire local d’analyse de la Xbox 360 de Ludovic : matériel, charge de démarrage, pilotes Linux, interface à la manette et expériences reproductibles.
+Laboratoire d’analyse d'une Xbox 360 : matériel, chaîne de démarrage, pilotes Linux, interface à la manette et expériences reproductibles.
 
 ## État vérifié
 
@@ -18,7 +18,7 @@ Laboratoire local d’analyse de la Xbox 360 de Ludovic : matériel, charge de d
 1. [État courant](docs/STATE.md) et [prochaines étapes](docs/NEXT.md).
 2. [Architecture et faits établis](docs/ARCHITECTURE.md).
 3. [Incidents et expériences](docs/EXPERIMENTS.md).
-4. [Dossier technique détaillé](docs/rapport-initial.txt) et [chronologie historique](docs/historique-installation.txt).
+4. [Construction et installation](docs/BUILD-AND-RECOVERY.md), [journal](docs/JOURNAL.md) et [actions physiques différées](docs/BLOCKED.md).
 5. [Mesures structurées](evidence/2026-10-01/mesures.json), [contrôleurs PCI](evidence/2026-10-01/peripheriques-pci.csv) et [sources](docs/SOURCES.md).
 6. [Analyse approfondie : deux défauts mémoire reproduits, vidéo, audio et NAND](docs/DEEP-AUDIT-2026-10-01.md), [correctifs candidats](research/patches/README.md) et [tests hors console](research/tests/README.md).
 7. [Noyau réellement installé : désassemblage, DMA, PCI et défaut IPI](docs/BINARY-AUDIT-2026-10-01.md).
@@ -26,6 +26,7 @@ Laboratoire local d’analyse de la Xbox 360 de Ludovic : matériel, charge de d
 9. [Pilote LED et nettoyage des ressources](docs/LED-AUDIT-2026-10-01.md), [noyau candidat, modules et image vérifiés](docs/KERNEL-CANDIDATE-2026-10-01.md).
 10. [Objectif étendu et critères de preuve](docs/OBJECTIVE.md), [préparation et essai obsidian4](docs/BOOT-PREFLIGHT-2026-10-01.md), [diagnostic initial du lecteur](docs/OPTICAL-DRIVE.md).
 11. [Trace hors console des fonctions vidéo et limites du passage 1080p](docs/VIDEO-MODE-TRACE-2026-10-01.md).
+12. [Première référence de performances](docs/PERFORMANCE-BASELINE-2026-10-01.md) et [carte des inconnues](docs/RESEARCH-MAP.md).
 
 ## Organisation
 
@@ -47,4 +48,4 @@ Le premier appel nécessite la configuration locale créée sur ce Mac et la cl�
 
 Chaque expérience doit préciser : objectif, état initial, action, preuve, résultat et récupération. Les instructions de travail sont dans [AGENTS.md](AGENTS.md).
 
-Dépôt Git local ; aucun dépôt distant configuré et aucune publication effectuée.
+L'export public exclut les données privées et les binaires non redistribuables ; certaines preuves restent locales. Lire [la procédure de publication](docs/PUBLICATION.md) et [les licences](THIRD_PARTY.md). La recherche est incomplète et aucun installateur universel n'est fourni.

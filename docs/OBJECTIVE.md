@@ -1,5 +1,15 @@
 # Objectif demandé et critères de preuve
 
+## Objectif courant
+
+La dernière version fournie par l'utilisateur remplace les précédentes : [OBJECTIVE-USER-2026-10-01-v2.md](OBJECTIVE-USER-2026-10-01-v2.md), SHA-256 `3c5431252bc8c736c755523e760e855c451043434ca6172a29959f13ca45c9d5`. La première version détaillée est conservée dans [OBJECTIVE-USER-2026-10-01.md](OBJECTIVE-USER-2026-10-01.md). L'objectif exige une recherche aussi approfondie que réalistement accessible, des outils reproductibles, une modernisation justifiée et la préservation de la récupération. Il ajoute l'étude du cycle complet des jeux légitimes, le travail autonome pendant l'absence de l'utilisateur, un journal chronologique et la publication publique sur GitHub après contrôle des données et de l'historique.
+
+Les quatorze axes du texte source font foi, notamment les formats exécutables, assets, API et instructions PowerPC des jeux, les remplacements logiciels et les mesures avant/après. Aucun binaire/asset propriétaire ni secret ne sera publié. L'autorisation explicite de publication remplace la restriction antérieure sur les publications implicites ; elle ne permet pas de pousser l'historique local sans examen. Les tâches exigeant une action physique vont dans [BLOCKED.md](BLOCKED.md) ; poursuivre entre-temps les axes indépendants.
+
+L'organisation actuelle est conservée pour ne pas casser les références aux preuves. Ajouter un répertoire lorsqu'il contient un travail réel, plutôt que créer toutes les catégories proposées à vide. L'état de chaque axe reste fondé sur les preuves ci-dessous ; les inconnues architecturales sont détaillées dans [RESEARCH-MAP.md](RESEARCH-MAP.md).
+
+## Historique de la demande
+
 Objectif étendu par l'utilisateur le 1 octobre 2026 : comprendre et documenter la console, obtenir un démarrage direct sous Linux avec bureau, optimiser l'utilisation du matériel en évaluant notamment Rust, diagnostiquer et si possible réparer la lecture des disques, puis permettre l'utilisation de jeux Xbox 360 sur disque. L'utilisateur autorise des modifications logicielles importantes ; les sauvegardes, le chemin fonctionnel et les limites matérielles doivent rester explicites.
 
 L'utilisateur étend ensuite explicitement cette autorisation à une réécriture éventuelle de tout le firmware, dans le langage choisi. Cette latitude permet d'étudier des remplacements complets ; leur correction, leurs performances, leur compatibilité et leur récupération restent à démontrer. Le choix d'un langage ou le volume réécrit ne constitue pas une preuve de résultat.

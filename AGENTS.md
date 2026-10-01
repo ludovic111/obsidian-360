@@ -12,4 +12,5 @@
 - L’accès utilise `en0` sur ce Mac ; les routes Tailscale non liées à l’interface ont donné des résultats trompeurs auparavant.
 - Préférer les lectures ciblées et les pilotes existants. Un accès MMIO en lecture seule peut quand même bloquer le matériel.
 - Après chaque expérience, mettre à jour STATE et EXPERIMENTS avec les preuves et limitations. Ne jamais annoncer « rétro-ingénierie complète » pour un inventaire ou une synthèse documentaire.
-- Aucun push ni publication implicite : ce dépôt est actuellement local.
+- Publication GitHub explicitement autorisée par le nouvel objectif. Avant chaque commit public/push, auditer contenu et historique ; ne jamais pousser directement la branche de recherche locale contenant des traces privées. Publier uniquement depuis l'export public contrôlé décrit dans docs/PUBLICATION.md.
+- Pendant l'absence nocturne de l'utilisateur : pas de redémarrage volontaire ni opération irréversible ; noter les actions physiques dans docs/BLOCKED.md et poursuivre un axe indépendant.
