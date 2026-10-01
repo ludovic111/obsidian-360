@@ -2,7 +2,8 @@
 
 Priorités issues de l'analyse approfondie :
 
-- Intégrer et compiler le correctif d'allocation graphique dans un noyau candidat distinct, après identification du build installé ; valider le démarrage USB de secours puis le rendu/DMA. Les tests Mac ont confirmé le défaut de source et la correction des bornes, pas le fonctionnement du noyau complet.
+- Build installé désormais identifié et désassemblé : intégrer et compiler le correctif d'allocation graphique dans cette branche comme noyau candidat distinct ; valider le démarrage USB de secours puis le rendu/DMA. Les tests Mac et le binaire confirment le défaut de calcul, pas le fonctionnement d'un noyau corrigé complet.
+- Évaluer la correction du masque IPI dans cette branche, avec compilation puis test ciblé du chemin concerné ; ne pas attribuer au callback dormant les symptômes du chemin SMP ordinaire.
 - Pour une acquisition par XeLL, identifier le binaire réellement utilisé et vérifier/corriger le tampon de page physique HTTP ainsi que les erreurs SFCX. Ne pas assimiler une réponse HTTP complète à une sauvegarde NAND validée.
 - Résoudre l'observation de trousseau pacman manquant avant toute nouvelle installation de paquets ; conserver les signatures activées.
 - Porter le pilote audio vers les API 6.18 et revoir DMA, SMC et interruptions avant son activation.

@@ -37,7 +37,15 @@ Le pilote audio historique exige un portage des API et une revue DMA/SMC avant a
 
 Une interrogation du paquet installé a également signalé un trousseau public pacman absent ; `/etc/pacman.d/gnupg/pubring.gpg` n'existe pas au contrôle. Diagnostic incomplet, aucune modification de la politique de signatures. À résoudre avant une prochaine installation de paquets. Preuve : `deep-audit/package-access.txt`.
 
-## Accès et sauvegardes
+## Identification binaire et outillage rétabli
+
+La recette exacte du paquet pointe vers `techflashYT/linux-custom@a293dd19311668900eb1eeb2f6cb01dcac54f330`. Le vmlinux récupéré et l'image de démarrage ont six sections identiques, dont tout `.text` ; leurs empreintes sont vérifiées. Ne plus attribuer sans comparaison le comportement du patch Free60 à ce binaire. Le mode graphique de la branche installée est **constant 1280 × 720**.
+
+Neuf fonctions du noyau ont été désassemblées avec succès dans l'environnement Docker multiarchitecture. Les multiplications de la taille graphique sont confirmées dans le binaire. Un troisième défaut concerne `xenon_ipi_send_mask`, qui perd le masque des destinataires ; le chemin SMP ordinaire utilise une autre fonction correcte. Test du callback réel hors console : 256 combinaisons avant et après correction candidate. Aucun correctif déployé ; aucune cause du gel E10 démontrée. Lire `docs/BINARY-AUDIT-2026-10-01.md`.
+
+`tools/audit-session.py` vérifie les prérequis et conserve les résultats de chaque étape, sans refaire les acquisitions. L'environnement est opérationnel ; une compilation complète PowerPC reste à réaliser.
+
+## Accès et sauvegardes conservés
 
 Configuration d’accès dans `.local/ssh_config`, ignorée. La clé privée reste à son emplacement original hors dépôt. Accès root par clé uniquement.
 

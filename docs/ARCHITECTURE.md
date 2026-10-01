@@ -23,6 +23,6 @@ BadUpdate intervient après le démarrage authentifié. Un effacement du systèm
 
 ## Affichage
 
-La largeur et la hauteur lues dans les registres GPU (`0x500`, `0x2d0`) recoupent 1280 × 720. Le pilote reconstruit un mode fixe et recopie les pixels dans le format de mémoire attendu. Modifier seulement les dimensions du bureau ne programme pas les horloges et timings HDMI/ANA/HANA. Les relevés historiques 1080p disponibles ne sont pas une recette validée pour cette console.
+La largeur et la hauteur lues dans les registres GPU (`0x500`, `0x2d0`) recoupent 1280 × 720. La branche du pilote réellement installée impose également un mode constant 1280 × 720 ; le patch Free60 étudié initialement lit ces dimensions dans les registres. Voir [l'identification binaire](BINARY-AUDIT-2026-10-01.md). Le pilote recopie les pixels dans le format de mémoire attendu. Modifier seulement les dimensions du bureau ne programme pas les horloges et timings HDMI/ANA/HANA. Les relevés historiques 1080p disponibles ne sont pas une recette validée pour cette console.
 
 Les preuves détaillées, sources et inconnues figurent dans [le rapport](rapport-initial.txt).

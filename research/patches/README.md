@@ -1,9 +1,10 @@
 # Correctifs candidats — non déployés
 
-Ces deux diffs sont des résultats d'analyse. Ils ne constituent ni un noyau bootable ni un XeLL reconstruit. Aucun n'a été appliqué au système de la Xbox.
+Ces trois diffs sont des résultats d'analyse. Ils ne constituent ni un noyau bootable ni un XeLL reconstruit. Aucun n'a été appliqué au système de la Xbox.
 
 - `0001-xenos-pad-tiled-framebuffer.patch` : taille d'allocation arrondie aux macro-tuiles 32 × 32. Base : `xenos.c` ajouté par le patch Linux 6.18-xenon0.30, commit `498bbe1910f707ceba0535276d75a3e6ad0b7df4` du dépôt Free60Project/linux-kernel-xbox360.
 - `0002-xell-allocate-physical-page.patch` : tampon dimensionné pour les 528 octets de la page NAND brute. Base : Free60Project/xell-reloaded, commit `a36ed6b7dae940e47e472a20fd14b0616ddc8cef`.
+- `0003-xenon-preserve-ipi-target-mask.patch` : corrige l'ordre masque/décalage dans le callback IPI. Base : techflashYT/linux-custom, commit `a293dd19311668900eb1eeb2f6cb01dcac54f330`. 256 combinaisons testées par variante avec MMIO simulée ; le chemin SMP ordinaire appelle une autre fonction.
 
 Les dix cas du banc AddressSanitizer passent : les trois erreurs attendues sont reproduites dans les sources originales ; les variantes corrigées et les contrôles sans dépassement terminent normalement. Les interfaces matérielles sont simulées. Le pilote graphique n'est pas compilé comme module Linux complet ; XeLL n'est pas compilé comme chargeur PowerPC complet.
 

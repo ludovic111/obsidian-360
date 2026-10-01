@@ -53,7 +53,7 @@ Sur les 121 entrées ANA de cette table qui ne sont pas des sentinelles `fffffff
 
 Un piège de lecture est clarifié : libxenon écrit volontairement zéro dans le registre nommé `D1CRTC_V_TOTAL` à `0x6020`. Il place `total_height - 1` à `0x6010`, malgré le nom `D1CRTC_H_SYNC_B`. Notre capture ne contient pas `0x6010` : le total vertical n'est donc pas mesuré. Il serait incorrect de calculer une fréquence à partir de `0x6020`, ou de traiter 60 Hz annoncé par DRM comme une mesure d'horloge. La capture à `0x6024` ne permet pas non plus une interprétation générique de timing Radeon.
 
-Le noyau construit un seul `fixed_mode` depuis les dimensions déjà présentes dans les registres. Les tables actuelles de libxenon exposent 13 modes, aucun 1920 × 1080. Il faut comprendre et valider horloges ANA/HANA, timings GPU, placement mémoire et démarrage du mode ; une simple modeline XRandR est insuffisante.
+Le patch Free60 étudié construit un seul `fixed_mode` depuis les dimensions déjà présentes dans les registres. **Correction après identification du paquet : la branche réellement installée impose un mode constant 1280 × 720**, comme détaillé dans [l'analyse binaire](BINARY-AUDIT-2026-10-01.md). Les tables actuelles de libxenon exposent 13 modes, aucun 1920 × 1080. Il faut comprendre et valider horloges ANA/HANA, timings GPU, placement mémoire et démarrage du mode ; une simple modeline XRandR est insuffisante.
 
 Enfin, `ana_read_reg()` dans le pilote Linux retourne les octets de la réponse SMC sans valider son statut. Les lectures ANA doivent rester des observations assorties de cette limite ; ce n'est pas une lecture garantie de tous les registres physiques.
 

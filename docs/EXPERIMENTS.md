@@ -21,6 +21,11 @@
 | E17 | Revue du pilote audio et des en-têtes Linux 6.18 | API historiques absentes, risques DMA/SMC/IRQ identifiés | Portage et compilation requis avant activation |
 | E18 | Provenance du noyau et observation pacman | Paquet linux-xenon 6.18.11-1 ; avertissement trousseau public manquant | Binaire non désassemblé ; trousseau à diagnostiquer avant installation |
 | E19 | Vérification finale du journal graphique sur la console | Allocation annoncée 0x384000 = 3 686 400 octets pour 720p ; bureau actif après 22 minutes | Corrobore la taille de F01, sans prouver une corruption ni la cause de E10 |
+| E20 | Acquisition vmlinux/System.map et comparaison ELF | SHA-256 locaux/distants concordants ; six sections identiques à l'image de démarrage, dont .text | Code sur disque identifié, sans lecture de mémoire vivante |
+| E21 | Retrouver la recette exacte puis désassembler neuf fonctions | Source linux-custom identifiée ; mode constant 720p et calcul d'allocation confirmés | Corrige l'attribution antérieure au patch Free60 |
+| E22 | Analyse DMA, PCI et routage IRQ | Pages 64 Kio ; GPU remappé par logiciel ; périphériques routés CPU0 | Chemin d'allocation précis non instrumenté sur la console |
+| E23 | Callback IPI réel testé avec MMIO simulée | 252/256 masques perdus dans l'original ; 256/256 corrects avec le candidat ; anomalie également présente dans le binaire | Le chemin SMP ordinaire utilise une autre fonction ; impact vivant non établi |
+| E24 | Corriger le chemin d'outillage | Incompatibilités PowerPC64 des anciens outils contournées ; environnement multiarchitecture construit et audit complet réussi | Aucun échec ne doit être assimilé à une preuve ; compilation noyau encore à faire |
 
 ## Analyse de l’incident E10
 
