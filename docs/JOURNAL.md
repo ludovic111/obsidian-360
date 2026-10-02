@@ -92,3 +92,5 @@ Publication E43–E46 vérifiée à 2026-10-02T07:41:15.538940+00:00 : commit pu
 - Observation rapportée : Just Cause 2 et les autres boîtes de jeux portent PAL.
 - Action : vérifier la documentation Microsoft archivée sur les régions et la signification T10 du code 3a/00 ; demander si ces jeux fonctionnaient auparavant sur cette console.
 - Interprétation : région non vérifiée, marquage des boîtes insuffisant ; erreur mesurée de support absent différente d’un refus explicite de région. Aucune commande matérielle ni modification de région exécutée.
+
+Retour utilisateur : achat simultané de la console et des jeux en magasin d’occasion ; fonctionnement antérieur de cet ensemble inconnu. Compatibilité régionale toujours non confirmée ; disponibilité d’un DVD vidéo demandée.
