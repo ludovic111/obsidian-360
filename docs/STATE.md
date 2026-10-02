@@ -1,10 +1,14 @@
 # État courant — 2 octobre 2026
 
+## Candidat horloge prêt au démarrage — E71
+
+E71 : obsidian-clock possède maintenant son initramfs vérifié (43 modules), ses 65 modules installés dans une version distincte et l’entrée USB **obsidian_clock** avec xenon_tb_hz=49875000. Défaut linux_hdd conservé ; obsidian4 et récupération inchangés, menu précédent sauvegardé. Relecture après remontage en lecture seule réussie. SSH confirme encore obsidian4 et aucun service en échec à 13:38:34 UTC hôte. Aucun redémarrage envoyé, essai physique demandé ; correction effective non validée. Voir `docs/TIMEBASE-BOOT.md`.
+
 ## Horloge à corriger — E69/E70 ; protocole audio — E67/E68
 
 Mesure SSH de 60 s : l'horloge brute de la Xbox avance environ 0,25 % moins vite que celle du Mac. Device tree vivant à 50 MHz ; fréquence effective relative encadrée entre 49,8734 et 49,8759 MHz, compatible avec 49,875 MHz de LibXenon. Écart de date d'environ 44,28 s au relevé ; horodatages historiques console non corrigés rétroactivement.
 
-Correctif 0016 optionnel et noyau obsidian-clock construits depuis obsidian4 : image et 65 modules vérifiés, aucun avertissement. Pas d'installation, d'initramfs ni de démarrage du candidat ; mesure après correction encore requise. Voir `docs/TIMEBASE-CALIBRATION.md`.
+Correctif 0016 optionnel et noyau obsidian-clock construits depuis obsidian4 : image et 65 modules vérifiés, aucun avertissement. Lors d’E70, pas encore installé ; E71 prépare ensuite initramfs/modules/entrée USB. Démarrage et mesure après correction encore requis. Voir `docs/TIMEBASE-CALIBRATION.md`.
 
 E67 : acquittements séparés des bits analogiques 2–4 observés, 0x1d → 0x19 → 0x11 → 0x01. E68 : demande de reset depuis l'arrêt, retour 0x01 compatible avec auto-effacement mais effets internes non démontrés. Numérique inchangé ; aucun START ni son. Voir `docs/AUDIO-ACK-RESET.md`.
 

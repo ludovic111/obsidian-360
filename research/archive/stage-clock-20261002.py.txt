@@ -1,0 +1,41 @@
+# One-time reversible staging; no reboot, partitioning, or default change.
+import os,pathlib,subprocess,json,hashlib,shutil,platform,datetime
+base=pathlib.Path('/var/tmp/obsidian-clock-preflight-20261002');release='6.18.11-xenon-obsidian-clock'
+assert platform.release()=='6.18.11-xenon-obsidian4' and os.geteuid()==0
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+a=json.loads((base/'bundle.json').read_text());proof=json.loads((base/'inspection.json').read_text());assert proof['success']
+mods=base/'root/lib/modules'/release; final=pathlib.Path('/usr/lib/modules')/release
+assert not final.exists() and not final.is_symlink()
+for m in a['modules']:assert sha(mods/'kernel'/m['path'])==m['sha256']
+assert sha(mods/'vmlinuz')==a['kernel_sha256'];assert sha(base/'initramfs.img')==proof['image_sha256'];assert sha(base/'new-kboot.conf')==proof['new_menu_sha256']
+assert subprocess.check_output(['findmnt','-n','-o','SOURCE','/'],text=True).strip()=='/dev/sda1'
+assert subprocess.check_output(['blkid','-s','LABEL','-o','value','/dev/sdb1'],text=True).strip()=='ARCH'
+assert subprocess.check_output(['blkid','-s','TYPE','-o','value','/dev/sdb1'],text=True).strip()=='vfat'
+assert not subprocess.run(['findmnt','-rn','-S','/dev/sdb1'],capture_output=True,text=True).stdout.strip()
+usb=pathlib.Path('/run/obsidian-clock-stage-usb');usb.mkdir()
+report={'console_started_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'operations':[],'release':release,'default':'linux_hdd','rebooted':False,'success':False};mounted=False
+try:
+ subprocess.run(['mount','-o','rw,nosuid,nodev,noexec','/dev/sdb1',str(usb)],check=True);mounted=True
+ for name,item in proof['usb_baseline'].items():assert sha(usb/name)==item['sha256'],name
+ dest=usb/'obsidian-clock';backup=usb/'Recovery/kboot-before-obsidian-clock.conf';pending=usb/'kboot.obsidian-clock.pending'
+ assert not any(p.exists() for p in (dest,backup,pending))
+ shutil.copytree(mods,final)
+ for m in a['modules']:assert sha(final/'kernel'/m['path'])==m['sha256']
+ report['operations'].append('installed 65 modules in distinct release directory')
+ dest.mkdir();shutil.copyfile(mods/'vmlinuz',dest/'kernel');shutil.copyfile(base/'initramfs.img',dest/'initrd')
+ assert sha(dest/'kernel')==a['kernel_sha256'] and sha(dest/'initrd')==proof['image_sha256']
+ shutil.copyfile(usb/'kboot.conf',backup);assert sha(backup)==proof['usb_baseline']['kboot.conf']['sha256']
+ shutil.copyfile(base/'new-kboot.conf',pending)
+ with pending.open('rb') as f:os.fsync(f.fileno())
+ assert sha(pending)==proof['new_menu_sha256']
+ os.replace(pending,usb/'kboot.conf');os.sync()
+ for name,item in proof['usb_baseline'].items():
+  if name!='kboot.conf':assert sha(usb/name)==item['sha256'],name
+ assert sha(usb/'kboot.conf')==proof['new_menu_sha256']
+ report.update(success=True,kernel_sha256=sha(dest/'kernel'),initramfs_sha256=sha(dest/'initrd'),menu_sha256=sha(usb/'kboot.conf'),backup_sha256=sha(backup),prior_boot_files_unchanged=True,modules_verified=65)
+ report['operations'].extend(['created obsidian-clock USB directory','saved previous kboot.conf','added optional obsidian_clock; preserved linux_hdd default'])
+finally:
+ if mounted:subprocess.run(['umount',str(usb)],check=True)
+ usb.rmdir();report['usb_unmounted']=True;report['console_finished_utc']=datetime.datetime.now(datetime.timezone.utc).isoformat()
+ (base/'staging-result.json').write_text(json.dumps(report,indent=2)+'\n')
+print(json.dumps(report,indent=2))

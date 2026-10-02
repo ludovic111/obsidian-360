@@ -1,0 +1,19 @@
+import pathlib, json, hashlib, tarfile, subprocess, datetime
+repo=pathlib.Path.cwd(); base=repo/'.local/timebase-build'; out=base/'output'
+evidence=repo/'evidence/2026-10-02/timebase-boot'; evidence.mkdir(exist_ok=True)
+a=json.loads((repo/'evidence/2026-10-02/timebase-build/artifacts.json').read_text()); release=a['release']
+assert release=='6.18.11-xenon-obsidian-clock'
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+archive=base/'boot-bundle.tar.gz'
+assert not archive.exists()
+with tarfile.open(archive,'w:gz') as t:
+ for m in a['modules']:
+  p=out/m['path']; assert sha(p)==m['sha256']; t.add(p,arcname='root/lib/modules/'+release+'/kernel/'+m['path'],recursive=False)
+ for name in ('modules.order','modules.builtin','modules.builtin.modinfo','modules.builtin.ranges'):
+  p=out/name
+  if p.exists(): t.add(p,arcname='root/lib/modules/'+release+'/'+name,recursive=False)
+ for name, dest in [('arch/powerpc/boot/zImage.xenon','root/lib/modules/'+release+'/vmlinuz'),('Module.symvers','Module.symvers')]:
+  assert sha(out/name)==a['artifacts'][name]['sha256']; t.add(out/name,arcname=dest,recursive=False)
+manifest={'release':release,'modules':a['modules'],'kernel_sha256':a['artifacts']['arch/powerpc/boot/zImage.xenon']['sha256'],'archive_sha256':sha(archive),'archive_bytes':archive.stat().st_size,'host_prepared_utc':datetime.datetime.now(datetime.timezone.utc).isoformat()}
+(evidence/'bundle.json').write_text(json.dumps(manifest,indent=2)+'\n')
+print(json.dumps({k:v for k,v in manifest.items() if k!='modules'},indent=2))

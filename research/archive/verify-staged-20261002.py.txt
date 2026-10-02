@@ -1,0 +1,16 @@
+import pathlib,subprocess,json,hashlib,platform,datetime
+base=pathlib.Path('/var/tmp/obsidian-clock-preflight-20261002');p=json.loads((base/'inspection.json').read_text());stage=json.loads((base/'staging-result.json').read_text());assert stage['success'] and stage['usb_unmounted']
+sha=lambda x:hashlib.sha256(x.read_bytes()).hexdigest()
+usb=pathlib.Path('/run/obsidian-clock-verify-usb');usb.mkdir()
+assert not subprocess.run(['findmnt','-rn','-S','/dev/sdb1'],capture_output=True,text=True).stdout.strip()
+subprocess.run(['mount','-o','ro,nosuid,nodev,noexec','/dev/sdb1',str(usb)],check=True)
+try:
+ for name,item in p['usb_baseline'].items():
+  if name!='kboot.conf':assert sha(usb/name)==item['sha256'],name
+ assert sha(usb/'kboot.conf')==stage['menu_sha256']
+ assert sha(usb/'obsidian-clock/kernel')==stage['kernel_sha256']
+ assert sha(usb/'obsidian-clock/initrd')==stage['initramfs_sha256']
+ assert sha(usb/'Recovery/kboot-before-obsidian-clock.conf')==stage['backup_sha256']
+finally:subprocess.run(['umount',str(usb)],check=True);usb.rmdir()
+failed=subprocess.check_output(['systemctl','--failed','--no-legend'],text=True)
+print(json.dumps({'console_observed_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'running_release':platform.release(),'failed_units':failed,'read_only_remount_verified':True,'usb_unmounted':True,'candidate_not_booted':platform.release()!=stage['release'],'success':True},indent=2))
