@@ -1,5 +1,9 @@
 # État courant — 2 octobre 2026
 
+## File audio logicielle — E59
+
+Un nouveau composant C original distingue blocs prêts, données partielles et silence de fin de flux. Vérifié sur 512 tailles, 54 008 opérations et 24 544 033 frames synthétiques ; ASan/UBSan et analyse statique sans diagnostic après correction d’un réglage d’outillage. Compilation et liaison PowerPC contre le noyau réussies. Il reste séparé de snd-xenon : adaptateur ALSA et fin réelle des blocs DMA non validés, aucun son activé. Voir `research/audio/README.md`.
+
 E58 : 96 cas reproduisent une file modifiée par des demandes de position identiques ; débordement de conversion signé également reproduit avec une valeur synthétique native 64 bits. Aucun défaut vivant revendiqué. Le contrôleur audio de l’émulateur Xenon examiné est un stub et ne valide pas le protocole. Soumission et fin de flux à résoudre avant activation ; voir `docs/AUDIO-SUBMISSION-AUDIT.md`.
 
 ## Suivi audio compilé et soumission à corriger — E57/E58
