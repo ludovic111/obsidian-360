@@ -1,5 +1,12 @@
 # État courant — 2 octobre 2026
 
+## Longueurs audio corrigées et protocole à vérifier — E62
+
+Le correctif 0014 adopte les longueurs en octets exacts, appuyées par un correctif LibXenon de 2010 et le pilote SiS ALSA. Les 16 384 descripteurs testés sur 512 tailles ont des longueurs alignées ; quinze scénarios de l'adaptateur et vingt de ressources repassent. Noyau audio-bytes + 70 modules vérifiés, construction finale sans avertissement sur un volume Linux après deux incidents d'horodatage Mac/Linux.
+
+La correspondance de registres SiS est une hypothèse étayée par le code, pas une mesure Xbox. La référence distingue fin d'accès mémoire et fin de sortie sonore ; statut mémorisé/acquittement et FIFO restent à résoudre avant activation. Voir `docs/AUDIO-REGISTER-HYPOTHESIS.md`. Dernier état vivant inchangé : E61.
+
+
 ## Adaptateur audio candidat — E60 ; contrôle vivant E61
 
 Le correctif 0013 relie la file aux engagements ALSA, au drain et aux resets ; `.pointer` ne touche plus aux registres. Quinze scénarios de callbacks, vingt de ressources et la régression complète de la file passent hors console. La fin du dernier descripteur reste non décodée : le test de stagnation produit un XRUN, aucun succès audio revendiqué. Voir `docs/AUDIO-ALSA-ADAPTER.md` ; aucun chargement.
