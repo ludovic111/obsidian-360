@@ -1,5 +1,9 @@
 # État courant — 2 octobre 2026
 
+## Régression graphique reproduite hors console
+
+E47 : deux affichages Xvfb isolés, IceWM 4.0.0 recompilé, lanceur réel du dépôt. Le redimensionnement en mode contour bloque le client XTest et un observateur indépendant ; en mode direct, la taille diminue de 1240 × 640 à 1180 × 600 et les deux clients répondent. Cause reproduite au niveau X11, pas une validation PowerPC/GPU ni un essai physique de manette. Voir `docs/DESKTOP-TESTING.md`.
+
 ## Contrôles vivants du 2 octobre
 
 E45 : Just Cause 2 inséré ; statut « pas de disque », erreur de lecture et réponse SCSI `02/3a/00` (« medium not present »). Contraste CD/DVD constaté, origine matérielle précise inconnue.
