@@ -1,5 +1,9 @@
 # État courant — 2 octobre 2026
 
+## Envoi SMC borné et builds audio — non installés
+
+E54 : nouvelle voie d’envoi audio avec refus immédiat des verrous occupés et budget de polling ; dix-neuf scénarios SMC et dix-huit scénarios de ressources audio passent hors matériel. Les noyaux audio-lifecycle (0008/0009) et audio-post (0008/0009/0010) compilent avec 70 modules chacun, sans avertissement. Export SMC et vermagic vérifiés. Aucun son ni démarrage de ces variantes ; le dernier état vivant reste E52. Les anciens chemins SMC conservent leurs attentes sans borne. Voir `docs/SMC-BOUNDED-POST.md`.
+
 ## Portage audio en cours, hors console
 
 E53 : correctif 0009 après 0008 ; objet PowerPC compilé sans avertissement, douze défaillances attendues reproduites dans treize scénarios originaux, seize scénarios du candidat passent avec contrôle des ressources et ASan/UBSan. La comparaison LibXenon révèle une divergence d’encodage des longueurs et une limite mémoire basse possible ; elles doivent être résolues avant activation. Compilation noyau/modules suivie séparément. Dernier état vivant : E52. Voir `docs/AUDIO-LIFECYCLE-AUDIT.md`.

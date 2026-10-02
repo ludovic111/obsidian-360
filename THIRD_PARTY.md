@@ -15,3 +15,5 @@ Les auteurs amont conservent leurs droits. Les liens vers leurs dépôts et les 
 Le correctif audio 0008 et les extraits de diagnostics de snd-xenon.c dérivent du pilote de jc4360 (2009), GPL-2.0-or-later, dans le même noyau linux-custom. La licence MIT ne remplace pas cette licence. Le banc extrait les fonctions de la copie source locale ; les routines amont ne sont pas recopiées dans le test.
 
 Le correctif audio 0009 partage la provenance et la licence GPL-2.0-or-later de 0008. Les tests de ressources et leur modèle sont originaux ; les fonctions du pilote sont extraites à l’exécution de la copie source fournie.
+
+Le correctif 0010 modifie le cœur SMC (GPL-2.0), son en-tête et le pilote audio (GPL-2.0-or-later). Le banc SMC extrait les macros iopoll (GPL-2.0-only) du noyau fourni à l’exécution ; il ne les redistribue pas comme code MIT. Les modèles et assertions sont originaux.

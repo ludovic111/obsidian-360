@@ -60,3 +60,5 @@ Le parseur Rust et les neuf essais de sa CLI sont décrits dans `game-analysis/x
 - `check-audio-buffers.py` : extrait cache_flush, hw_params et prepare du pilote audio ; cache/MMIO simulés, 16 369 tailles et huit cas de boucle. Compare original et correctif partiel 0008 sous ASan/UBSan. Voir `docs/AUDIO-BUFFER-AUDIT.md`.
 
 - `check-audio-lifecycle.py` : fonctions C réelles de ressources/probe/remove avec API simulées, treize scénarios original et seize candidat ; ASan/UBSan et bilan des ressources. Aucune simulation SMP ou validation matérielle.
+
+- `check-smc-post.py` : dix-neuf scénarios sur post/probe/remove réels et macros iopoll réelles, avec verrous/MMIO/délais simulés. `check-audio-lifecycle.py` couvre désormais dix-huit scénarios candidats, incluant les erreurs de contention et délai SMC.

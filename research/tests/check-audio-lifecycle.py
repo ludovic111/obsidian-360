@@ -40,7 +40,7 @@ def main():
     args = parser.parse_args()
     base = Path(__file__).resolve().parent
     original_cases = ['success', 'card', 'pci_enable', 'chip_alloc', 'bar_type', 'regions', 'irq', 'pcm0', 'pcm1', 'lowlevel', 'register', 'dma_handle', 'active_remove']
-    candidate_cases = ['success', 'card', 'pci_enable', 'chip_alloc', 'bar_type', 'bar_short', 'dma_mask', 'regions', 'ioremap', 'dma_alloc', 'smc_ready', 'smc_send', 'pcm0', 'pcm1', 'register', 'active_remove']
+    candidate_cases = ['success', 'card', 'pci_enable', 'chip_alloc', 'bar_type', 'bar_short', 'dma_mask', 'regions', 'ioremap', 'dma_alloc', 'smc_ready', 'smc_send', 'smc_busy', 'smc_timeout', 'pcm0', 'pcm1', 'register', 'active_remove']
     report = {'scope': 'Actual C resource routines with modeled kernel APIs and serial fault injection; no DMA/cache/IRQ/SMC hardware or concurrent execution.', 'variants': []}
     with tempfile.TemporaryDirectory(prefix='obsidian-audio-lifecycle-') as tmp:
         for name, path in [('original', args.original), ('candidate', args.candidate)]:

@@ -9,7 +9,7 @@ Priorités issues de l'analyse approfondie :
 - Évaluer la correction du masque IPI dans cette branche, avec compilation puis test ciblé du chemin concerné ; ne pas attribuer au callback dormant les symptômes du chemin SMP ordinaire.
 - Pour une acquisition par XeLL, identifier le binaire réellement utilisé et vérifier/corriger le tampon de page physique HTTP ainsi que les erreurs SFCX. Ne pas assimiler une réponse HTTP complète à une sauvegarde NAND validée.
 - Résoudre l'observation de trousseau pacman manquant avant toute nouvelle installation de paquets ; conserver les signatures activées.
-- Poursuivre après les correctifs audio 0008/0009 : DMA PCM cohérent, timer/notifications et fermeture concurrente, délai SMC, limites d’adresses et encodage des longueurs. Objet compilé, activation interdite tant que ces points restent ouverts.
+- Poursuivre après 0008–0010 : DMA PCM cohérent, timer/notifications et fermeture concurrente, limites d’adresses et encodage des longueurs. Envoi audio SMC borné et noyaux/modules compilés ; vieux chemins SMC encore non bornés. Activation différée tant que le protocole et les PCM restent ouverts.
 
 État des étapes historiques :
 

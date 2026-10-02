@@ -11,6 +11,8 @@ int main(int argc,char **argv) {
     else if(fail("bar_type")||fail("bar_short"))want=-ENODEV;
     else if(fail("dma_mask")||fail("smc_send")||fail("register"))want=-EIO;
     else if(fail("smc_ready"))want=-EPROBE_DEFER;
+    else if(fail("smc_busy"))want=-EBUSY;
+    else if(fail("smc_timeout"))want=-ETIMEDOUT;
     CHECK(code==want);
     if(code==0) {
         CHECK(pci.data);

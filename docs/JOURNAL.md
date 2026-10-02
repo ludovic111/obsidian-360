@@ -142,3 +142,13 @@ Publication E49–E52 vérifiée à 2026-10-02T08:25:04.519035+00:00 : commit pu
 - Résultat : objet PPC compilé sans avertissement ; compilation noyau/modules lancée séparément avec source figée. Aucun fichier installé sur Xbox.
 - Analyse du code : LibXenon mentionne les premiers 32 Mio et encode les longueurs différemment ; HDMI y exige une initialisation absente du pilote Linux. Masque 29 bits et encodage historique non validés sur le matériel. ALSA fournit déjà de la mémoire DMA cohérente, à utiliser directement pour les PCM.
 - Suite : achever et vérifier la compilation complète ; poursuivre contrat DMA, callbacks/timer et protocole. Aucun redémarrage pendant l’absence utilisateur.
+
+
+## 2026-10-02 — E54 — envoi SMC borné et liaison audio
+
+- Objectif : éviter les attentes sans borne sur la nouvelle voie audio et confirmer la liaison des modules.
+- Action : nouvelle API processus avec deux trylocks, budget atomique de polling, message aligné et absence d’écriture en cas d’échec ; protection probe/remove spécifique à cette voie. Les anciens expéditeurs ne sont pas migrés.
+- Observation : dix-neuf scénarios du C réel et des macros iopoll réelles passent ; régression audio étendue à dix-huit scénarios. Premier échec d’outillage sur paramètre inutilisé conservé.
+- Résultat : première compilation complète audio-lifecycle terminée code 0 ; copie indépendante puis compilation audio-post code 0. Soixante-dix modules chacune, aucun avertissement, formats PowerPC et vermagic vérifiés, nouvel export GPL présent.
+- Limites : budget logique, pas borne de transaction MMIO ; tests séquentiels sans validation SMP. Le mutex ne protège pas les anciennes voies. Aucun envoi réel, noyau/image ni module installé.
+- Suite : publication après audit ; contrat DMA PCM, timer/notifications et protocole avant activation.

@@ -37,7 +37,7 @@ La régression E51 reste verte : 16 369 tailles examinées, 512 acceptées, zér
 
 ## Compilation
 
-La compilation de l’objet PowerPC `sound/pci/snd-xenon.o` réussit sans avertissement avec LLVM 16. Elle utilise un nouveau dossier de sortie et une substitution en lecture seule du seul fichier candidat ; le build obsidian4 reste intact. La compilation complète noyau/modules est suivie séparément : consulter `evidence/2026-10-02/audio-lifecycle/` pour son résultat, sans confondre objet compilé, module lié et pilote fonctionnel.
+La compilation de l’objet PowerPC `sound/pci/snd-xenon.o` réussit sans avertissement avec LLVM 16. Elle utilise un nouveau dossier de sortie et une substitution en lecture seule du seul fichier candidat ; le build obsidian4 reste intact. La compilation complète noyau/modules a ensuite réussi, avec 70 modules et aucun avertissement : consulter `evidence/2026-10-02/audio-lifecycle/` pour son résultat, sans confondre objet compilé, module lié et pilote fonctionnel.
 
 ## Divergences de protocole à résoudre
 

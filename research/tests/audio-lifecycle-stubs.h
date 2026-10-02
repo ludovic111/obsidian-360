@@ -110,7 +110,8 @@ static int request_irq(int irq,int (*fn)(int,void *),int flags,const char *name,
 static void free_irq(int irq,void *data) { (void)irq;(void)data;CHECK(irq_owned);irq_owned=0; }
 static void pci_intx(struct pci_dev *p,int flag) { (void)p;(void)flag; }
 static int xenon_smc_ready(void) { return !fail("smc_ready"); }
-static int xenon_smc_message(void *msg) { CHECK(((unsigned char *)msg)[0]==0x8d);++smc_calls;return fail("smc_send")?-EIO:0; }
+static int xenon_smc_message(void *msg) { CHECK(((unsigned char *)msg)[0]==0x8d);++smc_calls;return fail("smc_send")?-EIO:fail("smc_busy")?-EBUSY:fail("smc_timeout")?-ETIMEDOUT:0; }
+static int xenon_smc_post(const unsigned char *msg,unsigned budget) { CHECK(budget==1000);return xenon_smc_message((void *)msg); }
 static void xenon_smc_send_message(void *msg) { (void)xenon_smc_message(msg); }
 static int snd_card_new(struct device *d,int index,const char *id,void *module,int extra,struct snd_card **out) {
     (void)d;(void)index;(void)id;(void)module;(void)extra;if(fail("card"))return -ENOSPC;*out=alloc(sizeof(**out));return 0;
