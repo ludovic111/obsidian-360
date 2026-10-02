@@ -110,3 +110,5 @@ Configuration d’accès dans `.local/ssh_config`, ignorée. La clé privée res
 Les sauvegardes historiques sont des régions du disque interne, pas une sauvegarde de la NAND. Aucune image de flash restaurable confirmée. N’effacer aucune sauvegarde ni la récupération Linux live de la clé USB.
 
 Publication E43–E46 vérifiée à 2026-10-02T07:41:15.538940+00:00 : commit public `ec431c9c7e114e11074628d0fb95358d1128a752`, 221 fichiers, arbre distant identique ; preuve `public-audit/optical-publication.json`. Validation manuelle du redimensionnement encore attendue.
+
+Publication E47 et piste PAL vérifiée à 2026-10-02T07:57:41.408927+00:00 : commit public `a67d28f83a160fde6048efc74a9824c808745f74`, 230 fichiers, arbre GitHub identique ; preuve `evidence/2026-10-02/public-audit/resize-publication.json`.

@@ -94,3 +94,5 @@ Publication E43–E46 vérifiée à 2026-10-02T07:41:15.538940+00:00 : commit pu
 - Interprétation : région non vérifiée, marquage des boîtes insuffisant ; erreur mesurée de support absent différente d’un refus explicite de région. Aucune commande matérielle ni modification de région exécutée.
 
 Retour utilisateur : achat simultané de la console et des jeux en magasin d’occasion ; fonctionnement antérieur de cet ensemble inconnu. Compatibilité régionale toujours non confirmée ; disponibilité d’un DVD vidéo demandée.
+
+Publication E47 et piste PAL vérifiée à 2026-10-02T07:57:41.408927+00:00 : commit public `a67d28f83a160fde6048efc74a9824c808745f74`, 230 fichiers, arbre GitHub identique ; preuve `evidence/2026-10-02/public-audit/resize-publication.json`.
