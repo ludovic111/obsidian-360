@@ -1,5 +1,12 @@
 # État courant — 2 octobre 2026
 
+## Arrêt analogique observé — E65 ; contrat ALSA — E66
+
+E65 : écriture STOP analogique unique à 12:47:31 UTC. Contrôle 0x1d08001c → 0x0008001d, puis 0x0000001d au suivi ; index zéro, numérique inchangé. Le bit interprété DCH apparaît et les événements supposés sont conservés. SSH répond à 12:48:41 UTC, aucun service en échec listé, framebuffer 720p. Aucun START/reset ni son ; analogique laissé en STOP. Cela appuie le découpage des registres, sans prouver fin de transactions ni drain sonore.
+
+E66 : 144 tests des fonctions ALSA réelles confirment qu'une erreur hw_free/sync_stop ne protège pas la durée de vie du tampon géré. Le candidat doit assurer l'arrêt ou une isolation réelle avant de rendre la main ; pas de patch de polling simpliste déployé. Voir `docs/AUDIO-STOP-EXPERIMENT.md`.
+
+
 ## Contrôle audio séparé du statut — E63 ; registres observés — E64
 
 Correctif 0015 : sous l'hypothèse SiS, START/STOP préservent les événements en attente et les interruptions restent désactivées pendant le polling. 4 096 transitions simulées passent sans acquittement involontaire ; quinze scénarios de callbacks, vingt de ressources et 16 384 descripteurs restent valides. Module PowerPC compilé contre audio-bytes, aucune installation.
