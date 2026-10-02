@@ -1,0 +1,10 @@
+{
+  "host_received_utc": "2026-10-02T13:54:16.568999+00:00",
+  "source": "evidence/2026-10-02/timebase-first-boot/runtime.json",
+  "kernel": "6.18.11-xenon-obsidian-clock",
+  "header_matches_E64": true,
+  "pci_status": 648,
+  "capability_list_advertised": false,
+  "audio_driver_bound": false,
+  "scope": "Configuration header only; no inference about current analog/digital MMIO state after reboot."
+}

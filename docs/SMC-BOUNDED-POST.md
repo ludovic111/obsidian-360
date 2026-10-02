@@ -1,53 +1,51 @@
-# Envoi SMC borné pour l’audio — E54
+# Bounded SMC post for audio — E54
 
-Le correctif 0010 ajoute une voie d’envoi distincte, `xenon_smc_post`, utilisée par le candidat audio après 0008/0009. Il cible le cœur SMC de linux-custom après les correctifs de cache/export déjà inclus dans obsidian4. Aucune commande envoyée à la Xbox pendant cette expérience ; aucune image installée.
+Patch 0010 adds a separate `xenon_smc_post` path, used by the audio candidate after 0008/0009. It targets linux-custom's SMC core after the cache/export fixes already included in obsidian4. No Xbox command was sent and no image installed in this experiment.
 
-## Contrat et portée
+## Contract and scope
 
-L’appel est réservé au contexte processus et prend un tampon noyau lisible de 16 octets. Le bit haut du premier octet doit être positionné, conformément à la convention « pas de réponse attendue » déjà utilisée dans `_xenon_smc_wait`. Cela ne valide pas la signification de tous les messages possibles ; le seul nouveau client est l’initialisation audio `8d 01 01`.
+The call is restricted to process context and takes a readable 16-byte kernel buffer. The first byte's high bit must be set, matching the no-reply convention already used by `_xenon_smc_wait`. This does not validate the meaning of every possible message; the only new client is audio initialization `8d 01 01`.
 
-La fonction valide un budget de 1 à 1 000 microsecondes, copie les octets dans quatre mots alignés et tente immédiatement deux verrous : un mutex protégeant le cycle probe/remove, puis le verrou FIFO existant avec sauvegarde des interruptions. Un verrou occupé donne `-EBUSY`, sans attente et sans lecture du registre. Le transport absent donne `-ENODEV`.
+The function accepts a budget of 1–1,000 microseconds, copies bytes into four aligned words, and immediately tries two locks: a probe/remove lifecycle mutex, then the existing FIFO lock with interrupt-state preservation. Contention returns `-EBUSY` without waiting or reading a register. Missing transport returns `-ENODEV`.
 
-Sous verrou FIFO, `readl_poll_timeout_atomic` interroge le bit de disponibilité, avec un délai nominal d’une microseconde par tentative. Le test emploie **les macros réelles de `include/linux/iopoll.h`**, pas une réécriture de leur boucle. Si le matériel simulé reste occupé, un budget de 1 000 donne 1 001 lectures et 1 000 appels de délai, puis `-ETIMEDOUT`. Un budget de 1 donne deux lectures et un délai. La dernière lecture peut encore réussir, conformément à la macro du noyau.
+Under the FIFO lock, `readl_poll_timeout_atomic` checks readiness with a nominal one-microsecond delay per attempt. The harness uses the actual `include/linux/iopoll.h` macros, not a rewritten loop. For permanently busy modeled hardware, a 1,000 budget gives 1,001 reads and 1,000 delay calls before `-ETIMEDOUT`. A budget of one gives two reads and one delay. The final read can still succeed, as specified by the kernel macro.
 
-**Ce budget n’est pas une borne stricte de temps réel.** Le coût des opérations s’ajoute aux délais nominaux ; une transaction MMIO qui ne revient jamais ne peut pas être interrompue par ce mécanisme logiciel. Les anciens expéditeurs et fonctions d’attente restent inchangés et peuvent encore attendre sans borne. E54 ne résout donc pas tous les blocages possibles du SMC ou du noyau.
+This is not a strict real-time bound: operation cost adds to nominal delays, and software polling cannot interrupt an MMIO transaction that never returns. Existing senders/waiters remain unchanged and may still wait without a bound. E54 does not resolve every possible SMC/kernel hang.
 
-Après succès seulement, la séquence est exactement : ouverture FIFO par écriture 4, quatre mots de message via `writesl`, fermeture par écriture 0. Échec ou contention : aucune écriture. Les interruptions et verrous acquis sont restaurés sur les chemins testés.
+Only after readiness succeeds does the exact write sequence occur: open FIFO with 4, send four words with `writesl`, close with 0. Failure/contention performs no write. Tested paths restore acquired locks and interrupt state.
 
-## Protection pendant probe/remove
+## Probe/remove protection
 
-Le nouveau mutex exclut `xenon_smc_post` pendant les phases d’initialisation et de retrait. Une seconde initialisation est refusée si le transport existe déjà. Les erreurs de mappage et IRQ sont maintenant propagées, le pointeur mappé est effacé après nettoyage, et une activation PCI réussie est équilibrée même si la réservation échoue.
+The new mutex excludes `xenon_smc_post` during initialization/removal. A second probe is rejected if transport already exists. Mapping/IRQ errors are propagated, the mapped pointer is cleared during cleanup, and successful PCI enable is balanced even if region reservation fails.
 
-L’interruption PCI est masquée avant l’initialisation puis activée après acquisition du gestionnaire. Au retrait, elle est masquée, le gestionnaire est libéré avant le mappage, et les callbacks/pointeurs sont effacés. Ce mutex protège **la nouvelle voie** ; les accès concurrents des anciennes fonctions, qui ne le prennent pas, restent un audit distinct. Le banc séquentiel ne démontre pas leur sûreté lors d’un unbind concurrent. Ne pas provoquer un unbind réel pour tester cette hypothèse.
+PCI interrupts are masked before initialization and enabled after handler acquisition. Removal masks them, frees the handler before unmapping, and clears callbacks/pointers. This mutex protects the new path; old functions do not take it, so their concurrent access remains a separate audit. Sequential tests do not prove their safety under concurrent unbind. Do not trigger a real unbind to test that hypothesis.
 
-Le candidat audio masque aussi son interruption PCI dès l’activation de sa fonction et propage les erreurs du nouvel envoi avant de programmer ses canaux. Il n’effectue pas de tentative infinie ni de reprise automatique cachée en cas de contention.
+The audio candidate also masks its PCI interrupt immediately after enabling the function and propagates post errors before programming channels. Contention does not trigger an unbounded retry or hidden automatic recovery.
 
-## Tests et compilation
+## Tests and builds
 
-Dix-neuf scénarios passent sous ASan/UBSan : quatre échecs de probe, appel avant probe, double probe, pointeur nul, message avec réponse, budgets nul/trop grand, deux verrous occupés, disponibilité immédiate/tardive/à la dernière lecture, deux expirations, dernier essai avec budget minimal et restauration d’interruptions initialement désactivées. Le message de test est volontairement désaligné ; la copie transmise doit être alignée et identique octet par octet. L’appel après retrait est rejeté sans nouvelle lecture.
+Nineteen ASan/UBSan scenarios cover four probe failures, pre-probe call, double probe, null buffer, reply-requiring message, zero/excessive budgets, contention on both locks, immediate/late/final-read readiness, two timeouts, minimum-budget final-read success, and restoration of initially disabled interrupts. The test message is deliberately unaligned; the transmitted copy must be aligned and byte-identical. A post-remove call is rejected without another read.
 
-Les API de verrous, IRQ et MMIO sont simulées ; aucun délai physique ni entrelacement SMP n’est mesuré. Les codes numériques errno de la preuve hôte peuvent différer de Linux : les assertions C utilisent les noms symboliques. Le premier essai du banc a échoué sur l’avertissement de paramètre inutilisé de la fonction amont ; ce problème d’outillage est conservé puis corrigé en alignant cette option avec la compilation noyau.
+Locks, IRQs, and MMIO are mocked; physical delays and SMP interleavings are not measured. Host errno numbers may differ from Linux, so C assertions use symbolic names. The first harness attempt failed on an upstream unused-parameter warning; that tooling failure is preserved, then corrected by matching the kernel's warning option.
 
-Le banc audio de ressources passe désormais dix-huit scénarios, dont propagation de contention et d’expiration SMC. Les treize cas de comparaison originale et la régression des tampons restent conformes aux résultats attendus.
+The audio resource harness now passes eighteen scenarios, including SMC contention/timeout propagation. Thirteen original comparison cases and buffer regression retain their expected outcomes.
 
-Deux compilations complètes sont maintenant vérifiées :
-
-| Variante | Correctifs audio | Résultat |
+| Variant | Audio patches | Verified result |
 |---|---|---|
-| `6.18.11-xenon-audio-lifecycle` | 0008/0009 | Noyau et 70 modules, zéro avertissement |
-| `6.18.11-xenon-audio-post` | 0008/0009/0010 | Noyau et 70 modules, zéro avertissement ; export GPL de xenon_smc_post présent |
+| `6.18.11-xenon-audio-lifecycle` | 0008/0009 | Kernel and 70 modules, no warnings |
+| `6.18.11-xenon-audio-post` | 0008/0009/0010 | Kernel and 70 modules, no warnings; xenon_smc_post GPL export present |
 
-Les 70 fichiers `.ko` ont un en-tête ELF64 PowerPC big-endian et un vermagic correspondant à leur variante. Les empreintes du noyau, des modules, des sources et les journaux sont conservés. Le second build réutilise une copie indépendante du premier dossier de sortie, avec les trois fichiers candidats montés en lecture seule. Le build obsidian4 reste intact.
+All 70 modules have ELF64 big-endian PowerPC headers and matching release vermagic. Kernel/module/source hashes and logs are retained. The second build uses an independent copy of the first output with three candidate sources mounted read-only; obsidian4 remains intact.
 
-Preuves : `evidence/2026-10-02/audio-lifecycle/full-build.*` et `evidence/2026-10-02/smc-post/`. Aucun conditionnement XeLL, initramfs, chargement ni démarrage de ces variantes. Le format des descripteurs, les adresses DMA, les PCM, les notifications et HDMI restent non validés ; ces noyaux ne sont pas prêts à remplacer celui de la console.
+Evidence: `evidence/2026-10-02/audio-lifecycle/full-build.*` and `evidence/2026-10-02/smc-post/`. No XeLL packaging, initramfs, load, or boot was performed for these variants. Descriptor format, DMA addresses, PCM handling, notifications, and HDMI remained unvalidated at this checkpoint.
 
-## Reproduction hors matériel
+## Reproduce without hardware
 
-Appliquer 0008, 0009 puis 0010 aux sources de travail, et exécuter :
+Apply 0008, 0009, then 0010 to working sources:
 
 ```sh
-python3 research/tests/check-smc-post.py --source CANDIDAT/drivers/xenon/smc-core.c --iopoll SOURCE/include/linux/iopoll.h --output smc-post.json
-python3 research/tests/check-audio-lifecycle.py --original ORIGINAL/sound/pci/snd-xenon.c --candidate CANDIDAT/sound/pci/snd-xenon.c --output audio-lifecycle.json
+python3 research/tests/check-smc-post.py --source CANDIDATE/drivers/xenon/smc-core.c --iopoll SOURCE/include/linux/iopoll.h --output smc-post.json
+python3 research/tests/check-audio-lifecycle.py --original ORIGINAL/sound/pci/snd-xenon.c --candidate CANDIDATE/sound/pci/snd-xenon.c --output audio-lifecycle.json
 ```
 
-La compilation utilise les mêmes configuration et image LLVM 16 qu’E53, avec `LOCALVERSION=-audio-post` et les cibles `vmlinux modules`. L’ensemble des diffs doit reproduire exactement les empreintes de sources de `full-build.json` avant d’interpréter ces résultats.
+Build with E53's configuration and LLVM 16 image, `LOCALVERSION=-audio-post`, and targets `vmlinux modules`. Applied patches must reproduce the source hashes in `full-build.json` before treating these results as applicable.

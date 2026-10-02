@@ -1,0 +1,22 @@
+{
+  "console_observed_utc": "2026-10-02T13:50:13.119028+00:00",
+  "kernel": "6.18.11-xenon-obsidian-clock",
+  "cmdline": "root=UUID=e9584d6f-d7ed-40ba-80a2-6834f8d91f31 coherent_pool=16M xenon_tb_hz=49875000 rw",
+  "uptime": "432.43 306.04",
+  "root": "/dev/sda1 ext4",
+  "failed_units": "",
+  "framebuffer": "1280,720",
+  "cpuinfo_timebase_hz": [
+    49875000
+  ],
+  "calibration_log": [
+    "[    0.000000] Xenon: timebase conversion 49875000 Hz (firmware 50000000 Hz)"
+  ],
+  "critical_matches": [],
+  "graphics_processes": "414 /usr/lib/Xorg -nolisten tcp :0 vt1 -keeptty -auth /tmp/serverauth.acBbFk3CiK\n425 icewm --notify",
+  "module_files": 65,
+  "pci_header_hex": "14140c58060088020100010400000000001600ea000000000000000000000000000000000000000000000000391001750000000000000000000000000001340b",
+  "audio_driver_bound": false,
+  "scope": "Standard system interfaces and 64-byte PCI header only; no BAR mappings, hardware writes, clock changes or reboot.",
+  "host_received_utc": "2026-10-02T13:54:16.568999+00:00"
+}

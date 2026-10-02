@@ -14,14 +14,16 @@ import subprocess
 import time
 
 REMOTE = r'''
-import sys,time,json,pathlib,os
+import sys,time,json,pathlib,os,re
 base=pathlib.Path('/proc/device-tree/cpus')
 frequencies={}
 if base.exists():
  for p in base.glob('*/timebase-frequency'):
   frequencies[p.parent.name]=int.from_bytes(p.read_bytes(),'big')
 clock=pathlib.Path('/sys/devices/system/clocksource/clocksource0/current_clocksource')
-print(json.dumps({'kind':'identity','kernel':os.uname().release,'timebase_frequencies':frequencies,'clocksource':clock.read_text().strip() if clock.exists() else None}),flush=True)
+cpuinfo=pathlib.Path('/proc/cpuinfo').read_text()
+active=sorted(set(int(v) for v in re.findall(r'^timebase\s*:\s*(\d+)\s*$',cpuinfo,re.M)))
+print(json.dumps({'cpuinfo_timebase_hz':active[0] if len(active)==1 else None,'kind':'identity','kernel':os.uname().release,'timebase_frequencies':frequencies,'clocksource':clock.read_text().strip() if clock.exists() else None}),flush=True)
 for line in sys.stdin:
  if line.strip()!='sample':break
  raw=time.clock_gettime_ns(time.CLOCK_MONOTONIC_RAW)
@@ -70,7 +72,19 @@ def analyze(report):
         if not isinstance(freq, int) or freq <= 0:
             raise ValueError('Invalid advertised timebase frequency')
         result['advertised_timebase_hz'] = freq
-        result['effective_timebase_hz_bounds'] = [freq * x for x in rates['raw_ns']['ratio_bounds']]
+    if report['identity'].get('clocksource') == 'timebase':
+        if 'cpuinfo_timebase_hz' in report['identity']:
+            conversion = report['identity']['cpuinfo_timebase_hz']
+            basis = 'Kernel /proc/cpuinfo timebase; device tree may differ after override'
+        else:
+            conversion = result.get('advertised_timebase_hz')
+            basis = 'Legacy capture: device-tree frequency assumed active; verify separately'
+        if conversion is not None:
+            if type(conversion) is not int or conversion <= 0:
+                raise ValueError('Invalid active timebase conversion')
+            result['conversion_timebase_hz'] = conversion
+            result['conversion_basis'] = basis
+            result['effective_timebase_hz_bounds'] = [conversion * x for x in rates['raw_ns']['ratio_bounds']]
     return result
 
 

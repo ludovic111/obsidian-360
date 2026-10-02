@@ -1,9 +1,11 @@
 # Provenance
 
-Import initial depuis la session de travail locale du 1 octobre 2026. Les fichiers d’origine sont conservés, aucune suppression ni migration destructive.
+The initial import came from the local work session on October 1, 2026. Original files were retained; no destructive migration was performed.
 
-Les preuves datées décrivent l’état avant le gel et ne doivent pas être interprétées comme une vérification après redémarrage. `docs/STATE.md` suit l’état courant. La chronologie historique contient des états successifs qui se remplacent.
+Dated evidence describes the state at acquisition. Pre-freeze captures must not be interpreted as post-reboot validation. `docs/STATE.md` tracks the latest state; historical chronology contains successive observations that supersede earlier ones.
 
-Le répertoire source de cette session, les chemins vers la clé SSH et les autres paramètres propres au Mac sont enregistrés uniquement dans `.local/origin.json`, ignoré par Git.
+The original session directory, SSH key paths, and Mac-specific access parameters are recorded only in ignored `.local/origin.json`.
 
-Les scripts destructifs sont archivés avec une extension texte. Le code de la sonde NAND bloquante est conservé séparément, sans commande de lancement.
+Destructive procedures are archived with a text extension. The flash probe that hung the console is retained separately, without a launch instruction.
+
+On October 2, the user requested English-only repository material and a detailed public update. Original language material was preserved locally before translation. Translation does not change measured values, experiment identifiers, source revisions, or artifact hashes. Machine-generated evidence is distinguished from authored analysis; any translated evidence derivative must be identified as such rather than presented as the original byte stream.

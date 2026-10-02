@@ -1,38 +1,40 @@
-# Première référence obsidian4 — E39
+# Initial obsidian4 performance baseline — E39
 
-Mesures directes du 1 octobre à 21:50:15 UTC, après revérification SSH : noyau `6.18.11-xenon-obsidian4`, racine ext4 interne. Aucun paramètre changé, aucun paquet installé. Le bureau et SSH restent actifs pendant la mesure.
+Direct measurements at console time 21:50:15 UTC on 1 October, after SSH identity verification: `6.18.11-xenon-obsidian4`, internal ext4 root. No settings changed and no packages were installed. Desktop and SSH remained active during collection.
 
-| Mesure | Valeur / portée |
+| Measurement | Value and scope |
 |---|---|
-| Fin du démarrage systemd | 34,129 s : 16,133 s classées « kernel » + 17,996 s userspace |
-| Cible graphique | 34,125268 s depuis l'origine monotone, confirmé par propriété systemd |
-| Premier /init | 3,157328 s dans dmesg |
-| Montage racine ext4 | 14,262733 s dans dmesg |
-| Mémoire totale exposée | 469 568 Kio = 458,5625 Mio |
-| Mémoire disponible avant collecte | 121 344 Kio = 118,5 Mio |
-| Swap utilisé avant collecte | 27 520 Kio ; zswap actif |
-| Pages noyau | 65 536 octets |
-| Topologie exposée | Six CPU logiques, fratries SMT 0–1, 2–3, 4–5 ; package_id -1, donc non renseigné |
-| SHA-256, trois échantillons | Médiane 22,553 Mio/s ; plage 22,551–22,557 |
-| Copie bytearray Python, trois échantillons | Médiane 136,225 Mio/s de données utiles ; plage 122,407–136,265 |
+| systemd boot completion | 34.129 s: 16.133 s classified as kernel + 17.996 s userspace |
+| Graphical target | 34.125268 s from monotonic origin, confirmed by systemd property |
+| First /init | 3.157328 s in dmesg |
+| ext4 root mount | 14.262733 s in dmesg |
+| Exposed total memory | 469,568 KiB = 458.5625 MiB |
+| Available memory before collection | 121,344 KiB = 118.5 MiB |
+| Swap used before collection | 27,520 KiB; zswap enabled |
+| Kernel page size | 65,536 bytes |
+| Exposed CPU topology | Six logical CPUs; SMT siblings 0–1, 2–3, 4–5; package_id −1 means unspecified |
+| SHA-256, three samples | Median 22.553 MiB/s; range 22.551–22.557 |
+| Python bytearray copy, three samples | Median 136.225 MiB/s useful data; range 122.407–136.265 |
 
-La durée systemd exclut le dashboard, le jeu et XeLL ; `graphical.target` ne mesure pas le premier bureau visible. L'intervalle d'environ 11,105 s entre /init et le montage racine inclut plusieurs étapes ; il ne peut pas être attribué entièrement à udev avec ce relevé. Le noyau annoncé à 3,2 GHz par cpuinfo n'est pas une mesure de fréquence instantanée.
+The systemd interval excludes the dashboard, game, and XeLL; `graphical.target` does not measure the first visible desktop. The approximately 11.105 seconds between /init and root mount cover multiple stages and cannot all be attributed to udev. The cpuinfo value of 3.2 GHz is not a measurement of instantaneous frequency.
 
-La mémoire proportionnelle résidente (PSS) est de 22 625 Kio pour Xorg, 21 303 Kio pour IceWM, 2 141 Kio pour icewm-session et 22 440 Kio pour le processus Python préexistant PID 436. Le collecteur Python PID 708 ajoute 13 396 Kio : ne pas l'inclure dans le coût permanent du bureau. Xorg a aussi 10 304 Kio en swap. Les statistiques sont successives et non atomiques ; ne pas additionner naïvement les RSS partagées.
+Proportional resident memory (PSS) was 22,625 KiB for Xorg, 21,303 KiB for IceWM, 2,141 KiB for icewm-session, and 22,440 KiB for pre-existing Python PID 436. Collector PID 708 added 13,396 KiB; this is not permanent desktop overhead. Xorg also had 10,304 KiB in swap. Samples were sequential, not atomic; shared RSS values must not be naively summed.
 
-## Méthode et limites
+## Method and limitations
 
-Le script `tools/collect-baseline.py --workloads` lit proc/sysfs et des propriétés systemd. Le calcul utilise le fournisseur `_hashlib` installé (OpenSSL 3.6.3), un tampon de 8 Mio et quatre passages pour chacun des trois échantillons. Le résultat SHA-256 a été recomputé indépendamment sur le Mac. La copie inclut Python et ses allocations, et ne représente pas la bande passante RAM brute. Aucune affinité forcée, aucune modification de fréquence, aucun stress prolongé.
+`tools/collect-baseline.py --workloads` reads proc/sysfs and systemd properties. Hashing uses installed `_hashlib` (OpenSSL 3.6.3), an 8 MiB buffer, and four passes per sample. Its SHA-256 result was independently recomputed on the Mac. The copy workload includes Python and allocation overhead and does not represent raw RAM bandwidth. No affinity, frequency change, or sustained stress was applied.
 
-Les sondes hwmon passent de 55,484 / 49,542 / 53,285 / 28,082 °C à 55,507 / 49,503 / 53,238 / 28,054 °C. Cela décrit ce court essai uniquement ; aucune conclusion de stabilité thermique prolongée. Zéro service en échec après la collecte.
+The four hwmon readings changed from 55.484 / 49.542 / 53.285 / 28.082 °C to 55.507 / 49.503 / 53.238 / 28.054 °C. These describe only this short run, not sustained thermal stability. No systemd units were failed afterward.
 
-`systemd-analyze blame` et `critical-chain` ont chacun expiré après 12 secondes. Les erreurs sont conservées. Le suivi ciblé `tools/collect-boot-detail.py` obtient les timestamps des cibles ; il ne reconstitue pas toute la chaîne critique. Une première tentative de suivi a échoué car `/proc/slabinfo` n'existe pas ; le collecteur traite désormais cette interface comme facultative. `CONFIG_SLUB_DEBUG` est désactivé ; le fichier source exact `mm/slab_common.c` conditionne la création de slabinfo à cette option. Aucune reconstruction du noyau demandée pour ce relevé.
+`systemd-analyze blame` and `critical-chain` each timed out after 12 seconds; failures are retained. `tools/collect-boot-detail.py` subsequently obtained target timestamps, not a complete critical chain. Its first run failed because `/proc/slabinfo` was absent; that interface is now optional. `CONFIG_SLUB_DEBUG` is disabled, and the pinned `mm/slab_common.c` gates slabinfo creation on that option. No kernel rebuild was requested for this collection.
 
-Preuves dans `evidence/2026-10-01/performance-baseline/` : rapport initial, suivi ciblé, empreintes des outils et échec intermédiaire. Reproduction depuis le Mac :
+Evidence in `evidence/2026-10-01/performance-baseline/` includes the initial report, targeted follow-up, tool hashes, and intermediate failure. From the Mac:
 
 ```sh
 ./tools/ssh-xbox 'python3 - --workloads' < tools/collect-baseline.py
 ./tools/ssh-xbox 'python3 -' < tools/collect-boot-detail.py
 ```
 
-Prochaines comparaisons : décomposer l'attente initramfs, attribuer la mémoire noyau non récupérable, mesurer le coût du lanceur et du blit avec des méthodes isolant chaque composant. Pas encore de gain avant/après mesuré.
+Later E69 identified a console timebase conversion error; these historical durations retain their original clock basis. No speculative retroactive correction has been applied. E73 separately measures the corrected clock; see `docs/TIMEBASE-FIRST-BOOT.md`.
+
+Future comparisons should isolate initramfs waiting, unreclaimable kernel memory, launcher overhead, and framebuffer blitting. E39 alone demonstrates no before/after performance gain.

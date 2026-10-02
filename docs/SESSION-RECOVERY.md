@@ -1,20 +1,20 @@
-# Interruptions de session et reprise
+# Session interruptions and recovery
 
-Diagnostic du 1 octobre 2026, basé sur les événements structurés du transcript local, consulté en lecture seule. Les journaux complets restent hors Git.
+October 1, 2026 diagnosis based on structured local transcript events inspected read-only. Full logs remain outside Git.
 
-Les fins de tours à 20:33:16, 20:34:10, 20:35:20, 20:55:01 et 20:55:34 UTC comportent `last_agent_message: null` et `error.codex_error_info: cyber_policy`. Leur message signale un risque cybersécurité possible. Ce contrôle de plateforme explique ces interruptions précises ; les précédentes incompatibilités des outils de compilation sont des incidents distincts. Les avoir corrigées ne répare pas ce contrôle et ne garantit pas l'absence de nouvelles interruptions.
+Turns ending at 20:33:16, 20:34:10, 20:35:20, 20:55:01, and 20:55:34 UTC contain `last_agent_message: null` and `error.codex_error_info: cyber_policy`, with a possible cybersecurity-risk message. That platform control explains these particular interruptions. Earlier compiler/tool incompatibilities are separate incidents; repairing those does not repair or disable the platform control or guarantee uninterrupted future sessions.
 
-Le contrôle ne peut pas être désactivé depuis le dépôt. Ne pas reformuler ou segmenter des opérations pour le contourner. Les travaux permis de documentation, vérification et correction de pilotes restent évalués selon leur contenu réel. Le diagnostic ne démontre pas quelle opération particulière a déclenché chaque signalement.
+The control cannot be disabled from this repository. Do not rephrase or split operations to bypass it. Documentation, verification, and driver work must be evaluated on their actual content. The diagnosis does not establish which specific operation caused every signal.
 
-Lors de la reprise, `get_goal` indiquait `active`. Le processus de compilation déjà lancé et son conteneur étaient encore vivants : aucune deuxième compilation n'a été lancée. Le processus a ensuite terminé normalement à 21:00:03 UTC avec un code 0. Le noyau produit et son format ELF PowerPC64 big-endian ont été vérifiés.
+On resumption, `get_goal` reported active. The existing compiler process/container were still live, so no duplicate build was launched. The process later completed normally at 21:00:03 UTC with exit zero; the kernel and its ELF64 big-endian PowerPC format were verified.
 
-Pour reprendre une compilation :
+To resume a build:
 
-1. Lire `.local/kernel-build/build-state.json` pour retrouver le journal et le conteneur.
-2. Vérifier le processus ou le conteneur réellement vivant. Le fichier d'état seul n'est pas une preuve.
-3. Reprendre l'observation du même processus s'il tourne. Une expiration de l'observation ne signifie pas qu'il a échoué.
-4. Après fin confirmée, lire le code de retour et le journal ; vérifier l'artefact avant de déclarer un succès.
+1. Read `.local/kernel-build/build-state.json` to locate the log/container.
+2. Verify the actual process/container is live. A state file alone is not evidence.
+3. Continue observing that same process if running. An observation timeout is not a failed build.
+4. After confirmed termination, inspect the exit code and log, then verify artifacts before claiming success.
 
-`tools/build-kernel.py` conserve chaque tentative et refuse de démarrer si un conteneur de compilation existe déjà. Ce mécanisme protège la reprise du build ; il ne modifie pas Codex et ne relance pas automatiquement des tours interrompus.
+`tools/build-kernel.py` preserves each attempt and refuses to start while a build container already exists. This protects build recovery; it does not modify Codex or automatically restart interrupted turns.
 
-Référence consultée pour localiser les journaux : [documentation officielle de dépannage](https://learn.chatgpt.com/docs/reference/troubleshooting), section « Feedback and logs ». Aucun signalement ni journal envoyé à un tiers.
+Reference used to locate logs: [official troubleshooting documentation](https://learn.chatgpt.com/docs/reference/troubleshooting), “Feedback and logs.” No report or transcript was sent to a third party.

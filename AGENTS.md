@@ -1,16 +1,16 @@
-# OBSIDIAN-360 — instructions de travail
+# OBSIDIAN-360 — working instructions
 
-- Lire `docs/STATE.md` puis `docs/EXPERIMENTS.md` avant toute interaction matérielle.
-- Communiquer en français et distinguer mesure directe, analyse du code, hypothèse et résultat non vérifié.
-- Vérifier l’état vivant de la console avant de transformer une ancienne observation en affirmation actuelle.
-- La lecture mmap de la fenêtre flash `0000:01:08.0/resource1` a figé la console. Ne pas relancer la sonde archivée ni une variante sans avoir expliqué et résolu la cause technique ; privilégier l’acquisition XeLL documentée ou un lecteur matériel.
-- Les scripts d’installation archivés effacent des disques. Ils documentent du travail déjà effectué et ne sont pas des étapes à rejouer.
-- Aucun effacement/flashage NAND pour « essayer » : il manque une chaîne de démarrage indépendante validée et une sauvegarde brute restaurable adaptée au matériel.
-- Ne pas toucher aux eFuses, à la protection thermique, ni aux réglages d’alimentation dans une collecte d’inventaire.
-- Garder clés SSH, CPU/DVD keys, keyvaults, dumps firmware et adresses privées de travail hors Git ; `.local/` et `private/` sont ignorés.
-- Lancer Linux par Rock Band Blitz avec Ethernet débranché ; le rebrancher seulement après arrivée sous Linux. Le firmware stock et les patchs temporaires sont encore nécessaires.
-- L’accès utilise `en0` sur ce Mac ; les routes Tailscale non liées à l’interface ont donné des résultats trompeurs auparavant.
-- Préférer les lectures ciblées et les pilotes existants. Un accès MMIO en lecture seule peut quand même bloquer le matériel.
-- Après chaque expérience, mettre à jour STATE et EXPERIMENTS avec les preuves et limitations. Ne jamais annoncer « rétro-ingénierie complète » pour un inventaire ou une synthèse documentaire.
-- Publication GitHub explicitement autorisée par le nouvel objectif. Avant chaque commit public/push, auditer contenu et historique ; ne jamais pousser directement la branche de recherche locale contenant des traces privées. Publier uniquement depuis l'export public contrôlé décrit dans docs/PUBLICATION.md.
-- Pendant l'absence nocturne de l'utilisateur : pas de redémarrage volontaire ni opération irréversible ; noter les actions physiques dans docs/BLOCKED.md et poursuivre un axe indépendant.
+- Read `docs/STATE.md`, then `docs/EXPERIMENTS.md`, before any hardware interaction.
+- Communicate with the user in French. Write repository documentation, comments, reports, and contribution material in English. Distinguish direct measurements, source analysis, hypotheses, and unverified results.
+- Check the console's live state before presenting a historical observation as current.
+- An mmap read of flash window `0000:01:08.0/resource1` froze the console. Do not rerun the archived probe or a variant until its technical cause has been explained and resolved; prefer documented XeLL acquisition or a hardware reader.
+- Archived installation scripts erase disks. They document completed work and are not instructions to replay.
+- Do not erase or flash NAND experimentally: a validated independent boot chain and a hardware-appropriate, restorable raw backup are missing.
+- Do not touch eFuses, thermal protection, or power settings during inventory collection.
+- Keep SSH keys, CPU/DVD keys, keyvaults, firmware dumps, and private working addresses out of Git; `.local/` and `private/` are ignored.
+- Boot Linux through Rock Band Blitz with Ethernet disconnected; reconnect only after Linux starts. Stock firmware and temporary patches are still required.
+- Access on this Mac uses `en0`; Tailscale routes not bound to this interface previously produced misleading results.
+- Prefer targeted reads and existing drivers. Even a read-only MMIO access can hang hardware.
+- After every experiment, update STATE and EXPERIMENTS with evidence and limitations. Never describe inventory or a documentary synthesis as complete reverse engineering.
+- GitHub publication is explicitly authorized. Audit content and history before every public commit/push; never directly push the local research branch containing private traces. Publish only through the controlled public export described in `docs/PUBLICATION.md`.
+- While the user is away overnight, do not intentionally reboot or perform irreversible operations; record physical actions in `docs/BLOCKED.md` and continue independent work.

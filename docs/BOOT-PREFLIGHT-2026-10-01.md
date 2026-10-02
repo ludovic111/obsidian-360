@@ -1,54 +1,50 @@
-# Préparation et essai du candidat obsidian4
+# obsidian4 preparation and first boot
 
-## État de la console avant préparation
+## Initial console state
 
-SSH vérifié le 1 octobre à 21:21:44 UTC : noyau `6.18.11-xenon`, racine `/dev/sda1` ext4, aucun service en échec. La clé ARCH a été montée en lecture seule pour relever les empreintes, puis démontée. Son noyau fonctionnel, l'initramfs du système installé et la récupération live étaient présents.
+SSH was verified on October 1 at 21:21:44 UTC: `6.18.11-xenon`, `/dev/sda1` ext4 root, and no failed units. ARCH USB was mounted read-only for hashes and unmounted. Its working kernel, installed-root initramfs, and live recovery files were present.
 
-L'initramfs de `/boot` et celui du répertoire USB `linux-hdd` ont des empreintes différentes ; la clé conserve l'image antérieure qui a servi au démarrage fonctionnel. Ils n'ont pas été synchronisés ni remplacés pendant cette préparation.
+The `/boot` initramfs and USB `linux-hdd` initramfs had different hashes. USB retained the older image used for successful startup; neither was synchronized to the other or replaced during preparation.
 
-## Construction et vérifications
+## Build and verification
 
-Le correctif 0007 exclut `zImage.xenon` de la recette générique concurrente et retire la copie vers un chemin TFTP local du développeur amont. Le candidat **6.18.11-xenon-obsidian4** se construit sans avertissement pour les trois cibles vmlinux, modules et zImage.xenon. Les 65 modules sélectionnés sont vérifiés ; les six sections contrôlées restent identiques entre noyau et image. Preuves dans `kernel-build-obsidian4/`.
+Patch 0007 excludes zImage.xenon from the competing generic recipe and removes the upstream developer's local TFTP copy. **6.18.11-xenon-obsidian4** builds vmlinux, modules, and zImage.xenon without warnings. All 65 selected modules are verified, and six checked sections match between kernel and image. Evidence: `kernel-build-obsidian4/`.
 
-Les modules ont été transférés dans `/var/tmp/obsidian4-preflight-20261001/root`, après contrôle SHA-256 de l'archive. `depmod -e -E` n'a signalé aucune erreur de symbole/version. `mkinitcpio 40` a généré l'image avec un répertoire de modules distinct, le suffixe exact et `--nopost`, sans preset ni écriture dans `/boot`.
+Modules were transferred into `/var/tmp/obsidian4-preflight-20261001/root` after archive SHA-256 verification. `depmod -e -E` reported no symbol/version errors. `mkinitcpio 40` generated an image using a separate module root, exact suffix, and `--nopost`, without presets or writes to `/boot`.
 
-L'initramfs fait 16 169 156 octets, SHA-256 `87c91934ead6d828fcaaf0bc5b6bfe78fc011c8a895b53441cdfb404f208e7b5`. Ses 43 modules ont été extraits et comparés individuellement aux modules candidats. Les exécutables essentiels contrôlés sont ELF32 PowerPC big-endian ; les chemins vérifiés restent à l'intérieur de l'image extraite. La copie rapatriée sur le Mac a la même empreinte.
+The initramfs is **16,169,156 bytes**, SHA-256 `87c91934ead6d828fcaaf0bc5b6bfe78fc011c8a895b53441cdfb404f208e7b5`. Its 43 modules were extracted and individually matched to candidate modules. Checked essential executables are ELF32 big-endian PowerPC; resolved paths stay inside the extraction. The copy retrieved to the Mac has the same hash.
 
-SATA Xenon, SCSI, disque bloc, ext4, USB OHCI/EHCI, réseau sis190 et décompression zstd sont intégrés à la configuration du noyau. Cela ne remplace pas un essai de démarrage réel.
+Xenon SATA, SCSI, block disk, ext4, OHCI/EHCI USB, sis190 networking, and zstd decompression are built into the kernel configuration. This does not replace a real boot test.
 
-Le libxenon étudié fixe une limite d'initrd à 32 Mio (`a333adef440f28b436a667be0a4f014afce6349d`, `libxenon/drivers/elf/elf.c`). Le candidat reste en dessous. Le parser kboot étudié limite chaque entrée à 255 octets ; l'entrée préparée reste en dessous. Ces vérifications de sources ne prouvent pas l'identité binaire complète du XeLL exécuté.
+Studied LibXenon commit `a333adef440f28b436a667be0a4f014afce6349d`, `libxenon/drivers/elf/elf.c`, limits initrd size to 32 MiB; this candidate fits. The studied kboot parser limits an entry to 255 bytes; the prepared entry also fits. These source checks do not prove the complete binary identity of the running XeLL.
 
-## Fichiers effectivement préparés sur la console
+## Files actually staged
 
-À 21:29:51 UTC, les contrôles après copie confirment :
+Post-copy verification at 21:29:51 UTC confirmed:
 
-- Modules dans `/usr/lib/modules/6.18.11-xenon-obsidian4`, sans remplacement du répertoire du noyau fonctionnel.
-- Sur la clé : `obsidian4/kernel` et `obsidian4/initrd`, empreintes conformes au candidat.
-- Ancien menu sauvegardé dans `Recovery/kboot-before-obsidian4.conf`.
-- Entrée `obsidian4` ajoutée ; **`default=linux_hdd` conservé**.
-- Noyau, initramfs et récupération préexistants de la clé toujours aux mêmes empreintes.
-- Clé démontée après synchronisation. Aucun redémarrage envoyé par script.
+- Modules in `/usr/lib/modules/6.18.11-xenon-obsidian4`, without replacing the working release directory.
+- USB `obsidian4/kernel` and `obsidian4/initrd` match candidate hashes.
+- Previous menu saved as `Recovery/kboot-before-obsidian4.conf`.
+- Optional **obsidian4** entry added; **default=linux_hdd retained**.
+- Existing kernel, initramfs, and recovery hashes unchanged.
+- USB synchronized and unmounted; no scripted reboot.
 
-Le menu effectivement écrit est décrit par `boot-preflight/menu-plan.json` et confirmé par `staging-result.json`. Le premier fichier porte `installed: false` car il décrit la préparation avant copie ; le résultat daté de staging est l'état ultérieur faisant foi. La procédure exécutée est archivée dans `research/archive/stage-obsidian4.py.txt` pour audit, **pas pour être rejouée**.
+`boot-preflight/menu-plan.json` describes the intended menu and `staging-result.json` confirms installation. The former says `installed: false` because it predates copying; the later staging result is authoritative for the later state. The executed procedure is archived as `research/archive/stage-obsidian4.py.txt` for audit, not replay.
 
-## Essai utilisateur et retour au système fonctionnel
+## User test and intermediate stall
 
-L'utilisateur a indiqué qu'il lançait l'essai : démarrer sans Ethernet, lancer Rock Band Blitz, choisir USB si demandé, puis sélectionner `obsidian4` dans XeLL, et rebrancher Ethernet une fois Linux affiché. Le premier contrôle SSH après cette réponse expire ; cela est compatible avec la phase sans réseau et ne prouve ni un gel ni un succès.
+The user reported starting the test: Ethernet disconnected, Rock Band Blitz, USB if requested, explicit obsidian4 selection in XeLL, Ethernet reconnected after Linux. The first SSH check timed out, which is compatible with a disconnected-network phase and proves neither freeze nor success.
 
-La validation attendue est `uname -r` égal à `6.18.11-xenon-obsidian4`, racine interne, bureau actif, entrée clavier/manette et journaux sans nouvelle erreur critique. Le retour au noyau précédent passe par l'entrée `linux_hdd`, toujours par défaut. La récupération live reste disponible. Aucun démarrage autonome depuis la mise sous tension n'est encore validé.
+Photo IMG_1372 shows `Run /init as init process`, systemd-udevd 259-2-arch, `Triggering uevents...`, then SanDisk and sdb1 detection. The last visible line is at 4.016710 seconds after boot. No kernel panic is visible. The user later confirmed a persistent stall and did not remember selecting an entry.
 
-### Résultat intermédiaire fourni par l'utilisateur
+Because linux_hdd remained default, the photo cannot establish that the candidate ran. Local initramfs analysis shows the udev hook triggers events and calls `udevadm settle` before root resolution/mounting. That identifies a diagnostic point, but the photo does not distinguish a udev wait from a kernel hang and does not demonstrate disk failure.
 
-La photo IMG_1372 montre `Run /init as init process`, le démarrage de systemd-udevd 259-2-arch, `Triggering uevents...`, puis la détection de SanDisk et de sdb1. La dernière ligne visible est horodatée 4,016710 secondes après démarrage. Aucun message de panique noyau n'est visible. L'utilisateur confirme ensuite que l'écran reste bloqué et ne se souvient pas d'avoir choisi une entrée.
+Requested recovery was a physical shutdown, restart without Ethernet, explicit linux_hdd selection if the menu appeared, and Ethernet only after the desktop. No further remote modifications were sent during recovery. Evidence: `boot-preflight/first-boot-observation.json`; the photo is outside Git.
 
-Le menu ayant conservé linux_hdd par défaut, il est impossible de savoir à partir de cette photo si le candidat a été lancé. L'analyse locale de l'initramfs candidat montre que le hook udev déclenche les événements puis appelle `udevadm settle`, avant la résolution et le montage de la racine. Cela situe une piste de diagnostic ; la photo ne distingue pas une attente udev d'un blocage noyau et ne démontre pas une erreur de disque.
+## Candidate boot confirmed — E38
 
-Récupération demandée : extinction physique, redémarrage sans Ethernet, sélection explicite de linux_hdd si le menu apparaît, Ethernet après le bureau. Aucune nouvelle modification à distance n'est envoyée pendant cette récupération. Preuve : `boot-preflight/first-boot-observation.json`, photo conservée hors Git.
+The user subsequently found the XeLL menu, selected obsidian, and reported reaching the desktop. SSH identified **6.18.11-xenon-obsidian4**. The 21:45:47 UTC capture recorded 132 seconds uptime, internal ext4 root, no failed units, active Xorg/IceWM, 1280 × 720 XRandR output, active udev, and a queue settling within five seconds. No network watchdog or panic appeared in the collected warnings for that boot.
 
-## Démarrage candidat confirmé — E38
+`Using 1280x720 (398000) fb` confirms execution of the corrected allocation path: 1280 × 736 × 4 = **3,768,320 bytes**, versus **3,686,400** historically. This validates activation of the change, not the absence of all graphics corruption. Early ioremap/rodata warnings remain; the log is not claimed warning-free.
 
-L'utilisateur a finalement repéré le menu XeLL et choisi obsidian. Il confirme l'arrivée au bureau. SSH identifie ensuite `6.18.11-xenon-obsidian4` ; la collecte datée de 21:45:47 UTC indique 132 secondes d'uptime, racine interne ext4 et zéro service en échec. Xorg et IceWM sont actifs, XRandR indique 1280 × 720, udev est actif et sa file se vide dans le délai de cinq secondes. Aucun watchdog réseau ni panique dans les avertissements collectés de ce démarrage.
-
-Le journal `Using 1280x720 (398000) fb` confirme que le chemin d'allocation corrigé est exécuté : 1280 × 736 × 4 = 3 768 320 octets, contre 3 686 400 historiquement. Cela valide l'activation du changement sur la machine ; cela ne démontre pas à lui seul l'absence de toute corruption graphique. Les avertissements précoces ioremap/rodata subsistent ; pas de prétention à un journal sans avertissement.
-
-Preuves : `evidence/2026-10-01/obsidian4-first-boot/{runtime,validation}.json`. La collecte ne lit aucun BAR ni NAND. Aucun redémarrage ni modification de configuration envoyé. Le défaut du menu n'a pas été changé. La cause du gel précédent reste inconnue ; le retour de linux_hdd n'a pas été testé dans cette séquence. L'usage visible de la manette, les redémarrages répétés et la stabilité sous charge restent à établir.
+Evidence: `evidence/2026-10-01/obsidian4-first-boot/{runtime,validation}.json`. Collection reads no BAR or NAND, sends no reboot, and changes no configuration. Menu default remains unchanged. The earlier stall's cause remains unknown; linux_hdd rollback was not tested in that sequence. At E38, visible controller use, repeated boot, and load stability still required validation. Later results, including the clock variant, are in [STATE](STATE.md).

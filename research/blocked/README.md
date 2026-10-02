@@ -1,3 +1,3 @@
-# Expérience suspendue
+# Suspended experiment
 
-`read-flash-window.py.txt` a entraîné une perte réseau et un écran figé. Ne pas l’exécuter. Ce fichier est conservé pour analyser la méthode et ses limites. Il n’a produit aucun dump validé et n’envoie aucune commande de programmation/effacement. Voir E10 dans le journal.
+`read-flash-window.py.txt` caused network loss and a frozen display. **Do not execute it.** It is retained to investigate the method and its limitations. It produced no validated dump and issues no programming/erase command; even read-only MMIO can hang hardware. See E10 in the experiment ledger.

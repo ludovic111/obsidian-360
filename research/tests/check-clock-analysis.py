@@ -22,4 +22,21 @@ for change in ('incomplete','transport','missing_sample','negative_rtt','backwar
  try:clock.analyze(data)
  except ValueError:cases+=1
  else:raise AssertionError(change)
+# The active kernel conversion may differ from the immutable firmware DT.
+corrected=copy.deepcopy(base)
+corrected['identity']['cpuinfo_timebase_hz']=49875000
+for row in corrected['samples']:
+ midpoint=(row['host_send_monotonic_ns']+row['host_receive_monotonic_ns'])//2
+ for field in ('raw_ns','monotonic_ns','wall_ns'):row['console'][field]=midpoint
+r=clock.analyze(corrected)
+assert r['advertised_timebase_hz']==50000000 and r['conversion_timebase_hz']==49875000
+assert r['effective_timebase_hz_bounds'][0]<=49875000<=r['effective_timebase_hz_bounds'][1]<50000000
+cases+=1
+for invalid in (0,-1,True,'49875000'):
+ data=copy.deepcopy(corrected);data['identity']['cpuinfo_timebase_hz']=invalid
+ try:clock.analyze(data)
+ except ValueError:cases+=1
+ else:raise AssertionError('Invalid active frequency accepted')
+data=copy.deepcopy(corrected);data['identity']['cpuinfo_timebase_hz']=None
+assert 'effective_timebase_hz_bounds' not in clock.analyze(data);cases+=1
 print(json.dumps({'passed':True,'cases':cases,'scope':'Synthetic known rate plus malformed/incomplete observations; no console access'}))

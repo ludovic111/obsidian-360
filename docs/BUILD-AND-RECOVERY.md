@@ -1,31 +1,41 @@
-# Construire et comprendre l'installation
+# Building components and understanding the installation
 
-Ce projet documente un exemplaire et une installation existante ; il ne fournit pas encore un installateur universel. Un clone permet de lire les analyses et construire les composants locaux. Il n'inclut pas les jeux, payloads binaires, firmware, secrets ou dumps nécessaires à reproduire toute la chaîne d'origine.
+This project documents one console and an existing installation. It does not yet provide a universal installer. A clone supports reading the research and building local components; it does not include games, binary payloads, firmware, secrets, or dumps needed to reproduce the original entry chain.
 
-## Noyau obsidian4
+## obsidian4 base kernel
 
-Prérequis : Python 3, Docker avec conteneurs Linux, espace de compilation et source Linux exacte. Le build vérifié utilise l'image décrite par `research/Dockerfile.kernel-build`, LLVM 16, source `techflashYT/linux-custom@a293dd19311668900eb1eeb2f6cb01dcac54f330`. L'archive de référence a pour SHA-256 `b3e0b3a92523f334e594e07b57da58e459b4d21630ec1366aba48297da9282f0`. Ne pas substituer une branche actuelle.
+Prerequisites: Python 3, Docker with Linux containers, build storage, and the exact Linux source. The verified build uses `research/Dockerfile.kernel-build`, LLVM 16, and `techflashYT/linux-custom@a293dd19311668900eb1eeb2f6cb01dcac54f330`. Reference archive SHA-256: `b3e0b3a92523f334e594e07b57da58e459b4d21630ec1366aba48297da9282f0`. Do not substitute a current moving branch.
 
-Sur une copie neuve de cette source, appliquer dans l'ordre les correctifs Linux 0001, 0003, 0004, 0005, 0006 et 0007 de `research/patches/` (`patch -p1 --dry-run`, puis application dans l'arborescence cible). 0002 concerne XeLL et ne doit pas être appliqué au noyau. Conserver source et sortie séparées. Copier `evidence/2026-10-01/kernel-build-obsidian4/candidate.config` vers `.config` du répertoire de sortie ; cette configuration provient de l'exemplaire étudié, ce n'est pas une garantie pour une autre révision.
+In a fresh copy of that source, apply Linux patches **0001, 0003, 0004, 0005, 0006, and 0007** from `research/patches/`, in order. Use `patch -p1 --dry-run` before applying each patch. Patch 0002 targets XeLL, not Linux. Keep source and output directories separate. Copy `evidence/2026-10-01/kernel-build-obsidian4/candidate.config` to the output directory's `.config`. This configuration comes from the studied console and is not a compatibility guarantee for other revisions.
 
 ```sh
 docker build -t obsidian360-kernel:llvm16 -f research/Dockerfile.kernel-build .
-python3 tools/build-kernel.py --source CHEMIN_SOURCE --output CHEMIN_BUILD --jobs 4 --localversion=-obsidian4 --target vmlinux
-python3 tools/build-kernel.py --source CHEMIN_SOURCE --output CHEMIN_BUILD --jobs 4 --localversion=-obsidian4 --target modules
-python3 tools/build-kernel.py --source CHEMIN_SOURCE --output CHEMIN_BUILD --jobs 4 --localversion=-obsidian4 --target zImage.xenon
-python3 tools/check-kernel-artifacts.py --build CHEMIN_BUILD --output CHEMIN_RAPPORT.json
+python3 tools/build-kernel.py --source SOURCE_DIR --output BUILD_DIR --jobs 4 --localversion=-obsidian4 --target vmlinux
+python3 tools/build-kernel.py --source SOURCE_DIR --output BUILD_DIR --jobs 4 --localversion=-obsidian4 --target modules
+python3 tools/build-kernel.py --source SOURCE_DIR --output BUILD_DIR --jobs 4 --localversion=-obsidian4 --target zImage.xenon
+python3 tools/check-kernel-artifacts.py --build BUILD_DIR --output NEW_REPORT.json
 ```
 
-Les chemins en capitales sont à remplacer. Ne pas lancer deux builds concurrents : le wrapper conserve chaque journal et refuse de masquer un conteneur déjà présent. L'image est résolue en identifiant local au lancement, mais reconstruire aujourd'hui le Dockerfile ne garantit pas les mêmes paquets ni un binaire identique. Les journaux, versions, configuration et SHA du build vérifié sont dans `kernel-build-obsidian4/`. Cette procédure décrit les éléments déjà utilisés ; un test de reproduction depuis un clone entièrement neuf reste à effectuer.
+Replace uppercase placeholders. Build targets sequentially; do not run concurrent builds against one output directory. The wrapper preserves logs and refuses to conceal an existing container. It resolves a local image identity at launch, but rebuilding the Dockerfile today does not guarantee identical packages or binaries. Versions, configuration, commands, and hashes of the verified build are in `evidence/2026-10-01/kernel-build-obsidian4/`.
 
-Les tests hors console et leurs sources nécessaires sont décrits dans `research/tests/README.md`. Aucun de ces builds ne flashe ni ne redémarre la console.
+This describes the components used successfully. A complete clean-room reproduction from a fresh clone has not yet been performed. [Host tests](../research/tests/README.md) list their required upstream sources. These build commands do not flash or reboot the console.
 
-## Installation existante et récupération
+## Clock-correction variant
 
-Le système vérifié utilise ArchPOWER sur partition ext4 interne avec swap, noyau PPC64 et applications PPC32. Xorg modesetting sans accélération démarre via autologin tty1/startx, avec IceWM et le lanceur de `desktop/`. Les fichiers de bureau ne suffisent pas à provisionner une autre console sans préparer les paquets, comptes, permissions et stockage.
+Apply **0016** to the obsidian4 base and use a distinct output directory and `LOCALVERSION=-obsidian-clock`. Audio patches 0008–0015 are not part of this variant. Build and verify vmlinux, modules, and zImage.xenon consistently with the same suffix. The boot entry supplies `xenon_tb_hz=49875000`; without that explicit option, the patch preserves firmware-derived conversion.
 
-Le candidat est séparé : modules dans `/usr/lib/modules/6.18.11-xenon-obsidian4`, noyau et initramfs dans un répertoire USB `obsidian4/`. Les modules doivent correspondre exactement au noyau. La génération décrite dans BOOT-PREFLIGHT utilise mkinitcpio avec un répertoire de staging et `--nopost`, puis vérifie les fichiers extraits ; elle n'écrase pas `/boot` ni l'initramfs précédent.
+E70 verifies the image and 65 modules; E71 prepares the initramfs and optional entry; E73 verifies a hardware boot and a 60-second clock comparison. See [calibration](TIMEBASE-CALIBRATION.md), [boot preparation](TIMEBASE-BOOT.md), and [first boot](TIMEBASE-FIRST-BOOT.md). Building the files alone does not validate installation on another console.
 
-Chaîne réelle : démarrage stock, Rock Band Blitz, XeLL, choix du noyau USB, racine Linux interne. Débrancher Ethernet avant ce lancement, le reconnecter après Linux. Le menu conserve `linux_hdd` par défaut et une entrée obsidian4 distincte. En cas de candidat non fonctionnel, sélectionner le noyau précédent et conserver le système live de récupération. Un retour à linux_hdd après le dernier essai obsidian4 n'a pas encore été revérifié ; ne pas le présenter comme un test récent.
+## Existing persistent system
 
-Aucune procédure logicielle ne restaure aujourd'hui une NAND endommagée sur cet exemplaire : sauvegarde brute adaptée et méthode matérielle indépendante non validées. Ne pas remplacer la NAND pour tester le démarrage direct. Les anciens scripts de partitionnement et la sonde flash ayant figé la console restent des archives locales, jamais des étapes d'installation à rejouer.
+The verified installation uses ArchPOWER on internal ext4 with swap, a PPC64 kernel, and PPC32 applications. Unaccelerated Xorg modesetting starts through tty1 autologin/startx, with IceWM and the `desktop/` launcher. Those desktop files alone do not provision another console's packages, accounts, permissions, or disks.
+
+Kernel modules are version-specific: `/usr/lib/modules/6.18.11-xenon-obsidian4` and `/usr/lib/modules/6.18.11-xenon-obsidian-clock`. USB directories `obsidian4/` and `obsidian-clock/` contain their respective kernels/initramfs. Match modules exactly to the kernel release. The documented mkinitcpio procedure uses a separate module root and `--nopost`, then verifies extracted contents; it does not overwrite `/boot` or the previous initramfs.
+
+## Boot and recovery
+
+The actual chain remains stock startup → Rock Band Blitz → XeLL → selected USB kernel → internal Linux root. Disconnect Ethernet before entering this path and reconnect after Linux appears. The menu default remains **linux_hdd**, with optional **obsidian4** and **obsidian_clock** entries and retained live recovery files.
+
+If a candidate does not work, physically restart into a previously working entry. obsidian4 has a confirmed successful boot history. Retained files do not prove a fresh rollback test; report what was actually attempted and observed.
+
+No software procedure currently restores a damaged NAND on this console. A suitable raw backup and independent hardware recovery method have not been validated. Do not replace NAND to experiment with direct boot. Historical partitioning scripts and the flash-window probe that froze the console remain local archives, never installation steps to replay.
