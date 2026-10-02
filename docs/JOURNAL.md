@@ -152,3 +152,5 @@ Publication E49–E52 vérifiée à 2026-10-02T08:25:04.519035+00:00 : commit pu
 - Résultat : première compilation complète audio-lifecycle terminée code 0 ; copie indépendante puis compilation audio-post code 0. Soixante-dix modules chacune, aucun avertissement, formats PowerPC et vermagic vérifiés, nouvel export GPL présent.
 - Limites : budget logique, pas borne de transaction MMIO ; tests séquentiels sans validation SMP. Le mutex ne protège pas les anciennes voies. Aucun envoi réel, noyau/image ni module installé.
 - Suite : publication après audit ; contrat DMA PCM, timer/notifications et protocole avant activation.
+
+Publication E53/E54 vérifiée à 2026-10-02T08:57:54.026744+00:00 : commit public `5dd3293b9936669ba7a8e25935de8dd6b918fafc`, 273 fichiers, parent et arbre GitHub conformes après audits. Preuve `evidence/2026-10-02/public-audit/smc-publication.json`. Deux builds audio complets validés, aucun installé.
