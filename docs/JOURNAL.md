@@ -130,3 +130,5 @@ Publication E48 vérifiée à 2026-10-02T08:03:48.586991+00:00 : commit public `
 - Mesure matérielle : à 08:17:42 UTC obsidian4 répond après 201,58 s, zéro unité en échec, XRandR répond en 720p. Préférences contre le gel conservées.
 - Correction du diagnostic d’arrêt : CanPowerOff depuis runuser dans SSH renvoie encore challenge, mais pkcheck sur le vrai PID 429 du lanceur local autorise power-off et power-off-multiple-sessions. La règle étroite existait déjà. Le contexte du lanceur relancé depuis SSH est une explication cohérente de l’ancien refus, pas une reproduction complète.
 - Suite : utilisateur parti temporairement, travail autonome demandé ; aucun redémarrage volontaire ni test effectif du bouton. Poursuivre le portage audio hors matériel et valider l’arrêt lors d’un créneau physique.
+
+Publication E49–E52 vérifiée à 2026-10-02T08:25:04.519035+00:00 : commit public `fd75dd4f20e7d0c0d0fc1475b1423d013d7cfa00`, 248 fichiers, parent et arbre GitHub conformes après audits. Preuve `evidence/2026-10-02/public-audit/audio-publication.json`. Audio non activé ; aucun arrêt depuis le retour Linux.
