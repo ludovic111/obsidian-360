@@ -178,3 +178,13 @@ Publication E55/E56 vérifiée à 2026-10-02T09:45:58.581719+00:00 : commit publ
 - Échecs conservés : deux comparaisons signées au premier banc ; option --output incorrecte pour le banc de géométrie. Corrigés, recettes mises à jour.
 - Configuration : ancien noyau sans HIGH_RES_TIMERS, incompatible avec la cadence nominale pour les plus petits tampons. Activation dans la copie candidate et refus de open si haute résolution inactive. Deux builds intermédiaires réussis ; build final démarré à 2026-10-02T09:59:37Z, encore vivant au relevé.
 - Limites : modèle temporel et un entrelacement déterministe ; aucune validation SMP/latence/DMA. Ni installation ni nouvelle interaction Xbox. Prochain axe : publication des échantillons via ack puis protocole matériel.
+
+
+## 2026-10-02T10:16:13.670215+00:00 — fin E57 et audit E58
+
+- Résultat E57 : build haute résolution terminé code 0 ; 70 modules, ELF/vermagic et empreintes vérifiés, aucun avertissement. Le processus existant a été suivi jusqu’à sa fin, sans relance. Aucun déploiement.
+- Objectif E58 : comprendre la publication audio avant migration vers ack.
+- Observation hôte : trois requêtes identiques alternent la file sur 96 cas. Les helpers ALSA réels reproduisent un dépassement signé pour une valeur synthétique native 64 bits ; atteignabilité par les applications 32 bits actuelles non démontrée. Publication d’un bloc partiellement engagé interprétée sous l’hypothèse dernier-descripteur-valide.
+- Analyse : ack doit préserver rollback, retour de boundary, tampon complet, écritures partielles, drain et reset. Déplacer simplement les écritures ne suffirait pas.
+- Référence examinée : xenon-emu/xenon au commit 0284bbe6c8125935d97bf54ab3132089c6c65c8b ; classe audio sans consommation de descripteurs, donc pas de validation du protocole.
+- Suite : documenter et publier après audit ; concevoir soumission/fins de flux, sans activer les noyaux audio encore incomplets. Dernier relevé matériel inchangé : E56.

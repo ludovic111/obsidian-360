@@ -1,8 +1,10 @@
 # État courant — 2 octobre 2026
 
-## Suivi audio par sortie — E57, compilation finale en cours
+E58 : 96 cas reproduisent une file modifiée par des demandes de position identiques ; débordement de conversion signé également reproduit avec une valeur synthétique native 64 bits. Aucun défaut vivant revendiqué. Le contrôleur audio de l’émulateur Xenon examiné est un stub et ne valide pas le protocole. Soumission et fin de flux à résoudre avant activation ; voir `docs/AUDIO-SUBMISSION-AUDIT.md`.
 
-Le correctif 0012 arme un timer par flux, compte la progression réelle entre observations et attend les callbacks avant libération. Quinze scénarios de suivi, vingt de ressources et quinze PCM passent hors console. Deux compilations intermédiaires avec ancienne configuration ont réussi ; la variante finale active les timers haute résolution et sa compilation complète est encore en cours. Aucun chargement. Voir `docs/AUDIO-STREAM-POLLING.md`. Dernier état vivant : E56.
+## Suivi audio compilé et soumission à corriger — E57/E58
+
+Le correctif 0012 arme un timer par flux, compte la progression réelle entre observations et attend les callbacks avant libération. Quinze scénarios de suivi, vingt de ressources et quinze PCM passent hors console. La variante finale active les timers haute résolution ; noyau et 70 modules compilent sans avertissement, ELF et versions vérifiés. Aucun chargement. Voir `docs/AUDIO-STREAM-POLLING.md`. Dernier état vivant : E56.
 
 ## Tampons audio et retour utilisateur — E55/E56
 

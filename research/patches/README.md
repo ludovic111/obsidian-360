@@ -26,4 +26,4 @@ Ne pas appliquer ces diffs aux archives de preuves. Aucun flash NAND requis pour
 
 `0011-xenon-audio-coherent-pcm.patch` passe aux tampons gérés ALSA et à leur adresse CPU existante, supprime le remappage/cache privés et ajoute contraintes et contrôles défensifs. Vingt scénarios ressources, douze callbacks et régression géométrique passent ; noyau et 70 modules compilés. Timer et protocole restent incomplets, aucun chargement. Voir `docs/AUDIO-PCM-DMA.md`.
 
-`0012-xenon-audio-stream-polling.patch` ajoute le suivi par sortie et la synchronisation avant libération ; 15 scénarios de suivi, 20 ressources et 15 PCM passent hors matériel. Configuration haute résolution requise, build final en cours, non activé. Voir `docs/AUDIO-STREAM-POLLING.md`.
+`0012-xenon-audio-stream-polling.patch` ajoute le suivi par sortie et la synchronisation avant libération ; 15 scénarios de suivi, 20 ressources et 15 PCM passent hors matériel. Configuration haute résolution activée, noyau final et 70 modules vérifiés sans avertissement, non activé. Voir `docs/AUDIO-STREAM-POLLING.md`.

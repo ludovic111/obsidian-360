@@ -21,3 +21,5 @@ Le correctif 0010 modifie le cœur SMC (GPL-2.0), son en-tête et le pilote audi
 Le correctif 0011 conserve la provenance jc4360/linux-custom et la licence GPL-2.0-or-later du pilote audio. Le nouveau banc PCM et les adaptations des modèles sont originaux ; les callbacks amont sont extraits de la source locale à l’exécution.
 
 Le correctif 0012 conserve la licence GPL-2.0-or-later du pilote audio de jc4360/linux-custom. Le modèle de timers, le scénario pthread et leurs assertions sont originaux ; les routines du pilote sont extraites à l’exécution. Les API et contrats ALSA sont analysés depuis le noyau de référence.
+
+Le banc de soumission E58 extrait aussi les helpers de conversion de include/sound/pcm.h du noyau de référence ; ils conservent leur licence amont et ne sont pas recopiés sous MIT. Les fichiers AudioController de xenon-emu/xenon ont uniquement été analysés localement ; seuls liens et empreintes sont publiés.

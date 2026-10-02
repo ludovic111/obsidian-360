@@ -1,6 +1,6 @@
 # Suivi des flux et synchronisation audio — E57
 
-Le correctif 0012 s’applique après 0011. Chaque sortie possède son propre timer ; START l’arme, STOP marque le flux arrêté, et `.sync_stop` attend la fin des callbacks avant reconfiguration. Les tests hôtes passent. La compilation complète de la variante finale avec haute résolution est encore en cours au dernier point documenté ; aucun fichier installé sur la console.
+Le correctif 0012 s’applique après 0011. Chaque sortie possède son propre timer ; START l’arme, STOP marque le flux arrêté, et `.sync_stop` attend la fin des callbacks avant reconfiguration. Les tests hôtes passent. La variante finale avec haute résolution compile avec 70 modules, sans avertissement ; aucun fichier installé sur la console.
 
 ## Défauts reproduits dans la version précédente
 
@@ -61,3 +61,7 @@ python3 research/tests/check-audio-buffers.py --original ORIGINAL/sound/pci/snd-
 Utiliser ensuite la configuration fournie et l’environnement LLVM 16 d’E53 avec `LOCALVERSION=-audio-poll`, cibles `olddefconfig vmlinux modules`. Aucun initramfs ou fichier XeLL de cette variante n’est préparé.
 
 La publication des échantillons dans `.pointer` reste à remplacer par un suivi de `appl_ptr` via `.ack`. Restent aussi l’encodage des longueurs, la limite mémoire basse et l’initialisation analogique/HDMI. Aucun son mesuré, aucune nouvelle interaction matérielle durant E57 ; dernier contrôle vivant E56.
+
+## Compilation finale vérifiée
+
+`6.18.11-xenon-audio-poll`, configuration HIGH_RES_TIMERS activée : cibles olddefconfig, vmlinux et modules terminées avec code 0. Les 70 modules et le noyau sont ELF64 PowerPC big-endian, avec vermagic concordant ; configuration et sources correspondent aux empreintes conservées. Aucun avertissement dans le journal. Preuves `final-build.json`, `final-build.log` et `final-artifacts.json`. Aucun initramfs/image XeLL, démarrage ni chargement. E58 ajoute l’audit des défauts restants de publication dans `docs/AUDIO-SUBMISSION-AUDIT.md`.

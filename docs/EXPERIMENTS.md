@@ -76,7 +76,9 @@
 | E55 | Migrer les PCM vers la mémoire DMA gérée ALSA et tester les callbacks réels | 20 scénarios de ressources, 12 de callbacks, régression de 16 369 tailles ; noyau audio-pcm + 70 modules sans avertissement ; audio-pcm/ | Aucun chargement ; timer/concurrence/protocole non validés |
 | E56 | Reconnexion SSH après le retour de l’utilisateur, interfaces standard en lecture seule | obsidian4, uptime 5 139,44 s, aucun service en échec, framebuffer 1280×720 ; audio-pcm/console-status.json | Pas un test visuel, de charge ou audio |
 
-| E57 | Reproduire le timer audio non armé et ses fausses notifications, puis ajouter suivi par sortie et sync_stop | 15 scénarios de suivi dont fermeture concurrente contrôlée, 20 ressources et 15 PCM passent ; audio-poll/ | Compilation finale haute résolution en cours ; protocole et matériel non validés, aucun chargement |
+| E57 | Reproduire le timer audio non armé et ses fausses notifications, puis ajouter suivi par sortie et sync_stop | 15 scénarios de suivi dont fermeture concurrente contrôlée, 20 ressources et 15 PCM passent ; audio-poll/ | Noyau final haute résolution + 70 modules vérifiés, sans avertissement ; protocole et matériel non validés, aucun chargement |
+
+| E58 | Exécuter la routine pointer et les conversions ALSA réelles ; examiner le contrat ack et un émulateur | 96 cas de file alternante sans nouvelles données, débordement signé attendu, publication partielle conditionnelle ; audio-submission/ | Remplacement à concevoir avec drain/reset ; émulateur audio insuffisant pour valider le protocole |
 
 ## Analyse de l’incident E10
 
