@@ -75,3 +75,5 @@ Publication E41/E42 vérifiée à 2026-10-02T07:14:53.060765+00:00 : commit publ
 - Résultat : OpaqueMove/Resize activés avec sauvegarde des préférences ; manette rouverte par le lanceur. Cinq tests synthétiques de sense passent.
 - Interprétation : mécanisme XGrabServer cohérent avec le code et les symptômes ; pas encore reproduction contrôlée ni confirmation manuelle du correctif. Différence CD/DVD réelle, pièce fautive encore inconnue.
 - Suite : utilisateur invité à redimensionner de nouveau ; besoin d’un DVD vidéo connu fonctionnel pour distinguer panne DVD et disque particulier.
+
+Publication E43–E46 vérifiée à 2026-10-02T07:41:15.538940+00:00 : commit public `ec431c9c7e114e11074628d0fb95358d1128a752`, 221 fichiers, arbre distant identique ; preuve `public-audit/optical-publication.json`. Validation manuelle du redimensionnement encore attendue.
