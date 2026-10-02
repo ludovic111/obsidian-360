@@ -285,3 +285,7 @@ Publication E65/E66 vérifiée à 2026-10-02T12:57:15.785188+00:00 : commit publ
 - E70 : patch 0016 indépendant, option précoce xenon_tb_hz limitée à 49 875 000 ou 50 000 000 Hz. Sans option, configuration firmware conservée. Conversion logicielle seulement ; aucune programmation PLL/alimentation. Une mesure sur cet exemplaire ne justifie pas de forcer toutes les révisions.
 - Construction distincte depuis obsidian4, sans les patches audio : vmlinux, modules et zImage.xenon codes zéro sans avertissement. obsidian-clock, 65 modules ELF/vermagic et six sections de charge utile vérifiés ; symbole du parseur et option présents, patch reconstruit identiquement.
 - Limites : correction non installée/non démarrée. Initramfs et entrée USB encore à préparer, mesure après reboot indispensable. Ne pas transformer la compilation en amélioration de cadence déjà obtenue ; conserver les horodatages historiques et signaler leur origine.
+
+Publication E67–E70 vérifiée à 2026-10-02T13:27:32.850304+00:00 : commit public `db44cdd3e537a6d0a2dd13ac565a939f9b90e043`, 442 fichiers, parent et arbre GitHub conformes après audits. Preuve : `evidence/2026-10-02/public-audit/timebase-publication.json`. Acquittements analogiques observés ; cadence mesurée et noyau de correction compilé, non installé.
+
+Confirmation complémentaire E69 : /proc/cpuinfo annonce effectivement timebase=50000000 et aucune propriété ibm,extended-timebase-frequency prioritaire n’est présente. Lecture seule ; preuve clock-calibration/effective-timebase.json, conservée pour la prochaine publication.
