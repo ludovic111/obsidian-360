@@ -132,3 +132,13 @@ Publication E48 vérifiée à 2026-10-02T08:03:48.586991+00:00 : commit public `
 - Suite : utilisateur parti temporairement, travail autonome demandé ; aucun redémarrage volontaire ni test effectif du bouton. Poursuivre le portage audio hors matériel et valider l’arrêt lors d’un créneau physique.
 
 Publication E49–E52 vérifiée à 2026-10-02T08:25:04.519035+00:00 : commit public `fd75dd4f20e7d0c0d0fc1475b1423d013d7cfa00`, 248 fichiers, parent et arbre GitHub conformes après audits. Preuve `evidence/2026-10-02/public-audit/audio-publication.json`. Audio non activé ; aucun arrêt depuis le retour Linux.
+
+
+## 2026-10-02 — E53 — cycle de vie audio et divergence de protocole
+
+- Objectif : corriger les ressources du pilote avant activation.
+- Action : propriétaire unique ALSA, nettoyage des acquisitions partielles, arrêt avant destruction des PCM, API DMA/timer modernes, transport SMC partagé. Banc de fonctions C extraites sous ASan/UBSan, hors matériel.
+- Observation : douze échecs attendus dans treize scénarios de l’original ; seize scénarios du candidat passent. Le premier essai du banc ne compilait pas, corrigé et conservé comme échec d’outillage. Régression des tampons inchangée.
+- Résultat : objet PPC compilé sans avertissement ; compilation noyau/modules lancée séparément avec source figée. Aucun fichier installé sur Xbox.
+- Analyse du code : LibXenon mentionne les premiers 32 Mio et encode les longueurs différemment ; HDMI y exige une initialisation absente du pilote Linux. Masque 29 bits et encodage historique non validés sur le matériel. ALSA fournit déjà de la mémoire DMA cohérente, à utiliser directement pour les PCM.
+- Suite : achever et vérifier la compilation complète ; poursuivre contrat DMA, callbacks/timer et protocole. Aucun redémarrage pendant l’absence utilisateur.

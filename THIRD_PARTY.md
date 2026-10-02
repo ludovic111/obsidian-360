@@ -13,3 +13,5 @@ La licence MIT à la racine couvre les outils, tests et textes originaux du proj
 Les auteurs amont conservent leurs droits. Les liens vers leurs dépôts et les révisions exactes sont dans `docs/SOURCES.md` et les rapports de provenance. Aucun composant amont n'est présenté comme une découverte ou une création originale d'OBSIDIAN-360.
 
 Le correctif audio 0008 et les extraits de diagnostics de snd-xenon.c dérivent du pilote de jc4360 (2009), GPL-2.0-or-later, dans le même noyau linux-custom. La licence MIT ne remplace pas cette licence. Le banc extrait les fonctions de la copie source locale ; les routines amont ne sont pas recopiées dans le test.
+
+Le correctif audio 0009 partage la provenance et la licence GPL-2.0-or-later de 0008. Les tests de ressources et leur modèle sont originaux ; les fonctions du pilote sont extraites à l’exécution de la copie source fournie.

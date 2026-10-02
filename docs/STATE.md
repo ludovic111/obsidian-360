@@ -1,5 +1,9 @@
 # État courant — 2 octobre 2026
 
+## Portage audio en cours, hors console
+
+E53 : correctif 0009 après 0008 ; objet PowerPC compilé sans avertissement, douze défaillances attendues reproduites dans treize scénarios originaux, seize scénarios du candidat passent avec contrôle des ressources et ASan/UBSan. La comparaison LibXenon révèle une divergence d’encodage des longueurs et une limite mémoire basse possible ; elles doivent être résolues avant activation. Compilation noyau/modules suivie séparément. Dernier état vivant : E52. Voir `docs/AUDIO-LIFECYCLE-AUDIT.md`.
+
 ## Dernier contrôle vivant et audit audio
 
 E52 : retour sous obsidian4 confirmé le 2 octobre à 08:17:42 UTC, uptime 201,58 s, zéro unité en échec, XRandR répond en 720p. OpaqueMove/Resize restent à 1. Le lanceur appartient à la session locale active et ses deux autorisations d’arrêt passent. **Correction E49 :** le « challenge » mesuré via runuser dans SSH ne caractérisait pas le vrai lanceur ; bouton à essayer au retour de l’utilisateur, aucune nouvelle règle installée. Utilisateur absent temporairement, aucun arrêt/redémarrage volontaire.
