@@ -107,3 +107,5 @@ Publication E47 et piste PAL vérifiée à 2026-10-02T07:57:41.408927+00:00 : co
 - Suite : retour sur rotation/clics demandé ; comparaison sous système d’origine avant toute ouverture du lecteur.
 
 Retour utilisateur E48 : le DVD tourne brièvement puis s’arrête, comme Just Cause 2. Contrôle sous le tableau de bord Xbox d’origine demandé, avec arrêt propre depuis Linux et sans relancer le jeu de démarrage. Le résultat reste en attente.
+
+Publication E48 vérifiée à 2026-10-02T08:03:48.586991+00:00 : commit public `b4b49e2b2fdcc42f522fbc6cd4b74b1b96202632`, 234 fichiers et arbre distant conforme ; preuve `evidence/2026-10-02/public-audit/video-publication.json`. Résultat du contrôle sous tableau de bord stock encore attendu.
