@@ -215,3 +215,5 @@ Publication E59 vérifiée à 2026-10-02T10:36:04.104109+00:00 : commit public `
 - Limite : fin du dernier descripteur non décodée ; un résiduel nul inchangé ne vaut pas preuve de lecture. Stagnation simulée se termine volontairement en XRUN. Drain sonore, longueur/adresses DMA, prélecture, initialisation HDMI et comportement réel restent ouverts. Aucun chargement ni démarrage de cette variante.
 - Mesure E61 distincte : SSH à 10:49:58 UTC, obsidian4, uptime 9 327,35 s, aucune unité en échec listée, framebuffer 720p. Pas de test visuel ; configuration console inchangée.
 - Suite : résoudre le dernier bloc et confronter le protocole aux références avant toute activation. Publication uniquement depuis l'export audité.
+
+Publication E60/E61 vérifiée à 2026-10-02T10:58:31.472464+00:00 : commit public `f8989261de3589ec3b3c3276b9e4ef66646795f3`, 342 fichiers, parent et arbre GitHub conformes après audits. Preuve : `evidence/2026-10-02/public-audit/adapter-publication.json`. Noyau audio-submit compilé, non installé ; fin du dernier descripteur toujours non décodée.
