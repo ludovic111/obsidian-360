@@ -1,4 +1,14 @@
-# État courant — 1 octobre 2026
+# État courant — 2 octobre 2026
+
+## Contrôles vivants du 2 octobre
+
+E45 : Just Cause 2 inséré ; statut « pas de disque », erreur de lecture et réponse SCSI `02/3a/00` (« medium not present »). Contraste CD/DVD constaté, origine matérielle précise inconnue.
+
+E46 : l’utilisateur corrige son premier retour : le bureau était figé depuis un redimensionnement la veille. La présence des processus dans E43 ne démontrait donc pas sa réactivité. Relance du lanceur seule et SIGHUP IceWM insuffisants ; arrêt forcé IceWM suivi de sa relance automatique rétablit XRandR, sans reboot Linux. Réglages `OpaqueMove=1` et `OpaqueResize=1` installés, ancien fichier sauvegardé ; lanceur relancé et état manette rafraîchi. Essai manuel de redimensionnement demandé. Voir `docs/DESKTOP-RESIZE-RECOVERY.md`.
+
+E43 : obsidian4 répond après plus de neuf heures de fonctionnement, IceWM actif et zéro service en échec. Ce relevé ne constitue pas un test de charge ni une validation du lanceur : son fichier d’état manette ne change pas pendant une fenêtre de douze secondes. Aucun gain d’écriture au repos n’est donc mesuré ; diagnostic à poursuivre avant optimisation.
+
+E44 : après insertion d’un CD musical par l’utilisateur, le lecteur renvoie un statut prêt et une table de **20 pistes audio**. Quatre lectures de 2 352 octets réussissent, sur trois positions éloignées, avec empreinte identique lors de la relecture de la première. Le lecteur sait lire ces secteurs CD ; DVD et jeux restent non vérifiés. Aucune donnée audio conservée, seulement métadonnées et empreintes. Preuves : `evidence/2026-10-02/optical-cd/`. Utilisateur réveillé ; comparaison DVD demandée.
 
 ## Outil d'analyse ajouté le 2 octobre (date locale)
 
