@@ -167,3 +167,14 @@ Publication E53/E54 vérifiée à 2026-10-02T08:57:54.026744+00:00 : commit publ
 - Limites : aucun son, aucune validation DMA réelle ; ancien timer non armé, synchronisation des callbacks et protocole à résoudre. Prochaine étape : notifications de progression et durée de vie des flux, hors matériel.
 
 Publication E55/E56 vérifiée à 2026-10-02T09:45:58.581719+00:00 : commit public `74ba6693755aaef77e96d016bbcbc6e7cf473713`, 287 fichiers, parent et arbre GitHub conformes après audits. Preuve : `evidence/2026-10-02/public-audit/pcm-publication.json`. Candidat audio-pcm non installé.
+
+
+## 2026-10-02T10:04:39.273970+00:00 — E57 — suivi audio par sortie
+
+- Objectif : lancer et synchroniser correctement le suivi de lecture.
+- Observation : START n’arme pas le timer ; deux appels directs du vieux callback avec position identique produisent deux fausses notifications. Reproduction hors matériel, pas un relevé vivant.
+- Action : hrtimer par sortie, progression modulo et reste de période, XRUN si observation trop tardive, notification hors verrou du pilote, sync_stop/hw_free attendent le callback.
+- Résultat hôte : 15 scénarios timer, 20 ressources, 15 PCM passent sous ASan/UBSan ; cas pthread avec notification retenue pendant la fermeture. Géométrie : 512 tailles acceptées sur 16 369, sans dépassement parmi elles.
+- Échecs conservés : deux comparaisons signées au premier banc ; option --output incorrecte pour le banc de géométrie. Corrigés, recettes mises à jour.
+- Configuration : ancien noyau sans HIGH_RES_TIMERS, incompatible avec la cadence nominale pour les plus petits tampons. Activation dans la copie candidate et refus de open si haute résolution inactive. Deux builds intermédiaires réussis ; build final démarré à 2026-10-02T09:59:37Z, encore vivant au relevé.
+- Limites : modèle temporel et un entrelacement déterministe ; aucune validation SMP/latence/DMA. Ni installation ni nouvelle interaction Xbox. Prochain axe : publication des échantillons via ack puis protocole matériel.

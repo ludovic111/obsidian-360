@@ -1,5 +1,9 @@
 # État courant — 2 octobre 2026
 
+## Suivi audio par sortie — E57, compilation finale en cours
+
+Le correctif 0012 arme un timer par flux, compte la progression réelle entre observations et attend les callbacks avant libération. Quinze scénarios de suivi, vingt de ressources et quinze PCM passent hors console. Deux compilations intermédiaires avec ancienne configuration ont réussi ; la variante finale active les timers haute résolution et sa compilation complète est encore en cours. Aucun chargement. Voir `docs/AUDIO-STREAM-POLLING.md`. Dernier état vivant : E56.
+
 ## Tampons audio et retour utilisateur — E55/E56
 
 E55 : le candidat 0011 utilise les tampons cohérents gérés par ALSA, sans remappage ioremap ni boucle de cache privée. Vingt scénarios de ressources et douze de callbacks passent ; noyau audio-pcm et 70 modules compilés sans avertissement. Aucun installé : timer, concurrence et protocole matériel restent à résoudre. Voir `docs/AUDIO-PCM-DMA.md`.

@@ -19,3 +19,5 @@ Le correctif audio 0009 partage la provenance et la licence GPL-2.0-or-later de 
 Le correctif 0010 modifie le cœur SMC (GPL-2.0), son en-tête et le pilote audio (GPL-2.0-or-later). Le banc SMC extrait les macros iopoll (GPL-2.0-only) du noyau fourni à l’exécution ; il ne les redistribue pas comme code MIT. Les modèles et assertions sont originaux.
 
 Le correctif 0011 conserve la provenance jc4360/linux-custom et la licence GPL-2.0-or-later du pilote audio. Le nouveau banc PCM et les adaptations des modèles sont originaux ; les callbacks amont sont extraits de la source locale à l’exécution.
+
+Le correctif 0012 conserve la licence GPL-2.0-or-later du pilote audio de jc4360/linux-custom. Le modèle de timers, le scénario pthread et leurs assertions sont originaux ; les routines du pilote sont extraites à l’exécution. Les API et contrats ALSA sont analysés depuis le noyau de référence.
