@@ -55,3 +55,5 @@ Horodatages en UTC. Les expériences antérieures E01–E38 sont décrites dans 
 - Résultat : cinq cas aux résultats attendus ; historique public existant audité sans anomalie détectée.
 - Interprétation : contrôle de motifs et provenance, avec limites explicites ; ne démontre pas l'absence de tout secret arbitraire.
 - Suite : exporter les sources Rust et leurs preuves, auditer avant commit puis avant push, vérifier le SHA distant.
+
+Publication E41/E42 vérifiée à 2026-10-02T07:14:53.060765+00:00 : commit public `2d31efbd2230c28dfd23ad199ffab231c7a12b12`, 203 fichiers, arbre GitHub identique à l'export audité. Dix tests Rust passent aussi après compilation dans le checkout public. Historique local privé non poussé.

@@ -4,6 +4,8 @@
 
 E41 : inspecteur XEX2 Rust en lecture seule, testé sur l'hôte avec dix tests structurels, 10 000 mutations déterministes et neuf cas CLI. Champs sensibles omis, lectures bornées, aucun jeu authentique analysé. Ce travail n'a pas interrogé la console et ne rafraîchit donc pas son dernier état vivant. Voir `docs/XEX2-INSPECTION.md`.
 
+Publication E41/E42 vérifiée le 2 octobre à 07:14:53 UTC : commit public `2d31efb`, 203 fichiers, arbre GitHub identique à l'export audité. Le parseur a également passé ses dix tests après compilation dans le checkout public. Preuve : `evidence/2026-10-02/public-audit/publication.json`.
+
 ## Dernier point : obsidian4 démarré et vérifié en SSH
 
 Objectif étendu : démarrage direct sous Linux, bureau, optimisations mesurées et évaluation de Rust, lecteur et jeux sur disque ; voir `docs/OBJECTIVE.md` pour les preuves encore requises.
