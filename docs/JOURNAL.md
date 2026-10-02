@@ -165,3 +165,5 @@ Publication E53/E54 vérifiée à 2026-10-02T08:57:54.026744+00:00 : commit publ
 - Mesure directe distincte : à 2026-10-02T09:40:09.815799+00:00, SSH répond sous obsidian4, uptime 5 139,44 s, zéro unité en échec, framebuffer 720p. Réactivité visuelle non vérifiée.
 - Retour utilisateur : de nouveau disponible ; aucune action physique nécessaire pour ce travail.
 - Limites : aucun son, aucune validation DMA réelle ; ancien timer non armé, synchronisation des callbacks et protocole à résoudre. Prochaine étape : notifications de progression et durée de vie des flux, hors matériel.
+
+Publication E55/E56 vérifiée à 2026-10-02T09:45:58.581719+00:00 : commit public `74ba6693755aaef77e96d016bbcbc6e7cf473713`, 287 fichiers, parent et arbre GitHub conformes après audits. Preuve : `evidence/2026-10-02/public-audit/pcm-publication.json`. Candidat audio-pcm non installé.
