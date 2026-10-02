@@ -1,5 +1,19 @@
 # État courant — 2 octobre 2026
 
+## Horloge à corriger — E69/E70 ; protocole audio — E67/E68
+
+Mesure SSH de 60 s : l'horloge brute de la Xbox avance environ 0,25 % moins vite que celle du Mac. Device tree vivant à 50 MHz ; fréquence effective relative encadrée entre 49,8734 et 49,8759 MHz, compatible avec 49,875 MHz de LibXenon. Écart de date d'environ 44,28 s au relevé ; horodatages historiques console non corrigés rétroactivement.
+
+Correctif 0016 optionnel et noyau obsidian-clock construits depuis obsidian4 : image et 65 modules vérifiés, aucun avertissement. Pas d'installation, d'initramfs ni de démarrage du candidat ; mesure après correction encore requise. Voir `docs/TIMEBASE-CALIBRATION.md`.
+
+E67 : acquittements séparés des bits analogiques 2–4 observés, 0x1d → 0x19 → 0x11 → 0x01. E68 : demande de reset depuis l'arrêt, retour 0x01 compatible avec auto-effacement mais effets internes non démontrés. Numérique inchangé ; aucun START ni son. Voir `docs/AUDIO-ACK-RESET.md`.
+
+
+## Détail des acquittements audio — E67/E68
+
+Trois écritures individuelles 4, 8 et 16 donnent 0x1d → 0x19 → 0x11 → 0x01. Comportement W1C des bits analogiques 2–4 observé au repos, bit d'arrêt conservé, numérique inchangé et SSH répond. La signification des événements en lecture reste à démontrer. Demande de reset analogique effectuée depuis ce dernier état, sans START ; réponse compatible mais effets complets non démontrés ; voir `docs/AUDIO-ACK-RESET.md`.
+
+
 ## Arrêt analogique observé — E65 ; contrat ALSA — E66
 
 E65 : écriture STOP analogique unique à 12:47:31 UTC. Contrôle 0x1d08001c → 0x0008001d, puis 0x0000001d au suivi ; index zéro, numérique inchangé. Le bit interprété DCH apparaît et les événements supposés sont conservés. SSH répond à 12:48:41 UTC, aucun service en échec listé, framebuffer 720p. Aucun START/reset ni son ; analogique laissé en STOP. Cela appuie le découpage des registres, sans prouver fin de transactions ni drain sonore.
