@@ -201,3 +201,5 @@ Publication E57/E58 vérifiée à 2026-10-02T10:19:25.216637+00:00 : commit publ
 - Résultat : analyse Clang sans diagnostic ; objet PPC64 freestanding puis module de liaison avec __KERNEL__ contre audio-poll, sans avertissement, fonctions et vermagic vérifiés. Sources/build noyau montés en lecture seule. Aucun module chargé.
 - Limites : algorithme de file testé, pas protocole de registres ni achèvement DMA. Le pilote historique conserve E58 tant que son adaptateur ne remplace pas pointer/ack ; reset ALSA, drain réel et prélecture à vérifier.
 - Suite : intégrer le contrat de file aux callbacks tout en conservant la séparation entre tests logiciels et preuves matérielles. Aucun contrôle vivant supplémentaire.
+
+Publication E59 vérifiée à 2026-10-02T10:36:04.104109+00:00 : commit public `3a98dcf5b0977a33251748255f186c25cfcf2da0`, 324 fichiers, parent et arbre GitHub conformes après audits. Preuve : `evidence/2026-10-02/public-audit/queue-publication.json`. File PCM testée et liée pour PowerPC, non intégrée au pilote et non chargée.
