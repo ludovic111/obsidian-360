@@ -188,3 +188,5 @@ Publication E55/E56 vérifiée à 2026-10-02T09:45:58.581719+00:00 : commit publ
 - Analyse : ack doit préserver rollback, retour de boundary, tampon complet, écritures partielles, drain et reset. Déplacer simplement les écritures ne suffirait pas.
 - Référence examinée : xenon-emu/xenon au commit 0284bbe6c8125935d97bf54ab3132089c6c65c8b ; classe audio sans consommation de descripteurs, donc pas de validation du protocole.
 - Suite : documenter et publier après audit ; concevoir soumission/fins de flux, sans activer les noyaux audio encore incomplets. Dernier relevé matériel inchangé : E56.
+
+Publication E57/E58 vérifiée à 2026-10-02T10:19:25.216637+00:00 : commit public `987fea14abdeb6059b4b8d4a6b1215345cefabbe`, 312 fichiers, parent et arbre GitHub conformes après audits. Preuve : `evidence/2026-10-02/public-audit/poll-publication.json`. Noyau audio-poll compilé, non installé ; soumission encore à corriger.
