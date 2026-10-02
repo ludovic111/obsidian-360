@@ -47,3 +47,5 @@ Publication E63/E64 vérifiée à 2026-10-02T12:11:33.298267+00:00 : commit publ
 Publication E65/E66 vérifiée à 2026-10-02T12:57:15.785188+00:00 : commit public `6d597f74c644f253f889d7c78e3f05f3113af2c9`, 410 fichiers, parent et arbre GitHub conformes après audits. Preuve : `evidence/2026-10-02/public-audit/stop-publication.json`. STOP analogique observé ; contrat mémoire ALSA testé, aucun son activé.
 
 Publication E67–E70 vérifiée à 2026-10-02T13:27:32.850304+00:00 : commit public `db44cdd3e537a6d0a2dd13ac565a939f9b90e043`, 442 fichiers, parent et arbre GitHub conformes après audits. Preuve : `evidence/2026-10-02/public-audit/timebase-publication.json`. Acquittements analogiques observés ; cadence mesurée et noyau de correction compilé, non installé.
+
+Publication E71 vérifiée à 2026-10-02T13:43:05.979127+00:00 : commit public `47b0a02d8820d009aa6cde4741a925b6e6018cae`, 452 fichiers, parent et arbre GitHub conformes après audits. Preuve : `evidence/2026-10-02/public-audit/timebase-boot-publication.json`. Ensemble de démarrage prêt ; essai physique encore attendu.

@@ -300,3 +300,5 @@ Confirmation complémentaire E69 : /proc/cpuinfo annonce effectivement timebase=
 - Synchronisation, démontage, remontage en lecture seule et relecture du candidat/anciens fichiers : contrôles conformes. Copie Mac de l’initramfs vérifiée également. SSH final sous obsidian4, aucun service en échec, clé démontée ; horodatage hôte 13:38:34 UTC.
 - Aucun redémarrage demandé par script, aucune NAND ni opération audio. Action physique proposée à l’utilisateur : Rock Band Blitz/USB, entrée obsidian_clock, Ethernet après le bureau. Résultat de démarrage encore inconnu.
 - Preuves dans timebase-boot/ ; procédures archivées en texte, pas des étapes à rejouer aveuglément. Suite : vérifier le nouveau noyau puis refaire E69 et comparer les intervalles de cadence.
+
+Publication E71 vérifiée à 2026-10-02T13:43:05.979127+00:00 : commit public `47b0a02d8820d009aa6cde4741a925b6e6018cae`, 452 fichiers, parent et arbre GitHub conformes après audits. Preuve : `evidence/2026-10-02/public-audit/timebase-boot-publication.json`. Ensemble de démarrage prêt ; essai physique encore attendu.
