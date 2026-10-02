@@ -6,6 +6,9 @@ E47 : deux affichages Xvfb isolés, IceWM 4.0.0 recompilé, lanceur réel du dé
 
 ## Contrôles vivants du 2 octobre
 
+E48 : DVD vidéo Big Order inséré par l’utilisateur ; deux interrogations espacées renvoient aussi `02/3a/00` (support absent). Le refus dépasse le seul jeu Xbox ; région réelle et composant fautif non identifiés. Utilisateur : rotation brève puis arrêt, comme le jeu. Lisibilité sur un autre lecteur non confirmée ; contrôle dans le tableau de bord d’origine demandé.
+
+
 E45 : Just Cause 2 inséré ; statut « pas de disque », erreur de lecture et réponse SCSI `02/3a/00` (« medium not present »). Contraste CD/DVD constaté, origine matérielle précise inconnue.
 
 E46 : l’utilisateur corrige son premier retour : le bureau était figé depuis un redimensionnement la veille. La présence des processus dans E43 ne démontrait donc pas sa réactivité. Relance du lanceur seule et SIGHUP IceWM insuffisants ; arrêt forcé IceWM suivi de sa relance automatique rétablit XRandR, sans reboot Linux. Réglages `OpaqueMove=1` et `OpaqueResize=1` installés, ancien fichier sauvegardé ; lanceur relancé et état manette rafraîchi. Essai manuel de redimensionnement demandé. Voir `docs/DESKTOP-RESIZE-RECOVERY.md`.
