@@ -1,0 +1,38 @@
+import os,pathlib,subprocess,json,hashlib,datetime,platform
+base=pathlib.Path('/var/tmp/obsidian-clock-preflight-20261002'); release='6.18.11-xenon-obsidian-clock'
+assert platform.release()=='6.18.11-xenon-obsidian4'
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+manifest=json.loads((base/'bundle.json').read_text()); expected={m['path']:m['sha256'] for m in manifest['modules']}
+extract=base/'inspect';extract.mkdir()
+p=subprocess.run(['lsinitcpio','-x',str(base/'initramfs.img')],cwd=extract,capture_output=True,text=True,timeout=120);assert p.returncode==0,p.stderr
+assert [p.name for p in (extract/'usr/lib/modules').iterdir()]==[release]
+mods=[]
+for p in sorted((extract/'usr/lib/modules'/release/'kernel').rglob('*.ko')):
+ rel=str(p.relative_to(extract/'usr/lib/modules'/release/'kernel'));assert sha(p)==expected[rel]
+ mods.append({'path':rel,'sha256':sha(p)})
+assert len(mods)==43
+bins=[]
+for name in ['usr/bin/busybox','usr/bin/udevadm','usr/bin/mount','usr/bin/switch_root','usr/bin/e2fsck','usr/bin/kmod']:
+ p=extract/name; assert p.resolve().is_relative_to(extract.resolve()); h=p.read_bytes()[:20]
+ assert h[:6]==b'\x7fELF\x01\x02' and int.from_bytes(h[18:20],'big')==20,name
+ bins.append({'path':name,'sha256':sha(p),'format':'ELF32 big-endian PowerPC'})
+assert (extract/'init').is_file() and (extract/'hooks/udev').is_file()
+usb=pathlib.Path('/run/obsidian-clock-inspect-usb');usb.mkdir()
+assert subprocess.check_output(['blkid','-s','LABEL','-o','value','/dev/sdb1'],text=True).strip()=='ARCH'
+assert subprocess.check_output(['blkid','-s','TYPE','-o','value','/dev/sdb1'],text=True).strip()=='vfat'
+assert not subprocess.run(['findmnt','-rn','-S','/dev/sdb1'],capture_output=True,text=True).stdout.strip()
+files=['kboot.conf','obsidian4/kernel','obsidian4/initrd','linux-hdd/vmlinuz-linux-xenon','linux-hdd/initramfs-linux-xenon.img','arch/boot/ppc/vmlinuz-linux-xenon','arch/boot/ppc/initramfs-linux-xenon.img','Recovery/kboot-before-obsidian4.conf','Recovery/kboot-live-before-install.conf']
+subprocess.run(['mount','-o','ro,nosuid,nodev,noexec','/dev/sdb1',str(usb)],check=True)
+try:
+ baseline={name:{'sha256':sha(usb/name),'bytes':(usb/name).stat().st_size} for name in files}
+ menu=(usb/'kboot.conf').read_text(); assert 'default=linux_hdd\n' in menu and 'obsidian_clock=' not in menu
+ # Derive the exact known-good root parameter, avoiding new disk identifiers.
+ old=next(x for x in menu.splitlines() if x.startswith('obsidian4='));rootarg=next(x for x in old.split() if x.startswith('root='))
+ line='obsidian_clock="uda0:/obsidian-clock/kernel '+rootarg+' initrd=uda0:/obsidian-clock/initrd coherent_pool=16M xenon_tb_hz=49875000 rw"'
+ assert len(line.encode())<255
+ newmenu=menu.rstrip()+'\n\n# Optional clock calibration test; default unchanged.\n'+line+'\n'
+ (base/'old-kboot.conf').write_text(menu);(base/'new-kboot.conf').write_text(newmenu)
+finally:
+ subprocess.run(['umount',str(usb)],check=True);usb.rmdir()
+report={'console_observed_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'current_release':platform.release(),'modules_verified':mods,'binaries':bins,'init_sha256':sha(extract/'init'),'udev_hook_sha256':sha(extract/'hooks/udev'),'usb_baseline':baseline,'previous_default':'linux_hdd','new_entry':'obsidian_clock','entry_bytes':len(line.encode()),'new_menu_sha256':sha(base/'new-kboot.conf'),'image_sha256':sha(base/'initramfs.img'),'success':True}
+(base/'inspection.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report,indent=2))

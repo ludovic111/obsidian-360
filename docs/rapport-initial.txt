@@ -1,0 +1,92 @@
+XBOX 360 — DOSSIER TECHNIQUE DE L’EXEMPLAIRE
+1 octobre 2026 · relevés effectués sous ArchPOWER
+
+PORTÉE RÉELLE
+Ce dossier contient une cartographie mesurée de la console, une analyse du code des pilotes disponibles, et les étapes nécessaires pour poursuivre. Il ne constitue ni une rétro-ingénierie complète de tous les circuits, ni la découverte d’un nouvel exploit. Les détails du silicium, des signaux électriques, de la NAND et des bootloaders de cet exemplaire restent partiellement ou totalement inconnus.
+
+Trois niveaux sont distingués : MESURÉ (lecture sur cette console), CODE/DOCUMENTATION (source publique), À CONFIRMER (hypothèse ou expérience manquante). Les anciennes pages Free60 donnent des pistes ; le support Linux actuel est établi à partir du noyau et des mesures de cette console.
+
+1. IDENTITÉ ET ARCHITECTURE
+MESURÉ : GPU PCI 1414:5831, révision 0x11, identifié « Xenos GPU (Jasper) » par la base PCI locale. Cela indique fortement une plateforme de famille Jasper, mais ne remplace pas une identification visuelle de la carte mère et de sa sous-révision. Le libellé générique « Xenon Game Console » dans /proc/cpuinfo désigne la plateforme Linux, pas une preuve de carte mère Xenon première génération.
+MESURÉ : six processeurs logiques Xenon, PVR 0x00710500, fréquence déclarée 3 200 MHz, timebase 50 MHz. Il ne s’agit pas d’une mesure indépendante de fréquence à l’oscilloscope. Architecture de noyau ppc64, applications PowerPC 32 bits.
+DOCUMENTATION : Xenon possède trois cœurs, deux threads matériels par cœur ; Xenos est un GPU ATI spécifique qui participe aussi à l’interconnexion mémoire. Ces informations expliquent pourquoi les binaires x86 ordinaires de SteamOS ne peuvent pas simplement remplacer ce système. [S1,S2]
+
+Chaîne fonctionnelle générale : processeur ↔ mémoire/interconnexion GPU ↔ contrôleurs d’entrées/sorties ; le SMC s’occupe aussi de fonctions de gestion lorsque le processeur principal ne travaille pas. Cette représentation est fonctionnelle, pas un schéma électrique reconstruit de la carte.
+
+2. MÉMOIRE
+MESURÉ : Linux déclare 469 568 Kio utilisables, environ 458,6 Mio. /proc/iomem expose 0x00000000–0x1dffffff comme RAM système (480 Mio) ; la fenêtre d’adressage globale va jusqu’à 512 Mio. Les réservations et l’occupation du noyau expliquent une partie de l’écart. Ce relevé ne prouve pas à lui seul l’usage de chaque octet exclu.
+CODE/CONFIG : pages PowerPC de 64 Kio ; pool DMA cohérent de 16 Mio demandé au démarrage ; swap interne de 2 Gio ; zswap présent. Le noyau active AltiVec et SMP. Aucune fréquence mémoire ou latence physique n’a été mesurée.
+
+3. INVENTAIRE DES CONTRÔLEURS
+Le tableau complet mesuré figure dans peripheriques-pci.csv. Les 12 fonctions détectées comprennent XMA, deux SATA, quatre contrôleurs USB, Ethernet, flash, audio, SMC et GPU.
+Leurs fenêtres physiques, interruptions et pilotes sont consignés dans preuves/pci-resources.txt. Les adresses Linux incluent une traduction par le pont PCI ; elles ne doivent pas être confondues sans vérification avec les adresses 32 bits citées dans une ancienne documentation Xbox.
+
+4. VIDÉO ET 1080P
+MESURÉ : Xorg fonctionne avec le pilote modesetting, accélération désactivée et curseur logiciel. Sortie None-1, 1280 × 720 ; DRM nomme le connecteur card0-Unknown-1. La tentative 1920 × 1080 renvoie « cannot find mode 1920x1080 ».
+CODE (référence Free60, attribution corrigée par docs/BINARY-AUDIT-2026-10-01.md : le binaire installé impose 1280 × 720) : le pilote xenos de cette référence lit la largeur et la hauteur déjà programmées dans D1GRPH_X_END/Y_END, puis expose un fixed_mode. Son chemin d’affichage alloue un tampon DMA et recopie les pixels avec adaptation du rangement en tuiles et de l’ordre des octets. Il n’implémente pas une programmation générale des timings HDMI. [S3]
+MESURÉ directement en lecture seule : X_END=0x500 (1280), Y_END=0x2d0 (720), PITCH=0x500, VIEWPORT_SIZE=0x050002d0, SCALER_ENABLE=0. Ces valeurs recoupent le mode Linux. Quinze registres de configuration vidéo ont été lus. Certains autres noms d’offsets tirés des sources produisent des valeurs qui ne constituent pas des timings validés ; ne pas les réutiliser aveuglément.
+ACQUIS SUR LA CONSOLE : 1 024 octets ANA/HANA, soit 256 registres, par le pilote /dev/ana en lecture seule. Leur copie vers le Mac reste à faire après récupération du réseau.
+DOCUMENTATION : les tables de modes libxenon consultées ne contiennent pas de 1080p. La page historique Modesetting contient des relevés 1920 × 1080 mais signale elle-même des incohérences. Ce n’est pas une configuration prête à appliquer. [S4,S5]
+À FAIRE : obtenir des captures comparables en sortie 720p et 1080p connue, comprendre les horloges et la séquence ANA/HANA, valider les timings et les tampons, construire un chargeur expérimental sur USB avec retour au chargeur fonctionnel. Agrandir simplement le framebuffer ne crée pas une sortie HDMI 1080p correcte. Aucun support 1080p n’a été développé ou validé ici.
+
+5. SMC, TEMPÉRATURES ET ALIMENTATION
+CODE/DOCUMENTATION : le SMC échange des messages de 16 octets et gère notamment alimentation, températures, ventilateurs et façade. Le pilote expose une requête par écriture de message, suivie d’une lecture de réponse. Envoyer une requête d’état ne signifie pas modifier la configuration ou flasher son firmware. [S6,S3]
+MESURÉ : commande d’état 0x12 → 12 41 02 03 00… ; type de connexion AV 0x0f → 0f 1f 00… . Les réponses portent bien l’identifiant de la requête.
+MESURÉ via hwmon : CPU 55,250 °C ; GPU 49,210 °C ; eDRAM 52,953 °C ; carte mère 28,000 °C à cet instant. Ce sont les valeurs des capteurs, pas un étalonnage indépendant. Aucun réglage de ventilateur, alimentation, fréquence ou eFuse n’a été changé.
+À CONFIRMER : signification exacte de tous les champs de version, étalonnage des capteurs, courbes de ventilation et comportement électrique.
+
+6. USB ET MANETTES
+MESURÉ : deux contrôleurs OHCI et deux EHCI ; stockage et clavier sur les branches USB haut débit ; récepteur sans fil interne Microsoft 045e:0291 sur une branche 12 Mbit/s, lié à xpad. Les contrôleurs et la topologie réelle sont enregistrés.
+Le clavier MCHOSE fonctionne après changement de port. L’origine des répétitions et blocages observés auparavant n’a pas été isolée.
+Au dernier relevé, aucun /dev/input/js0 et aucun événement de manette. Le lanceur sait décoder joydev et injecter souris/clavier par XTest, mais l’essai physique des sticks/boutons reste à confirmer. Les tests automatisés de saisie XTest et du clavier visuel ont réussi.
+
+7. STOCKAGE ET LECTEUR OPTIQUE
+MESURÉ : SATA 1414:5802 pour le lecteur et 1414:5803 pour le disque, tous deux servis par sata_xenon. Le disque Hitachi HTS542512K9SA00, 120 034 123 776 octets, contient la racine ext4 et le swap. La SanDisk USB conserve le démarrage et la récupération.
+MESURÉ : le lecteur se présente comme PLDS DG-16D2S, firmware 02510C. Son électronique répond à l’identification ; cela ne prouve pas que la mécanique ou le laser fonctionne. Le défaut mécanique rapporté par l’utilisateur n’est pas diagnostiqué électriquement et n’est pas réparé.
+
+8. RÉSEAU
+MESURÉ : contrôleur 1414:580a, pilote sis190 adapté à Xenon, interface enp1s7. Des transferts SSH et téléchargements ont fonctionné. Les incidents NETDEV WATCHDOG précédents restent un défaut non résolu ; GRO a été désactivé et les transferts lourds limités.
+CODE : le patch consulté contient encore une adresse MAC codée en dur et une note sur sa lecture future depuis la NAND. Ce pilote mérite des tests TX/RX/DMA contrôlés avant une utilisation soutenue. Aucun test de saturation supplémentaire n’a été lancé pendant l’audit.
+
+9. AUDIO
+MESURÉ : contrôleur audio 1414:580c et décodeur XMA 1414:5801 présents. Aucun pilote audio indiqué pour ces fonctions ; /proc/asound absent.
+CONFIG : « CONFIG_SOUND is not set ». L’absence de son dans cette installation est donc d’abord une absence de sous-système audio dans le noyau actuel, et ne démontre pas une panne matérielle. Activer cette option ne suffirait pas à garantir le support : il faut aussi un pilote adapté, sa chaîne DMA et son routage analogique/HDMI.
+
+10. FLASH ET INCIDENT DE LECTURE
+MESURÉ : Secure Flash Controller 1414:580b ; BAR0 de 1 Kio pour le contrôleur et BAR1 de 16 Mio pour une fenêtre mémoire. La taille de cette fenêtre ne prouve pas la capacité physique totale de la NAND.
+CODE : xenon_nand est actuellement un simple enregistrement PCI dont probe retourne zéro ; il n’implémente pas de lecture/écriture MTD. CONFIG_MTD est désactivé. Cela explique pourquoi aucun /dev/mtd n’est disponible. [S3]
+TENTATIVE : la cartographie Free60 décrit une fenêtre NAND en lecture seule, sans les zones de réserve/ECC. Une lecture par mmap(PROT_READ) de BAR1 a été essayée. Pendant cette lecture, SSH puis le ping ont cessé de répondre. Le programme n’a pas retourné de résultat ni de hash validé. La cause exacte reste inconnue ; l’utilisateur a confirmé que l’image est figée. Un redémarrage manuel et une relance du chemin Rock Band Blitz → Linux ont été demandés. [S7]
+AUCUN DUMP NAND VALIDÉ N’A ÉTÉ OBTENU. Aucune commande de programmation ou d’effacement flash n’a été envoyée. Ne pas relancer cette sonde comme si elle était validée. Le programme expérimental n’est pas inclus dans les scripts prêts à réutiliser du dossier.
+Les sauvegardes antérieures concernent le disque interne et ne sont pas des sauvegardes de la NAND. La voie suivante est une acquisition via XeLL ou un lecteur matériel, avec contrôle de géométrie, ECC, blocs défectueux et lectures concordantes.
+
+11. DÉMARRAGE ET SYSTÈME XBOX
+DOCUMENTATION : le premier chargeur réside dans le CPU et contrôle l’authenticité d’un étage suivant. Les autres étages vérifient aussi ce qu’ils chargent avant le noyau/hyperviseur et le dashboard. La chaîne exacte et ses versions doivent être relevées sur la NAND de cet exemplaire ; les références publiques ne les remplacent pas. [S8]
+CHAÎNE OBSERVÉE PAR LES DÉMARRAGES RÉUSSIS : système Xbox → Rock Band Blitz → BadUpdate → FreeMyXe/XeLL → noyau sur USB → racine Linux sur disque → IceWM.
+BadUpdate donne du contrôle à l’exécution, après les vérifications initiales. Effacer le système Xbox ne rend pas le premier chargeur permissif. Une clé CPU, si récupérée, ne serait pas une clé privée de signature Microsoft. Aucun nouveau contournement permanent n’a été découvert ici. [S9,S10]
+Les techniques RGH connues visent physiquement cette phase initiale. Leur compatibilité et leur mise en œuvre dépendent de la carte mère. ABadAvatar peut réduire les actions nécessaires mais conserve une dépendance au système Xbox. [S11]
+
+12. TRAVAIL RESTANT POUR UNE VÉRITABLE RÉTRO-INGÉNIERIE COMPLÈTE
+A. Récupérer la session après l’incident et copier les relevés ANA/SMC déjà créés.
+B. Identifier visuellement carte mère, révisions des composants, NAND et encodeur vidéo.
+C. Acquérir la NAND correctement, vérifier plusieurs lectures et analyser les chargeurs de cet exemplaire. Ne pas confondre dump logique partiel et image brute restaurable.
+D. Pour le 1080p : captures contrôlées des deux modes, analyse des horloges/timings, prototype isolé et récupération éprouvée.
+E. Pour les périphériques : tests reproductibles USB/réseau/audio, traces d’interruptions/DMA et corrections de pilote seulement après reproduction.
+F. Pour un démarrage indépendant : choisir une méthode matérielle compatible, avec accès de récupération, puis configurer XeLL/Linux. Aucune installation distante par Ethernet ne réalise les soudures.
+G. Pour le silicium et toute la carte : mesures d’alimentation, analyseur logique, oscilloscope, schémas/netlists, étude des protocoles et microcodes. Ce travail n’a pas été réalisé par cet audit.
+
+13. SOURCES ET PREUVES
+S1 https://free60.org/Hardware/Console/Xenon_(CPU)/
+S2 https://free60.org/Hardware/Console/Xenos_(GPU)/
+S3 https://github.com/Free60Project/linux-kernel-xbox360 — patch-6.18-xenon0.30.diff consulté localement ; 66 fichiers concernés, 21 fichiers C/H Xenon/Xenos extraits pour inspection.
+S4 https://github.com/Free60Project/libxenon/blob/master/libxenon/drivers/xenos/xenos_videomodes.h
+S5 https://free60.org/Modesetting/
+S6 https://free60.org/Hardware/Console/SMC/
+S7 https://free60.org/System-Software/Memory_Map/
+S8 https://free60.org/System-Software/Boot_Process/
+S9 https://github.com/grimdoomer/Xbox360BadUpdate
+S10 https://github.com/FreeMyXe/FreeMyXe
+S11 https://free60.org/Hacks/Reset_Glitch_Hack/ et https://github.com/15432/RGH3
+Les preuves locales proviennent des commandes exécutées sur la console. Les fichiers SHA256SUMS permettent d’identifier exactement les artefacts collectés. Les registres supplémentaires imprimés par SSH sont reportés dans mesures.json ; leurs fichiers bruts restent sur la console à récupérer.
+
+MISE À JOUR APRÈS REDÉMARRAGE
+La récupération a été vérifiée : SSH, racine ext4 sur disque et bureau actifs. Les cinq acquisitions SMC/ANA/GPU ont été copiées dans le dépôt et contrôlées par SHA-256. La manette est désormais détectée (js0) et le lanceur reçoit ses événements. Voir STATE.md pour l’état courant, recovery.json et recovery-log.txt pour les preuves. Aucun nouvel essai de lecture NAND.

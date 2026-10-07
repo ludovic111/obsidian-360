@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+target=/mnt/xbox-linux
+usb=/run/archiso/bootmnt
+test "$(findmnt -n -o SOURCE --target "$target")" = /dev/sda1
+test "$(blkid -s UUID -o value /dev/sda1)" = e9584d6f-d7ed-40ba-80a2-6834f8d91f31
+sed -i 's/HOOKS=(base udev modconf block filesystems keyboard)/HOOKS=(base udev modconf block filesystems keyboard fsck)/' "$target/etc/mkinitcpio.conf"
+printf 'KEYMAP=us\n' > "$target/etc/vconsole.conf"
+arch-chroot "$target" mkinitcpio -k 6.18.11-xenon -g /boot/initramfs-linux-xenon.img
+cp "$target/boot/initramfs-linux-xenon.img" "$usb/linux-hdd/initramfs-linux-xenon.img.new"
+cmp "$target/boot/initramfs-linux-xenon.img" "$usb/linux-hdd/initramfs-linux-xenon.img.new"
+mv "$usb/linux-hdd/initramfs-linux-xenon.img.new" "$usb/linux-hdd/initramfs-linux-xenon.img"
+sync
+echo BOOT_FILES_WITH_FSCK_READY

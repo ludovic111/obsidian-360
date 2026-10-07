@@ -1,55 +1,63 @@
-# Lecteur optique — diagnostic initial
+# Optical drive investigation
 
-## Observation du 1 octobre 2026
+## Initial observation: 1 October 2026
 
-À 21:29:44 UTC, les interfaces sysfs et le journal identifient `/dev/sr0` comme **PLDS DG-16D2S**, révision SCSI `0251`, identification ATAPI `02510C`. Le périphérique est dans l'état noyau `running`. Il est attaché au port ATA1 ; le disque Hitachi interne est ATA2. L'utilisateur précise ensuite : **le tiroir s'ouvre, mais aucun disque n'est lu**.
+At console time 21:29:44 UTC, sysfs and the kernel log identify `/dev/sr0` as **PLDS DG-16D2S**, SCSI revision `0251`, ATAPI identification `02510C`. The kernel device state is `running`. The optical drive occupies ATA1; the internal Hitachi disk occupies ATA2. The user reported that the tray opens but no discs are read.
 
-L'identification confirme une communication avec l'électronique du lecteur. Elle ne valide ni le déplacement de la tête, ni la rotation, ni la mise au point du laser, ni la lecture d'un secteur. Aucune commande d'éjection, de réinitialisation, d'écriture ou de lecture de disque n'a été envoyée pendant cette collecte.
+Identification establishes communication with the drive electronics. It does not establish head movement, spindle operation, laser focus, or sector readability. This initial collection issued no eject, reset, write, or disc-read commands.
 
-## Pourquoi Linux affiche une capacité DVD nulle
+## Why Linux reports no DVD capability
 
-`/proc/sys/dev/cdrom/info` affiche une vitesse de 1 et `Can read DVD: 0`. Le journal du démarrage contient `scsi-1 drive`.
+`/proc/sys/dev/cdrom/info` reports speed 1 and `Can read DVD: 0`; the boot log says `scsi-1 drive`. In the exact kernel source, `drivers/scsi/sr.c:get_capabilities`, lines 838–852 at `techflashYT/linux-custom@a293dd19311668900eb1eeb2f6cb01dcac54f330`, this fallback follows a failed capabilities-page `0x2a` request or invalid lengths. It selects speed 1 and masks several capabilities, including DVD.
 
-Dans la source exacte `drivers/scsi/sr.c`, fonction `get_capabilities`, ce message est émis lorsque la requête de page de capacités `0x2a` échoue ou donne des longueurs invalides. Ce chemin impose la vitesse de repli 1 et masque plusieurs capacités, dont DVD. **Il ne mesure pas la vitesse réelle et ne prouve pas une incapacité physique à lire des DVD.** Les données conservées ne disent pas laquelle de ces conditions a échoué.
+**This is neither a measured speed nor proof that the hardware cannot read DVDs.** The retained evidence does not distinguish which fallback condition occurred. Initial capture: `evidence/2026-10-01/boot-preflight/optical-inventory.json`.
 
-Référence de code : `techflashYT/linux-custom@a293dd19311668900eb1eeb2f6cb01dcac54f330`, `drivers/scsi/sr.c`, lignes 838–852. Preuve vivante : `evidence/2026-10-01/boot-preflight/optical-inventory.json`.
+Use standard driver requests and known-good media to compare detection, user-observed rotation, and precise sense errors. Media condition, optics, mechanics, firmware, and transport remain distinct hypotheses. Do not adjust the laser or flash firmware speculatively. Sector readability and game execution require separate validation.
 
-## Prochaines vérifications
+## E44: readable audio CD, 2 October
 
-Après stabilisation du nouvel essai de démarrage, relever les erreurs précises du lecteur avec les commandes standards du pilote, puis essayer un support connu fonctionnel avec l'utilisateur. Comparer la détection du support, la rotation observée et les erreurs de lecture. Sans ces éléments, laser, mécanique, média, firmware et transport restent des hypothèses.
+The user inserted a music CD; prior readability on another device was not confirmed. Under `6.18.11-xenon-obsidian4`, `CDROM_DRIVE_STATUS` returned 4 (`CDS_DISC_OK`), and `CDROMREADTOCHDR` reported tracks 1–20. TOC entries were all audio, with lead-out at LBA 263934.
 
-Une réparation mécanique ou optique éventuelle nécessite une intervention physique. Ne pas modifier au hasard les réglages du laser ni flasher le lecteur pour tester une hypothèse. La lecture des secteurs et l'exécution d'un jeu sont deux validations distinctes ; aucun fonctionnement de jeu sur disque n'est démontré à ce stade.
+The original `tools/inspect-audio-cd.py` uses standard read-only CDROM ioctls. After reading the TOC, it read one 2,352-byte sector at each of LBA 150, 123793, and 249235. All reads succeeded with nonzero data. A repeated read at LBA 150 produced the same hash. Measured monotonic call durations were 0.091–0.207 seconds; this was not a throughput benchmark. Mac and console wall clocks differed and are recorded separately.
 
-## 2 octobre 2026 — CD audio lisible (E44)
+**Direct measurement:** the CD read path worked for these samples, disproving an absolute inability to read any medium at that time. This does not validate the entire CD, DVD reading, Xbox authentication or execution, or system audio output. No adjustment, flashing, reboot, or hardware repair occurred; kernel audio remained disabled.
 
-L’utilisateur a inséré un CD musical. Sa lisibilité préalable sur un autre appareil n’a pas été confirmée. Sous `6.18.11-xenon-obsidian4`, `CDROM_DRIVE_STATUS` renvoie 4 (`CDS_DISC_OK`), et `CDROMREADTOCHDR` annonce les pistes 1 à 20. Les entrées TOC indiquent uniquement des pistes audio, avec lead-out au LBA 263934.
+Reproduction with an audio CD inserted:
 
-L’outil original `tools/inspect-audio-cd.py` utilise le pilote CDROM standard en lecture seule : table des pistes, puis un secteur de 2 352 octets à chacun des LBA 150, 123793 et 249235. Tous réussissent avec données non nulles. La relecture du LBA 150 a exactement la même empreinte. Durées monotones mesurées de 0,091 à 0,207 s par appel, sans benchmark de débit. Les horloges murales du Mac et de la console diffèrent ; les deux horodatages sont conservés sans les confondre.
+```sh
+timeout -k 2 45 python3 tools/inspect-audio-cd.py
+```
 
-**Mesure directe : le chemin de lecture CD fonctionne pour ces échantillons.** Cela réfute une incapacité absolue à lire tout support au moment du test. Cela ne valide ni tout le CD, ni le chemin DVD, ni l’authentification/exécution Xbox, ni la sortie audio du système. Aucun réglage, flashage, redémarrage ou réparation matérielle effectué. Le noyau conserve sa configuration audio désactivée.
+The tool accepts only optical `/dev/sr0`, limits reads to four sectors, and stores/publishes no audio payload. A process timeout cannot guarantee immediate interruption of blocked kernel I/O. ABI references are `include/uapi/linux/cdrom.h`, `drivers/scsi/sr_ioctl.c`, and `drivers/cdrom/cdrom.c` at the kernel revision recorded in `optical-cd/method.json`.
 
-**Hypothèses restantes :** problème propre au support initial, à la lecture DVD, au firmware ou au chemin Xbox. Le succès CD ne distingue pas ces hypothèses. Une comparaison avec DVD vidéo connu fonctionnel est demandée ; à défaut, un jeu original permettra une observation plus limitée.
+## E45: Just Cause 2 not detected
 
-Reproduction : sur Linux avec un CD audio inséré, `timeout -k 2 45 python3 tools/inspect-audio-cd.py`. L’outil refuse une cible autre que `/dev/sr0` de type optique, borne les lectures à quatre secteurs, ne stocke ni ne publie leur contenu. Un timeout de processus ne garantit pas l’interruption instantanée d’une opération bloquée dans le noyau. Références ABI : `include/uapi/linux/cdrom.h`, `drivers/scsi/sr_ioctl.c`, `drivers/cdrom/cdrom.c` du commit noyau indiqué dans `optical-cd/method.json`.
+After the CD was replaced with the Xbox 360 game Just Cause 2, CDROM status became 1 (`CDS_NO_DISC`). A standard LBA 0 read failed with EIO; no game data was recovered. A data-free `TEST UNIT READY` returned SCSI status 2, host_status 0, driver_status 8, and fixed sense `02/3a/00`: NOT READY / MEDIUM NOT PRESENT. The pinned kernel labels this in `drivers/scsi/sense_codes.h:461`.
 
-## 2 octobre 2026 — Just Cause 2 non reconnu (E45)
+The previous sysfs capacity still described the audio CD; **it is not the game's capacity**. Kernel read-ahead also means a 2,048-byte pread does not imply exactly one sector requested from the drive.
 
-Après remplacement du CD par le jeu Xbox 360 Just Cause 2, le statut CDROM devient 1 (`CDS_NO_DISC`). Une lecture standard au LBA 0 échoue avec EIO ; aucune donnée de jeu récupérée. La commande standard `TEST UNIT READY`, sans transfert de données, donne statut SCSI 2, host_status 0, driver_status 8 et sense fixe `02/3a/00` : NOT READY / MEDIUM NOT PRESENT. Le code noyau confirme ce libellé dans `drivers/scsi/sense_codes.h:461`.
+Measured conclusion: partial CD readability and an undetected game DVD in this trial. Disc condition, DVD detection/focus, other optical or mechanical components, and firmware remain possible causes. Neither a definite laser fault nor an authentication failure was established. No firmware changed. A known-good video DVD is a useful next comparison.
 
-L’ancienne taille sysfs correspond encore au CD audio : **ne pas l’interpréter comme la capacité du jeu**. Le noyau effectue de la lecture anticipée lors du pread ; la requête de 2 048 octets ne signifie pas exactement un secteur demandé au lecteur.
+```sh
+timeout -k 2 15 python3 tools/optical-ready.py
+```
 
-Conclusion mesurée : CD partiellement lisible, jeu DVD non reconnu pendant cet essai. Hypothèses encore ouvertes : état de ce disque, détection/mise au point DVD, autres éléments optiques/mécaniques ou firmware. Ni panne laser certaine, ni problème d’authentification démontré. Aucun firmware changé. Prochain test discriminant : DVD vidéo connu fonctionnel, puis autre DVD si possible. Outil reproductible : `timeout -k 2 15 python3 tools/optical-ready.py` ; cinq tests de décodage hors matériel dans `research/tests/check-optical-sense.py`.
+Five offline sense-decoding tests are in `research/tests/check-optical-sense.py`.
 
-## Piste région PAL/NTSC soulevée par l’utilisateur
+## PAL/NTSC region hypothesis
 
-Le 2 octobre, l’utilisateur précise que la boîte de Just Cause 2 et ses autres jeux Xbox 360 portent PAL. Il s’agit d’un retour utilisateur sur les boîtes, pas d’une région extraite du disque ni d’une identification de la région de la console. L’[ancienne fiche Microsoft KB909819](https://ftp.zx.net.nz/pub/archive/ftp.microsoft.com/MISC/KB/en-us/909/819.HTM), conservée sur un miroir d’archive, inclut la concordance des régions parmi les contrôles des jeux Xbox 360. Elle ne prouve pas que cette console et ce disque sont incompatibles.
+The user reported PAL markings on the Just Cause 2 box and other Xbox 360 game boxes. These are user observations of packaging, not extracted disc regions or a measured console region. The archived [Microsoft KB909819](https://ftp.zx.net.nz/pub/archive/ftp.microsoft.com/MISC/KB/en-us/909/819.HTM) includes region matching among troubleshooting checks; it does not establish an incompatibility here.
 
-La [table officielle T10 ASC/ASCQ](https://www.t10.org/lists/asc-num.txt) confirme le sens de 3a/00 : support absent. Cette réponse à TEST UNIT READY n’est pas une erreur explicite de région. **Inférence :** CD lisible et jeu DVD signalé absent orientent davantage vers la reconnaissance du support que vers une restriction régionale de lancement ; la région reste non mesurée et la panne précise inconnue. Aucun changement de région ou lecture NAND n’est justifié par ce seul marquage. L’utilisateur précise avoir acheté console et jeux ensemble dans un magasin d’occasion, sans savoir si ces jeux avaient déjà fonctionné sur cette machine. Cet historique ne permet pas de confirmer leur compatibilité. Un DVD vidéo connu fonctionnel reste le prochain essai discriminant.
+The [official T10 ASC/ASCQ table](https://www.t10.org/lists/asc-num.txt) defines `3a/00` as medium not present, not an explicit region error. **Inference:** readable CD samples and an absent game DVD point more directly toward medium recognition than a launch-region restriction. Region compatibility remains unmeasured, and the precise fault is unknown. Packaging alone does not justify a region change or NAND access.
 
-## DVD vidéo Big Order (E48)
+The user bought the console and games together second-hand and does not know whether these games ever worked on this console. That history does not establish compatibility.
 
-L’utilisateur a remplacé Just Cause 2 par un DVD de l’anime Big Order. Deux TEST UNIT READY séparés d’environ 59 secondes sur l’horloge du Mac renvoient la même réponse `02/3a/00`, avec host_status nul : support absent. Aucun contenu vidéo ni secteur supplémentaire lu. Le fonctionnement préalable de ce DVD sur un autre lecteur n’est pas confirmé. L’utilisateur rapporte que Big Order tourne brièvement puis s’arrête, comme le jeu précédent ; il ne confirme pas de clics. Il s’agit d’une observation auditive, pas d’une mesure de vitesse de rotation.
+## E48: Big Order video DVD
 
-Le contraste observé est désormais CD audio lisible contre deux DVD non reconnus (jeu et vidéo). Une incompatibilité propre au jeu Just Cause 2 explique moins bien ces observations. La table T10 distingue d’ailleurs `6f/04`, région DVD incompatible, de `3a/00`, support absent. Cette distinction ne garantit pas la conformité parfaite du firmware ni n’identifie un composant fautif ; elle ne permet pas non plus de déduire la région matérielle Xbox depuis Linux. Avant une intervention physique, confirmer l’état du DVD, ses bruits de rotation et idéalement son comportement dans le tableau de bord d’origine. Preuves : `evidence/2026-10-02/optical-video/`.
+The user replaced Just Cause 2 with a Big Order anime DVD. Two TEST UNIT READY requests approximately 59 Mac-clock seconds apart returned the same `02/3a/00`, with host_status 0. No video content or additional sectors were read. Prior readability elsewhere was not confirmed. The user heard brief rotation followed by stopping, similar to the game; repeated clicking was not confirmed. This is an auditory observation, not a spindle-speed measurement.
 
-Un contrôle du DVD Big Order dans le tableau de bord Xbox d’origine est demandé : arrêt propre depuis Linux, rallumage, observation de la vignette du lecteur sans relancer Rock Band Blitz. Retour E50 : l’utilisateur rapporte ensuite « ca ne detecte abosulemnt rien ». Observation rapportée dans le contexte du test stock demandé, sans capture ni libellé exact. Une cause exclusivement Linux devient moins probable, sans identifier le composant fautif. Aucune réparation ni région compatible n’est annoncée. Preuve : `evidence/2026-10-02/stock-dvd/observation.json`.
+The comparison now comprises readable audio-CD samples and two undetected DVDs, one game and one video. An explanation specific to Just Cause 2 fits this evidence less well. T10 distinguishes `6f/04` (DVD region mismatch) from `3a/00` (medium absent), but that does not guarantee perfect firmware reporting, identify a failed component, or reveal the Xbox region. Before physical intervention, verify the DVD elsewhere and compare stock-dashboard behavior. Evidence: `evidence/2026-10-02/optical-video/`.
+
+## E50: reported stock-dashboard result
+
+The requested check was a clean Linux shutdown, power-on, and observation of the stock disc tile without launching Rock Band Blitz. In that context, the user reported that nothing was detected. No screenshot or exact dashboard message was captured. A Linux-only cause becomes less likely, but the report does not identify the failed component or prove compatible regions. No repair is claimed. Evidence: `evidence/2026-10-02/stock-dvd/observation.json`.

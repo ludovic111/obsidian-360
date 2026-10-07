@@ -1,38 +1,38 @@
-# Contrôle audio et observation ciblée — E63/E64
+# Audio control and targeted observation — E63/E64
 
-## Séparation logicielle du contrôle et du statut
+## Separating control and status in software
 
-Le mot audio +0x08 (+0x18 numérique) ressemble au regroupement SR/PIV/CR de la référence SiS décrite dans `AUDIO-REGISTER-HYPOTHESIS.md`. Si les bits SR 2–4 sont acquittés par écriture de un, réécrire le mot lu pendant START/STOP efface des événements. Ce comportement est une hypothèse de modèle, pas une mesure Xbox.
+The audio word at +0x08 (+0x18 for digital) resembles the SiS SR/PIV/CR grouping described in AUDIO-REGISTER-HYPOTHESIS. If status bits 2–4 are write-one-to-clear, writing the observed word back during START/STOP loses events. At E63 this was a model assumption, not an Xbox measurement; E67 later tests W1C behavior while stopped.
 
-Le correctif 0015 masque ces bits et les activations IRQ avant de modifier RUN. Prepare conserve un acquittement explicite au repos. Le champ intermédiaire historique reste inchangé, son rôle Xbox n'est pas validé. Aucun décodeur de fin sonore ni attente de reset n'est ajouté.
+Patch 0015 masks these bits and IRQ enables before changing RUN. Prepare keeps an explicit stopped-state acknowledgement. The historical middle field is preserved because its Xenon role is unvalidated. No final-audio-completion decoder or reset wait is added.
 
-Le banc extrait les fonctions C réelles : deux canaux, 32 prélectures, 32 statuts et deux transitions, soit 4 096 cas par variante. Avant : 3 584 transitions effacent un statut et toutes conservent les interruptions activées. Après : zéro de chaque. Quinze scénarios adaptateur, vingt ressources et 16 384 descripteurs repassent. ASan/UBSan sans diagnostic. Preuves : `evidence/2026-10-02/audio-control/`.
+The harness extracts actual C functions: two channels, 32 prefetched values, 32 statuses, and two transitions, giving 4,096 cases per variant. Before: 3,584 transitions clear status and all retain interrupt enables. After: zero of either. Fifteen adapter scenarios, twenty resource cases, and 16,384 descriptors pass again, with no ASan/UBSan diagnostic. Evidence: `evidence/2026-10-02/audio-control/`.
 
-Le module final est ELF64 big-endian PowerPC, vermagic audio-bytes ; aucune compilation de vmlinux dans E63. La première cible isolée échoue au modpost faute de dépendances ALSA ; la cible modules complète réussit sans avertissement. Aucun chargement.
+The final module is ELF64 big-endian PowerPC with audio-bytes vermagic; E63 did not rebuild vmlinux. An initial isolated target failed modpost due to absent ALSA dependencies; the complete modules target succeeded without warnings. No module loaded.
 
-## Préparation de l'observation — pas de démarrage DMA
+## Observation preparation: no DMA start
 
-Le relevé PCI standard donne 1414:580c, BAR0 de 64 octets, driver absent et enable=0. PCI command=0x0006 signifie que le matériel autorise mémoire et bus mastering, pas qu'un transfert est actif.
+Standard PCI capture identifies 1414:580c, 64-byte BAR0, no driver, and enable=0. PCI command 0x0006 allows memory decoding and bus mastering; it does not demonstrate an active transfer.
 
-L'observateur original `research/audio/read_status_once.c` refuse une identité inattendue, un pilote attaché, une fenêtre incorrecte ou le décodage mémoire désactivé. Il ouvre resource0 en lecture seule et ne lit que +0x04/+0x08/+0x14/+0x18, déjà utilisés par le pilote. Aucune écriture de registre, activation PCI, allocation DMA ou commande SMC. Ne pas confondre cette fenêtre audio avec la fenêtre flash interdite E10. Une lecture MMIO peut toutefois bloquer le bus ; aucun timeout logiciel ne garantit de l'interrompre.
+Original tool `research/audio/read_status_once.c` rejects wrong identity, attached driver, unexpected window, or disabled memory decoding. It opens resource0 read-only and reads only offsets +0x04/+0x08/+0x14/+0x18, already used by the driver. No register write, PCI enable, DMA allocation, or SMC command occurs. This audio window is distinct from E10's prohibited flash window, but even a read can hang the bus; a software timeout cannot guarantee interruption.
 
-La revue a détecté avant exécution un défaut de la première version : sysfs mappe la page contenant le BAR, pas son premier octet. Le noyau retenu utilise drivers/pci/mmap.c et décale resource_start de PAGE_SHIFT. Il faut donc ajouter 0x1600 au mapping avec les pages de 64 Kio de cette console. La fonction corrigée est testée sur 31 744 positions et sept entrées invalides, sous ASan/UBSan. Aucun ancien binaire n'a lu les registres. L'ELF32 PowerPC final contient quatre lwz alignés, huit eieio, conversions d'ordre des octets et aucune écriture MMIO dans la séquence désassemblée.
+Pre-execution review found a defect in the first observer: sysfs maps the page containing the BAR, not the BAR's first byte. This kernel uses drivers/pci/mmap.c and shifts resource_start by PAGE_SHIFT. With 64 KiB pages, the observer must add **0x1600** to the mapping. The corrected geometry passes **31,744 positions and seven invalid inputs** under ASan/UBSan. The old binary never read registers. Final ELF32 PowerPC disassembly contains four aligned lwz, eight eieio, byte-order conversion, and no MMIO store in the examined sequence.
 
-L'environnement de compilation ARM ne proposait pas le compilateur croisé ; le constructeur Docker historique sélectionnait encore ARM malgré --platform. Une base explicite amd64/debian avec vérification de l'architecture réussit. Deux échecs conservés. Le binaire statique transféré dans /tmp a la même empreinte ; son lancement sans argument renvoie l'usage avant tout accès matériel. Aucun paquet installé sur la console.
+The ARM build environment lacked the cross-compiler; the legacy Docker builder still selected ARM despite --platform. An explicit amd64/debian base with an architecture assertion succeeded. Both failures are retained. The static binary transferred to /tmp matched its hash; launching without an argument returns usage before hardware access. No package was installed on the console.
 
-La lecture matérielle proprement dite et son interprétation doivent être enregistrées séparément. Les bits observés, même compatibles avec SiS, ne prouveront ni les effets d'acquittement, ni la progression DMA, ni une sortie sonore.
+Hardware reading and interpretation are recorded separately below. Compatible register bits alone do not prove acknowledgement effects, DMA progress, or sound output.
 
-## Mesure directe du 2 octobre 2026
+## Direct observations on October 2
 
-Les trois captures à 12:05:30.002727, 12:06:27.111764 et 12:06:27.219473 UTC ont réussi et sont identiques. Douze accès MMIO alignés au total, zéro écriture. Le processus et SSH ont répondu après chaque capture sous obsidian4 ; réactivité visuelle non vérifiée.
+Captures at 12:05:30.002727, 12:06:27.111764, and 12:06:27.219473 console UTC succeeded and matched. There were twelve aligned MMIO reads total and zero writes. The process and SSH returned after each observation under obsidian4; visual response was not checked.
 
-| Canal | Mot index/résiduel | Mot contrôle/statut |
+| Channel | Index/residual word | Control/status word |
 |---|---|---|
-| Analogique | 0x00008000 | 0x1d08001c |
-| Numérique | 0x00009616 | 0x1d08001c |
+| Analog | 0x00008000 | 0x1d08001c |
+| Digital | 0x00009616 | 0x1d08001c |
 
-**Interprétation hypothétique** : avec les masques SiS/LibXenon, index courant=dernier index (0 pour analogique, 22 pour numérique), résiduel nul, RUN=1, activations IRQ=0x1c, statut bas=0x1c et bit halted=0. Ce n'est pas la signature simple d'un contrôleur arrêté. Le bit 15 du mot index est présent sur les deux canaux et n'est pas expliqué ici. Le contrôle observé est exactement la constante d'initialisation de LibXenon : on ne sait pas distinguer par ces lectures seules un état hérité, un registre partiellement mémorisé ou des événements matériels.
+Hypothetical interpretation using SiS/LibXenon masks: current index equals last index (0 analog, 22 digital), residual zero, RUN=1, IRQ enables=0x1c, low status=0x1c, halted=0. This is not a simple stopped signature. Index bit 15 appears on both channels and remains unexplained here. Control exactly matches LibXenon's initialization constant; these reads cannot distinguish inherited state, partially latched fields, or hardware events.
 
-L'égalité des snapshots ne prouve pas l'absence de DMA entre observations, pas plus que le résiduel nul ne prouve une fin sonore. Le compteur Linux enable et l'absence de pilote ne doivent donc pas servir de preuve de repos matériel avant réinitialisation/libération de tampons. La sémantique W1C du modèle E63 reste à valider séparément ; ces mots ne la démontrent pas. Aucune écriture supplémentaire n'a été tentée pour trancher.
+Identical snapshots do not prove no DMA occurred between reads, and zero residual does not establish final sound output. Linux enable count and absence of a driver are therefore not quiescence proofs before reset or memory release. E63's W1C hypothesis was not proven by these words; no extra write was attempted in this experiment.
 
-Prochaine étape : concevoir et relire une transition STOP/reset bornée et une observation de sa confirmation avant tout pilote audio actif. Préserver le démarrage éprouvé et une récupération physique coordonnée. L'observateur ne doit pas devenir un balayage arbitraire de registres.
+The next step was a reviewed bounded STOP/reset transition with confirmation before any active driver. Preserve the working boot and coordinate physical recovery. Do not turn this observer into an arbitrary register scan. E65–E68 contain subsequent targeted writes; E73's reboot supersedes their initial-state assumptions.

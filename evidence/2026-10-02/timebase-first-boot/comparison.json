@@ -1,0 +1,29 @@
+{
+  "host_compared_utc": "2026-10-02T13:56:01.395740+00:00",
+  "before_capture_sha256": "342793b1dadce032b0602b9087014a2ddd78c67401ee39ed057aebad6c8a762e",
+  "after_capture_sha256": "112c5f2090abc82599080002f6693b6922e23a3c0027b6d7b2760257f3999dfb",
+  "before_kernel": "6.18.11-xenon-obsidian4",
+  "after_kernel": "6.18.11-xenon-obsidian-clock",
+  "before_raw_error_ppm_bounds": [
+    -2531.254109183867,
+    -2481.3318324689026
+  ],
+  "after_raw_error_ppm_bounds": [
+    -28.15546549295167,
+    14.431754797872287
+  ],
+  "after_bounds_include_zero": true,
+  "conservative_absolute_error_reduction_factor": 88.12966821983709,
+  "active_conversion_hz": 49875000,
+  "device_tree_frequency_hz": 50000000,
+  "wall_offset_seconds_bounds": [
+    -243.026451733,
+    -243.025017733
+  ],
+  "collector_sha256": "a77279afcbe789bd673ddcd50cccd7ab250e22c7cd844fe9228bee0307115ccb",
+  "limitations": [
+    "Two approximately 60-second windows, relative to the same Mac; no independent oscillator calibration or long-duration stability claim.",
+    "Cadence correction does not set the civil clock; its offset remains approximately -243 seconds.",
+    "Firmware device-tree frequency remains 50 MHz; effective inference now uses the kernel conversion read from /proc/cpuinfo."
+  ]
+}

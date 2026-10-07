@@ -1,0 +1,8 @@
+{
+  "host_checked_utc": "2026-10-02T13:47:19.534560+00:00",
+  "success": false,
+  "category": "connection_timeout",
+  "console_state": "unknown; user boot test pending",
+  "fallback_evidence": "evidence/2026-10-02/audio-control/pci-state.json",
+  "limitations": "No fresh header acquired. Do not infer kernel, power, or desktop state from failed SSH."
+}

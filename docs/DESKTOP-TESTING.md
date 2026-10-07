@@ -1,10 +1,10 @@
-# Test du redimensionnement à la manette, hors console
+# Offline controller resize regression test
 
-Ce test reproduit un blocage X11 dans un conteneur Linux jetable. Il n’accède ni à la Xbox, ni aux périphériques d’entrée du Mac, ni à un serveur graphique existant. Il lance le vrai programme `desktop/xbox_desktop.py` et utilise sa classe X11 pour les événements synthétiques ; il ne simule pas les paquets du pilote joydev.
+This test reproduces an X11 deadlock in a disposable Linux container. It does not access the Xbox, Mac input devices, or an existing display server. It runs the real `desktop/xbox_desktop.py` and its X11 input class; it does not emulate joydev packets.
 
-## Construire l’environnement
+## Build the environment
 
-Prérequis : Docker actif, curl, environ 1 Go disponible pour l’environnement. Depuis la racine du dépôt :
+Requirements: running Docker, curl, and approximately 1 GB of free space. From the repository root:
 
 ```sh
 mkdir -p .local/desktop-test-build .local/desktop-resize-tests
@@ -15,9 +15,9 @@ cp research/Dockerfile.desktop-test .local/desktop-test-build/Dockerfile
 docker build -t obsidian360-desktop-test:icewm4 .local/desktop-test-build
 ```
 
-Le Dockerfile vérifie le SHA-256 de l’archive avant extraction et compilation. Le contexte contient seulement le Dockerfile et cette archive amont. Ne pas utiliser le dépôt entier comme contexte : il contient des données privées ignorées par Git. Le binaire de test est aarch64 sur le Mac utilisé ici ; il n’est pas installé sur la Xbox. Le digest de base, l’identité d’image et les versions des paquets de l’essai sont dans `evidence/2026-10-02/desktop-resize-regression/environment.json`. Les paquets APT ne sont pas figés sur un snapshot ; une reconstruction bit à bit n’est pas garantie.
+The Dockerfile verifies the upstream archive SHA-256 before extraction and compilation. The build context contains only that archive and the Dockerfile. Do not use the whole repository as context: it contains Git-ignored private data. The test binary is aarch64 on this Mac and is not installed on the Xbox. The base digest, image identity, and package versions are recorded in `evidence/2026-10-02/desktop-resize-regression/environment.json`. APT packages are not pinned to a snapshot, so bit-for-bit rebuilds are not guaranteed.
 
-## Exécuter
+## Run
 
 ```sh
 docker run --rm --name obsidian-resize-regression \
@@ -29,14 +29,14 @@ docker run --rm --name obsidian-resize-regression \
   python3 research/tests/check-desktop-resize.py --output /output/result.json
 ```
 
-Chaque cas crée son propre Xvfb avec un numéro alloué par `-displayfd`, puis son propre IceWM et lanceur. La variable DISPLAY héritée est supprimée. Les connexions réseau X11 sont désactivées, et aucun socket X11 hôte n’est monté. Le nettoyage termine les groupes de processus créés ; l’arrêt forcé est intentionnel puisque l’ancien comportement doit se bloquer.
+Each case creates its own Xvfb using `-displayfd`, IceWM, and launcher. Inherited DISPLAY is removed, X11 TCP is disabled, and no host X11 socket is mounted. Cleanup terminates only the created process groups. Forced cleanup is intentional because the old configuration is expected to hang.
 
-L’initiation du redimensionnement passe par le message standard `_NET_WM_MOVERESIZE` en direction bas-droite. La classe X11 réelle envoie ensuite un déplacement de −60/−40 et relâche le bouton. Le test attend une réponse synchrone sur cette connexion et interroge le serveur depuis un client indépendant. Il vérifie aussi la diminution réelle des dimensions : des processus vivants ou une simple réponse sans redimensionnement ne suffisent pas.
+The test sends the standard `_NET_WM_MOVERESIZE` message for bottom-right resizing. The real X11 class then moves by −60/−40 and releases the button. It waits for a synchronous response and queries geometry through an independent client. Both dimensions must actually decrease: process liveness or a response without resizing is insufficient.
 
-Résultat attendu : `passed: true`, ancien mode en expiration, nouveau mode réactif avec fenêtre réduite. Un code de sortie non nul ou un résultat incomplet est un échec à investiguer, pas une permission de déclarer le correctif validé.
+Expected result: `passed: true`, old mode timed out, new mode responsive with a smaller window. Nonzero exit or incomplete output is a failure to investigate, not permission to claim validation.
 
-## Preuves et limites
+## Evidence and limits
 
-L’essai initial utilisant une position de bord supposée n’a provoqué aucun redimensionnement et a échoué. Il est conservé dans `first-attempt.json`. L’essai corrigé est `validation.json`. La compilation contient les avertissements documentés dans `build-diagnostics.log` ; les journaux de police et thème sont également conservés. Aucune compilation sans avertissement n’est revendiquée.
+The first attempt assumed a border position, produced no resize, and failed. It is preserved in `first-attempt.json`; the corrected run is `validation.json`. Compiler diagnostics are in `build-diagnostics.log`, alongside retained theme/font logs. No warning-free build is claimed.
 
-Le mécanisme de blocage est reproduit dans Xvfb, avec IceWM 4.0.0. Cela ne valide pas le GPU Xenos, le noyau PowerPC, l’entrée physique à la manette, tous les déplacements de fenêtre, ni le coût de rafraîchissement sur la console. Le test ne remplace pas l’essai manuel demandé à l’utilisateur.
+The mechanism is reproduced under Xvfb with IceWM 4.0.0. This does not validate Xenos, the PowerPC kernel, physical controller input, every window operation, or console redraw cost. It does not replace the requested manual console test.

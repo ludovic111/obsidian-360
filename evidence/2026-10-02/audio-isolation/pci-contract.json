@@ -1,0 +1,42 @@
+{
+  "passed": true,
+  "scope": "Seven actual Linux PCI functions; configuration and delays mocked. No hardware writes.",
+  "source_sha256": {
+    "drivers/pci/pci.c": "c9b1cbf2008e6c5f011a31b5a979d7a3e97effdf0abf5d201bb1fc60e21e706d",
+    "include/linux/pci.h": "1797970ab2d2f3fd19fdd64f8b70319b5ffde98368c94b5defec0b4c16fe2b76"
+  },
+  "function_sha256": {
+    "pci_pcie_cap": "44388ff043e177e98060595369aabeb88f20ab99ac6b1e024b3eb93cc55a1b6f",
+    "pci_is_pcie": "922e0d303084a0ca063bfa651fa0a6cf8445992d461dfc6a230a1ca9077f3ec6",
+    "__pci_bus_find_cap_start": "d3d0042ab8cef5b6f6ac18a34ec5803571a38b2d1da081c89e9edb33dd59190f",
+    "__pci_set_master": "3972711bfb54baa2e161eeba6a8a505fa90bed35bba5c1b6a81018b85dc1158e",
+    "pci_clear_master": "a932af6d2429244f417523f2e07c92e44516c5600b95073e11dd1b97a41c7736",
+    "pci_wait_for_pending": "c153d0a2e5afd0f43ea31ab4425788db5d2bd29363267f65a4c80708de647c61",
+    "pci_wait_for_pending_transaction": "7038c6d33a7dab035f0b984c6e3400fa7f97bab926b051be0c1645e88c8d9685"
+  },
+  "capture_sha256": "26cf90d8ece4be51520eee53964c66c30eacf5d1b7dd4877cce01b6136316fa8",
+  "capture_observed_utc": "2026-10-02T11:22:10.050362+00:00",
+  "decoded_header": {
+    "vendor": "1414",
+    "device": "580c",
+    "command": 6,
+    "status": 648,
+    "header_type": 0,
+    "capabilities_list_advertised": false,
+    "capability_pointer_byte": 0
+  },
+  "tests": {
+    "capability_start_cases": 512,
+    "clear_master_cases": 16,
+    "pending_cases": 6,
+    "failed_write_then_successful_wait": true,
+    "non_pcie_success_reads": 0,
+    "max_simulated_sleep_ms": 700
+  },
+  "sanitizers": "ASan/UBSan",
+  "limitations": [
+    "Snapshot decoding is historical unless freshly captured.",
+    "No proof of outstanding DMA completion, reset success, or endpoint electrical behavior.",
+    "PCI capability absence is inferred from the header and standard enumeration; no live kernel struct was read."
+  ]
+}

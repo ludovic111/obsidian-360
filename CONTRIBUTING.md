@@ -1,9 +1,19 @@
-# Contribuer
+# Contributing
 
-Lire AGENTS.md, docs/STATE.md et docs/EXPERIMENTS.md. Pour une modification, expliquer le problème, la source exacte, le test, les limites et le retour au système fonctionnel. Distinguer simulation hôte et validation sur console.
+Read [AGENTS.md](AGENTS.md), [STATE](docs/STATE.md), and [EXPERIMENTS](docs/EXPERIMENTS.md). Write contributions in English. For each change, explain the concrete problem, exact source revision, test, limitations, and recovery path. Distinguish host simulation from console validation.
 
-Ne fournir aucun secret, dump firmware, binaire de jeu ou asset propriétaire dans une issue, une pièce jointe ou un commit. Utiliser des échantillons synthétiques pour les parseurs ; conserver les acquisitions personnelles hors Git. Ne jamais rejouer les scripts d'installation archivés ni la sonde NAND bloquante.
+Do not attach secrets, firmware dumps, proprietary game executables, or assets to issues or commits. Use synthetic parser fixtures and keep personal acquisitions outside Git. Never replay archived installation scripts or the flash probe that hung the console.
 
-Ne pas modifier l'alimentation ou les protections thermiques pour un benchmark. Un test logiciel hors console est préférable pour les fautes mémoire. Toute proposition de changement de démarrage doit préserver une sélection explicite du dernier système fonctionnel et expliquer les limites de récupération.
+Do not change power settings or thermal protections for benchmarks. Prefer off-console software tests for memory faults. Every proposed boot change must preserve an explicit selection of the last working system and explain recovery limits.
 
-Les contributions originales suivent la licence MIT, sauf modification d'un fichier soumis à une licence amont différente ; conserver cette licence et ses attributions. Les correctifs noyau dérivés suivent notamment la GPL du noyau.
+Original contributions use the MIT license unless they modify material under another upstream license; preserve that license and its attribution. Kernel-derived patches retain the kernel's applicable GPL terms. See [THIRD_PARTY.md](THIRD_PARTY.md).
+
+A useful experiment submission includes:
+
+1. A precise question and a falsifiable expectation.
+2. The initial hardware/software state and source identities.
+3. The exact action, duration and access limits, and what would stop the experiment.
+4. Machine-readable observations and checksums, with private identifiers removed in the publication derivative.
+5. The result, competing explanations, recovery steps, and a justified next action.
+
+A passing model is evidence about that model and the exercised code. It is not proof of undocumented silicon behavior, DMA completion, electrical safety, or general compatibility across Xbox 360 revisions.

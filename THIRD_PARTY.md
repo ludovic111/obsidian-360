@@ -1,25 +1,24 @@
-# Licences et provenance
+# Licenses and provenance
 
-La licence MIT à la racine couvre les outils, tests et textes originaux du projet. Elle ne remplace pas les licences des sources amont, extraits, diffs et sorties dérivées.
+The root MIT license covers original project tools, tests, and writing. It does not replace the licenses of upstream sources, excerpts, patches, or derived outputs.
 
-- Les correctifs Linux 0001, 0003–0007 ciblent `techflashYT/linux-custom@a293dd19311668900eb1eeb2f6cb01dcac54f330`. Leurs parties dérivées du noyau restent sous GPL-2.0 ; texte dans `LICENSES/GPL-2.0.txt`. Les désassemblages conservés comme preuves proviennent de ce noyau, pas de jeux propriétaires.
-- Les fonctions vidéo analysées viennent de Free60Project/libxenon au commit `a333adef440f28b436a667be0a4f014afce6349d`. Le code complet n'est pas embarqué ; le banc l'extrait de la copie amont locale. Notice BSD conservée dans `LICENSES/libxenon-BSD.txt`.
-- Le correctif expérimental XeLL 0002 et les copies d'initramfs tierces restent hors de l'export public initial en attendant la vérification complète de leur provenance et de leur licence. Leur analyse reste documentée ; aucun firmware n'est distribué.
-- Les outils peuvent analyser des fichiers fournis localement par l'opérateur. Cela ne donne aucun droit de redistribuer ces fichiers. Jeux, assets, exécutables propriétaires, images de disque, secrets et firmware restent hors de Git.
-- Le parseur XEX2 est une implémentation originale de faits de format, confrontés à Xenia `95a5c3ee250f80c3b9d139658649d9ffb6db3eec` et Free60. Aucun code de décryption ou binaire Xenia n'est embarqué. La notice de licence de la référence Xenia est conservée dans `LICENSES/xenia-BSD.txt` à titre d'attribution.
+- Linux patches 0001 and 0003–0007 target `techflashYT/linux-custom@a293dd19311668900eb1eeb2f6cb01dcac54f330`. Kernel-derived portions retain GPL-2.0 terms; see `LICENSES/GPL-2.0.txt`. Recorded disassemblies originate from this kernel, not proprietary games.
+- Analyzed video functions come from Free60Project/libxenon commit `a333adef440f28b436a667be0a4f014afce6349d`. Full upstream sources are not bundled; the harness extracts functions from an operator-supplied local checkout. Its BSD notice is retained in `LICENSES/libxenon-BSD.txt`.
+- Experimental XeLL patch 0002 and third-party initramfs copies remain outside the controlled public export pending complete provenance/license review. Their analysis is documented; no firmware is distributed.
+- Tools may inspect operator-supplied local files. This grants no redistribution right to those files. Games, assets, proprietary executables, disc images, secrets, and firmware remain outside Git.
+- The XEX2 parser is an original implementation of format facts cross-checked against Xenia `95a5c3ee250f80c3b9d139658649d9ffb6db3eec` and Free60. Neither Xenia binaries nor decryption code are bundled. The reference project's license notice is retained in `LICENSES/xenia-BSD.txt` for attribution.
+- The X11 harness rebuilds IceWM 4.0.0 (`5ebafddba37de22fc115d6cde43cb01cfc9ef263`) from its upstream archive; its binary is not tracked. Short compiler-diagnostic source excerpts retain the upstream GNU Library GPL version 2 license, copied in `LICENSES/icewm-LGPL-2.0.txt`. They are not relicensed under the original tests' MIT license.
 
-- Le banc X11 reconstruit IceWM 4.0.0 (`5ebafddba37de22fc115d6cde43cb01cfc9ef263`) depuis son archive amont ; il n’embarque pas ce binaire dans Git. Les courts extraits de code dans les diagnostics du compilateur restent soumis à la licence amont GNU Library GPL version 2, dont la copie est conservée dans `LICENSES/icewm-LGPL-2.0.txt`. Ils ne sont pas couverts par la licence MIT des tests originaux.
+Upstream authors retain their rights. Repository links and exact revisions appear in `docs/SOURCES.md` and provenance reports. No upstream component is presented as an original OBSIDIAN-360 discovery or creation.
 
-Les auteurs amont conservent leurs droits. Les liens vers leurs dépôts et les révisions exactes sont dans `docs/SOURCES.md` et les rapports de provenance. Aucun composant amont n'est présenté comme une découverte ou une création originale d'obsidian-360.
+## Audio and extracted-function tests
 
-Le correctif audio 0008 et les extraits de diagnostics de snd-xenon.c dérivent du pilote de jc4360 (2009), GPL-2.0-or-later, dans le même noyau linux-custom. La licence MIT ne remplace pas cette licence. Le banc extrait les fonctions de la copie source locale ; les routines amont ne sont pas recopiées dans le test.
+Patches 0008, 0009, 0011, 0012, 0013, 0014, and 0015 derive from jc4360's 2009 `snd-xenon.c`, GPL-2.0-or-later, in the same linux-custom tree. Their derived portions retain that license. Resource, PCM, timer, pthread, submission, geometry, and protocol models/assertions are original; actual driver routines are extracted from the supplied source at test runtime.
 
-Le correctif audio 0009 partage la provenance et la licence GPL-2.0-or-later de 0008. Les tests de ressources et leur modèle sont originaux ; les fonctions du pilote sont extraites à l’exécution de la copie source fournie.
+Patch 0010 changes the SMC core (GPL-2.0), its header, and the audio driver (GPL-2.0-or-later). The SMC harness extracts GPL-2.0-only iopoll macros from the supplied kernel at runtime; it does not redistribute them as MIT code.
 
-Le correctif 0010 modifie le cœur SMC (GPL-2.0), son en-tête et le pilote audio (GPL-2.0-or-later). Le banc SMC extrait les macros iopoll (GPL-2.0-only) du noyau fourni à l’exécution ; il ne les redistribue pas comme code MIT. Les modèles et assertions sont originaux.
+The E58 submission harness also extracts conversion helpers from the reference kernel's `include/sound/pcm.h`. Those functions retain their upstream license. AudioController files from xenon-emu/xenon were only analyzed locally; public material contains links and hashes.
 
-Le correctif 0011 conserve la provenance jc4360/linux-custom et la licence GPL-2.0-or-later du pilote audio. Le nouveau banc PCM et les adaptations des modèles sont originaux ; les callbacks amont sont extraits de la source locale à l’exécution.
+E66 extracts actual ALSA stop/free functions. E72 extracts seven PCI functions. Their source bodies are not copied into the original test scripts; only extraction logic, mocks, assertions, and hashes are tracked. Kernel source licenses continue to apply to generated local test translation units.
 
-Le correctif 0012 conserve la licence GPL-2.0-or-later du pilote audio de jc4360/linux-custom. Le modèle de timers, le scénario pthread et leurs assertions sont originaux ; les routines du pilote sont extraites à l’exécution. Les API et contrats ALSA sont analysés depuis le noyau de référence.
-
-Le banc de soumission E58 extrait aussi les helpers de conversion de include/sound/pcm.h du noyau de référence ; ils conservent leur licence amont et ne sont pas recopiés sous MIT. Les fichiers AudioController de xenon-emu/xenon ont uniquement été analysés localement ; seuls liens et empreintes sont publiés.
+Patch 0016 modifies the Xenon kernel platform calibration code and retains its applicable kernel license. Its original measurement tools and tests are MIT project code.

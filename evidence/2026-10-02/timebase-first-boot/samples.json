@@ -1,0 +1,150 @@
+{
+  "state": "succeeded",
+  "started_host_utc": "2026-10-02T13:50:53.598002+00:00",
+  "scope": "Persistent read-only SSH samples; no clock or hardware changes",
+  "samples": [
+    {
+      "host_send_monotonic_ns": 10586446541,
+      "host_receive_monotonic_ns": 10587568000,
+      "host_send_wall_ns": 1790949064168569000,
+      "host_receive_wall_ns": 1790949064169689000,
+      "console": {
+        "raw_ns": 240458792247,
+        "monotonic_ns": 240458827578,
+        "wall_ns": 1790948821144210579
+      }
+    },
+    {
+      "host_send_monotonic_ns": 20591111958,
+      "host_receive_monotonic_ns": 20592741666,
+      "host_send_wall_ns": 1790949074173303000,
+      "host_receive_wall_ns": 1790949074174930000,
+      "console": {
+        "raw_ns": 250463666466,
+        "monotonic_ns": 250463702336,
+        "wall_ns": 1790948831149084235
+      }
+    },
+    {
+      "host_send_monotonic_ns": 30594023458,
+      "host_receive_monotonic_ns": 30595726875,
+      "host_send_wall_ns": 1790949084176283000,
+      "host_receive_wall_ns": 1790949084177983000,
+      "console": {
+        "raw_ns": 260466484385,
+        "monotonic_ns": 260466519451,
+        "wall_ns": 1790948841151900507
+      }
+    },
+    {
+      "host_send_monotonic_ns": 40600238291,
+      "host_receive_monotonic_ns": 40601737375,
+      "host_send_wall_ns": 1790949094182563000,
+      "host_receive_wall_ns": 1790949094184061000,
+      "console": {
+        "raw_ns": 270472594895,
+        "monotonic_ns": 270472631282,
+        "wall_ns": 1790948851158012058
+      }
+    },
+    {
+      "host_send_monotonic_ns": 50605598916,
+      "host_receive_monotonic_ns": 50607126500,
+      "host_send_wall_ns": 1790949104187993000,
+      "host_receive_wall_ns": 1790949104189518000,
+      "console": {
+        "raw_ns": 280477834668,
+        "monotonic_ns": 280477871695,
+        "wall_ns": 1790948861163252170
+      }
+    },
+    {
+      "host_send_monotonic_ns": 60612613000,
+      "host_receive_monotonic_ns": 60614317250,
+      "host_send_wall_ns": 1790949114195077000,
+      "host_receive_wall_ns": 1790949114196777000,
+      "console": {
+        "raw_ns": 290484949970,
+        "monotonic_ns": 290484987396,
+        "wall_ns": 1790948871170368072
+      }
+    },
+    {
+      "host_send_monotonic_ns": 70620530875,
+      "host_receive_monotonic_ns": 70621966125,
+      "host_send_wall_ns": 1790949124203059000,
+      "host_receive_wall_ns": 1790949124204493000,
+      "console": {
+        "raw_ns": 300492621503,
+        "monotonic_ns": 300492660431,
+        "wall_ns": 1790948881178041267
+      }
+    }
+  ],
+  "identity": {
+    "cpuinfo_timebase_hz": 49875000,
+    "kind": "identity",
+    "kernel": "6.18.11-xenon-obsidian-clock",
+    "timebase_frequencies": {
+      "Xenon,PPE@1": 50000000,
+      "Xenon,PPE@2": 50000000,
+      "Xenon,PPE@0": 50000000
+    },
+    "clocksource": "timebase"
+  },
+  "transport_code": 0,
+  "analysis": {
+    "scope": "Relative to Mac monotonic clock; SSH brackets bound observation times, not absolute oscillator accuracy.",
+    "sample_count": 7,
+    "host_interval_seconds_bounds": [
+      60.032962875,
+      60.035519584
+    ],
+    "clock_rates": {
+      "raw_ns": {
+        "console_seconds": 60.033829256,
+        "ratio_bounds": [
+          0.999971844534507,
+          1.0000144317547979
+        ],
+        "error_ppm_bounds": [
+          -28.15546549295167,
+          14.431754797872287
+        ]
+      },
+      "monotonic_ns": {
+        "console_seconds": 60.033832853,
+        "ratio_bounds": [
+          0.999971904449038,
+          1.0000144916718805
+        ],
+        "error_ppm_bounds": [
+          -28.09555096194849,
+          14.491671880501045
+        ]
+      },
+      "wall_ns": {
+        "console_seconds": 60.033830688,
+        "ratio_bounds": [
+          0.9999718683870531,
+          1.0000144556083599
+        ],
+        "error_ppm_bounds": [
+          -28.13161294690225,
+          14.455608359886796
+        ]
+      }
+    },
+    "last_wall_offset_seconds_bounds": [
+      -243.026451733,
+      -243.025017733
+    ],
+    "advertised_timebase_hz": 50000000,
+    "conversion_timebase_hz": 49875000,
+    "conversion_basis": "Kernel /proc/cpuinfo timebase; device tree may differ after override",
+    "effective_timebase_hz_bounds": [
+      49873595.74615854,
+      49875719.78377055
+    ]
+  }
+}

@@ -1,15 +1,16 @@
-# Actions physiques différées
+# Physical actions and external dependencies
 
-Le 2 octobre, l’utilisateur est de retour après son absence temporaire. E65 confirme l’accès SSH sous obsidian4 après une écriture STOP analogique ciblée. Les actions physiques restent à coordonner lorsqu’elles deviennent nécessaires ; aucun redémarrage n’a été demandé pour cet essai. Le canal analogique reste arrêté selon le statut étudié, le numérique n’a pas été modifié.
+The user returned on October 2 and completed the **obsidian_clock** boot. E73 verifies the kernel and clock correction; the user confirms desktop responsiveness. That boot action is no longer blocked. Physical actions below still require coordination, and no unattended reboot is assumed authorized merely because SSH is available.
 
-| Action pour le prochain créneau disponible | Pourquoi elle est nécessaire | Travail indépendant possible |
+| Action | Why it is needed | Independent work available |
 |---|---|---|
-| Démarrer l’entrée **obsidian_clock**, prête et vérifiée par E71 ; demande envoyée à l’utilisateur | Mesurer la correction de cadence sur ce matériel ; candidat préparé mais non démarré | Documenter les preuves, poursuivre les analyses hors console |
-| Tester le bouton Éteindre depuis le lanceur démarré normalement | Autorisations du vrai PID vérifiées, extinction non déclenchée pendant l’absence | Analyse des sessions et tests hors console |
-| Identifier visuellement carte mère et marquages des puces | La signature PCI ne suffit pas à établir chaque révision | Analyse des pilotes et cartographie logicielle |
-| Tester Big Order sur un autre lecteur connu fonctionnel | CD lu, jeu et DVD vidéo absents sous Linux ; absence également rapportée dans le tableau de bord stock (E50) | Analyse du pilote SCSI et des erreurs historiques |
-| Vérifier clavier, pointeur et commandes manette sous obsidian4 | Événements reçus ne prouvent pas toute l'interaction visible | Tests du lanceur et instrumentation |
-| Répéter les démarrages avec choix explicite puis retour au noyau précédent | Un seul démarrage candidat vérifié | Analyse des initramfs et durées de démarrage |
-| Préparer une méthode de récupération NAND adaptée à la carte | Aucune sauvegarde brute restaurable confirmée | Formats, code d'acquisition et validation hors matériel |
+| Test Shut Down from the normally launched desktop | Real-process authorization was checked, but successful poweroff was not observed | Session/authorization analysis and host tests |
+| Visually identify motherboard and chip markings | PCI signatures do not establish every revision | Driver analysis and logical memory map |
+| Test Big Order on another known-working DVD player | CD samples read, game/video DVDs absent in Linux and reportedly in stock dashboard | SCSI/sense analysis and software-format tooling |
+| Exercise controller pointer, A/Y, keyboard, and repeated window resize | General responsiveness is confirmed, but not every gesture or resize recovery | Launcher tests and X11 instrumentation |
+| Repeat explicit candidate boot and return to the previous kernel | One clock-kernel boot is verified; fallback files alone do not demonstrate a fresh rollback | Initramfs, menu, source, and timing analysis |
+| Establish hardware-appropriate NAND recovery | No confirmed restorable raw backup or independent recovery chain | Acquisition source review, image/ECC format analysis, synthetic tests |
 
-Le lecteur n'est pas déclaré réparé, et aucune lecture de jeu n'est démontrée. Les analyses de jeux commenceront par formats documentés et échantillons synthétiques tant qu'aucun fichier légitime exploitable n'est disponible localement.
+The optical drive is not declared repaired, and successful game reading has not been demonstrated. Game research uses documented formats and synthetic fixtures until a usable legitimately owned input is available locally.
+
+A pending physical step does not block all research. Continue a genuinely independent source, tooling, testing, or documentation task and preserve the exact outstanding action here.

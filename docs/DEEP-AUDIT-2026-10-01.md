@@ -1,94 +1,90 @@
-# Analyse approfondie — 1 octobre 2026
+# Deep audit — October 1, 2026
 
-Cette session combine des observations Linux en direct, une analyse des sources et des tests C exécutés sur le Mac. Elle ne constitue pas une rétro-ingénierie complète du silicium. Deux défauts de bornes mémoire sont reproduits dans le code de référence ; deux correctifs candidats sont conservés, sans modification du noyau ni du chargeur de la Xbox.
+This checkpoint combines live Linux observations, source analysis, and C tests on the Mac. It is not complete silicon reverse engineering. Two memory-bounds defects were reproduced in reference code, with candidate patches retained and no Xbox kernel/loader modification during these experiments. Subsequent binary identification and deployment are separate evidence.
 
-## Périmètre des preuves
+## Evidence scope
 
-- Mesure directe : `evidence/2026-10-01/deep-audit/runtime.json` et `kernel-provenance.txt`.
-- Analyse reproductible : `video-analysis.json`, `tiling-bounds.json` et `memory-bounds.json` dans le même dossier.
-- Sources exactes, commits et SHA-256 : `deep-audit/sources.json`.
-- Patch Linux étudié : `patch-6.18-xenon0.30.diff`, SHA-256 `d5d79cd502f859311dd2f2b834b57a489fead1e8e622deb55c6a70f79df604ad`. Il correspond à la référence déjà archivée dans ce dépôt.
-- Le paquet installé est `linux-xenon 6.18.11-1`. L'identité de version ne prouve pas à elle seule que chaque instruction du binaire installé correspond aux sources étudiées. Nous n'avons ni reconstruit ce binaire ni vérifié son désassemblage.
+- Direct observations: `evidence/2026-10-01/deep-audit/runtime.json`, `kernel-provenance.txt`.
+- Reproducible analysis: `video-analysis.json`, `tiling-bounds.json`, `memory-bounds.json` in that directory.
+- Source identities and hashes: `deep-audit/sources.json`.
+- Examined Linux patch: `patch-6.18-xenon0.30.diff`, SHA-256 `d5d79cd502f859311dd2f2b834b57a489fead1e8e622deb55c6a70f79df604ad`.
+- Installed package: linux-xenon 6.18.11-1. Version identity alone did not prove instruction identity. At this stage no rebuild/disassembly had established that match; E20–E24 later correct the exact source attribution.
 
-## F01 — Allocation du framebuffer trop petite pour le placement en tuiles
+## F01 — Framebuffer allocation too small for tiling
 
-**Confirmé dans le code de référence, reproduit sur le Mac.** Le pilote alloue `width * height * cpp` octets, mais `xenos_blit()` place les pixels dans des macro-tuiles de 32 × 32. Les dernières lignes d'une hauteur non multiple de 32 peuvent donc écrire après la fin de l'allocation.
+Confirmed in reference code and reproduced on the Mac. The driver allocates width×height×cpp, while xenos_blit places pixels in 32×32 macro-tiles. Heights not divisible by 32 can write past the allocation.
 
-| Taille | Allocation originale | Fin maximale adressée, exclusive | Allocation proposée |
+| Dimensions | Original bytes | Maximum addressed end, exclusive | Proposed allocation |
 |---|---:|---:|---:|
-| 640 × 480 | 1 228 800 | 1 228 800 | 1 228 800 |
-| 1280 × 720 | 3 686 400 | 3 766 272 | 3 768 320 |
-| 1920 × 1080 | 8 294 400 | 8 354 816 | 8 355 840 |
-| 1280 × 768 | 3 932 160 | 3 932 160 | 3 932 160 |
+| 640 × 480 | 1,228,800 | 1,228,800 | 1,228,800 |
+| 1280 × 720 | 3,686,400 | 3,766,272 | 3,768,320 |
+| 1920 × 1080 | 8,294,400 | 8,354,816 | 8,355,840 |
+| 1280 × 768 | 3,932,160 | 3,932,160 | 3,932,160 |
 
-Le test extrait la vraie fonction C `xenos_blit()` et la compile avec AddressSanitizer. Les allocations originales produisent `heap-buffer-overflow` en 720p et 1080p. L'allocation arrondie aux tuiles passe les quatre tailles. Le calcul exhaustif des indices fournit une deuxième vérification indépendante.
+The actual xenos_blit C function is extracted and built under ASan. Original 720p/1080p allocations trigger heap-buffer-overflow; tile-rounded allocation passes all four. Exhaustive index calculation provides an independent check.
 
-**Corroboration en direct** : le journal du démarrage actuel annonce `Using 1280x720 (384000) fb`. La valeur hexadécimale `0x384000` vaut 3 686 400 octets, exactement la taille linéaire étudiée. Cela renforce la pertinence du défaut pour cette installation, sans démontrer les accès mémoire effectifs ni remplacer une vérification du binaire. Preuve : `deep-audit/final-console-check.txt` ; console toujours accessible après 22 minutes, bureau actif et aucun service en échec.
+Live corroboration: the boot log reported `Using 1280x720 (384000) fb`; 0x384000 is exactly 3,686,400. This supports relevance to the installation without proving actual accesses or replacing binary verification. `deep-audit/final-console-check.txt` recorded console access after 22 minutes, active desktop, and no failed units.
 
-Correctif candidat : `research/patches/0001-xenos-pad-tiled-framebuffer.patch`.
+Patch: `0001-xenos-pad-tiled-framebuffer.patch`. Tests use Mac allocations, not PowerPC DMA. All four widths are multiples of 32. DRM lifecycle, damage rectangles, cache, allocation failures, and every format still need testing. The fix programs no HDMI timing, enables no 1080p, and does not explain E10.
 
-Limites : les tests utilisent des allocations mémoire du Mac, pas les allocations DMA du noyau PowerPC. Les quatre largeurs testées sont multiples de 32. Le cycle de vie DRM, les rectangles de dommage, le cache, les erreurs d'allocation et l'ensemble des formats restent à tester. Ce correctif ne programme aucun timing HDMI et n'active pas le 1080p. Il ne démontre pas la cause du gel E10.
+Source: [pinned Free60 patch](https://github.com/Free60Project/linux-kernel-xbox360/blob/498bbe1910f707ceba0535276d75a3e6ad0b7df4/patch-6.18-xenon0.30.diff), xenos_enable/xenos_blit.
 
-Source : [xenos.c dans le patch Linux figé](https://github.com/Free60Project/linux-kernel-xbox360/blob/498bbe1910f707ceba0535276d75a3e6ad0b7df4/patch-6.18-xenon0.30.diff), fonctions `xenos_enable` et `xenos_blit`.
+## F02 — XeLL HTTP NAND buffer too small
 
-## F02 — Tampon de lecture NAND HTTP XeLL insuffisant
+Confirmed for studied sources and reproduced with mocked hardware. response_flash_do_data allocates sfc.page_sz bytes, but raw sfcx_read_page writes sfc.page_sz_phys. LibXenon initializes them to **512 and 528**: metadata/ECC needs sixteen extra bytes.
 
-**Confirmé pour les sources étudiées, reproduit sur le Mac avec lecture matérielle simulée.** Dans `response_flash_do_data()`, le tampon réserve `sfc.page_sz` octets. L'appel `sfcx_read_page(..., 1)` y écrit une page physique de `sfc.page_sz_phys` octets. L'initialisation libxenon fixe respectivement 512 et 528 octets : il manque 16 octets pour les métadonnées/ECC.
+The harness compiles the complete XeLL HTTP file with hardware/network dependencies mocked to preserve raw-page write size. ASan reports dynamic-stack-buffer-overflow. With 528 bytes, two pages transmit correctly: **1,056 checked bytes**.
 
-Le test compile le fichier HTTP XeLL complet en remplaçant seulement les dépendances matérielles/réseau par des interfaces simulées. La simulation respecte la taille écrite par `sfcx_read_page()` en lecture brute. AddressSanitizer reproduit un `dynamic-stack-buffer-overflow`. Avec le tampon de 528 octets, deux pages sont transmises correctement : 1 056 octets vérifiés.
+Candidate: `0002-xell-allocate-physical-page.patch`. HTTP also ignores sfcx_read_page's returned status; LibXenon's STATUS_BUSY wait is unbounded. Two matching downloads would not establish a restorable acquisition without separate geometry, ECC, bad-block, and read-status checks.
 
-Correctif candidat : `research/patches/0002-xell-allocate-physical-page.patch`.
+No /FLASH request was sent in this session. The running XeLL binary was not identified by code identity. This HTTP issue does not explain Linux's mmap freeze. The patch remains outside the controlled public export pending its provenance review.
 
-Autres points constatés : le gestionnaire HTTP ignore le statut retourné par `sfcx_read_page()` ; l'attente `STATUS_BUSY` de libxenon n'est pas bornée. Deux téléchargements identiques ne suffiraient donc pas à garantir une acquisition restaurable : géométrie, ECC, blocs défectueux et statut de lecture doivent être contrôlés séparément.
+Sources: [HTTP handler](https://github.com/Free60Project/xell-reloaded/blob/a36ed6b7dae940e47e472a20fd14b0616ddc8cef/source/lv2/httpd/httpd_flash.c), [SFCX geometry/read](https://github.com/Free60Project/libxenon/blob/a333adef440f28b436a667be0a4f014afce6349d/libxenon/drivers/xenon_nand/xenon_sfcx.c).
 
-Limites : aucune requête `/FLASH` n'a été envoyée à la console pendant cette session. La version de XeLL effectivement embarquée dans notre chaîne de démarrage n'a pas été identifiée par son code binaire. Cette anomalie appartient au chemin HTTP XeLL ; elle n'explique pas la lecture mmap Linux ayant gelé la machine.
+## F03 — HDMI 720p correlation
 
-Sources : [gestionnaire HTTP](https://github.com/Free60Project/xell-reloaded/blob/a36ed6b7dae940e47e472a20fd14b0616ddc8cef/source/lv2/httpd/httpd_flash.c), [lecture et géométrie SFCX](https://github.com/Free60Project/libxenon/blob/a333adef440f28b436a667be0a4f014afce6349d/libxenon/drivers/xenon_nand/xenon_sfcx.c).
+Historical GPU captures decoded offline give width 1,280, height 720, pitch 1,280 pixels, horizontal total 1,650, and horizontal offset 259, matching LibXenon's HDMI 720p table.
 
-## F03 — Corrélation du mode HDMI 720p
+Of 121 non-sentinel ANA entries (excluding ffffffff/deadbeef), **109** match. Twelve differ; six at 0x20–0x25 exactly match constants written separately by xenos_init_ana_new. Other differences remain unexplained, and shared zeros are weak identity evidence.
 
-**Mesures historiques décodées hors ligne et comparaison de code.** Les captures GPU donnent : largeur 1 280, hauteur 720, pitch 1 280 pixels ; total horizontal 1 650 ; décalage horizontal 259. Ces valeurs correspondent à la table `HDMI 720p` de libxenon.
+Register naming is misleading: LibXenon intentionally writes zero to D1CRTC_V_TOTAL at 0x6020 and total_height−1 to 0x6010 despite its D1CRTC_H_SYNC_B name. The capture lacks 0x6010, so vertical total is not measured. Neither 0x6020 nor DRM's declared 60 Hz provides an actual clock measurement. 0x6024 cannot simply be interpreted as generic Radeon timing either.
 
-Sur les 121 entrées ANA de cette table qui ne sont pas des sentinelles `ffffffff` ou `deadbeef`, 109 égalent la capture. Douze diffèrent. Six différences (`0x20` à `0x25`) correspondent exactement aux constantes écrites séparément par `xenos_init_ana_new()`. Les autres différences restent à interpréter ; les zéros communs ne sont pas une preuve forte d'identité matérielle.
+The Free60 patch constructs one fixed mode from existing register dimensions. Later package identification corrects this: the installed branch instead forces 1280×720; see [binary audit](BINARY-AUDIT-2026-10-01.md). Studied LibXenon tables expose thirteen modes and no 1920×1080. A successful 1080p path needs ANA/HANA clocks, GPU timings, memory layout, and mode startup; an XRandR modeline is insufficient.
 
-Un piège de lecture est clarifié : libxenon écrit volontairement zéro dans le registre nommé `D1CRTC_V_TOTAL` à `0x6020`. Il place `total_height - 1` à `0x6010`, malgré le nom `D1CRTC_H_SYNC_B`. Notre capture ne contient pas `0x6010` : le total vertical n'est donc pas mesuré. Il serait incorrect de calculer une fréquence à partir de `0x6020`, ou de traiter 60 Hz annoncé par DRM comme une mesure d'horloge. La capture à `0x6024` ne permet pas non plus une interprétation générique de timing Radeon.
+Linux ana_read_reg decodes reply bytes without validating SMC status. ANA captures retain that limitation rather than being guaranteed reads of every physical register.
 
-Le patch Free60 étudié construit un seul `fixed_mode` depuis les dimensions déjà présentes dans les registres. **Correction après identification du paquet : la branche réellement installée impose un mode constant 1280 × 720**, comme détaillé dans [l'analyse binaire](BINARY-AUDIT-2026-10-01.md). Les tables actuelles de libxenon exposent 13 modes, aucun 1920 × 1080. Il faut comprendre et valider horloges ANA/HANA, timings GPU, placement mémoire et démarrage du mode ; une simple modeline XRandR est insuffisante.
+Sources: [LibXenon video](https://github.com/Free60Project/libxenon/blob/a333adef440f28b436a667be0a4f014afce6349d/libxenon/drivers/xenos/xenos.c), [mode tables](https://github.com/Free60Project/libxenon/blob/a333adef440f28b436a667be0a4f014afce6349d/libxenon/drivers/xenos/xenos_videomodesdata.h).
 
-Enfin, `ana_read_reg()` dans le pilote Linux retourne les octets de la réponse SMC sans valider son statut. Les lectures ANA doivent rester des observations assorties de cette limite ; ce n'est pas une lecture garantie de tous les registres physiques.
+## F04 — Audio source exists, port incomplete
 
-Sources : [programmation vidéo libxenon](https://github.com/Free60Project/libxenon/blob/a333adef440f28b436a667be0a4f014afce6349d/libxenon/drivers/xenos/xenos.c), [tables](https://github.com/Free60Project/libxenon/blob/a333adef440f28b436a667be0a4f014afce6349d/libxenon/drivers/xenos/xenos_videomodesdata.h).
+Measured configuration has PCI 1414:580c but CONFIG_SOUND disabled and no bound driver. Historical snd-xenon describes analog and digital stereo S16_LE 48 kHz PCM; HDMI output was not demonstrated.
 
-## F04 — Audio : pilote présent dans les sources, portage incomplet
+Immediate activation would be premature. It uses pci_alloc_consistent, pci_free_consistent, from_timer, and del_timer_sync, absent from examined Linux v6.18 headers. Modern coherent DMA and timer_container_of/timer_delete/timer_shutdown APIs must be selected according to actual lifetime requirements.
 
-**Code de référence et configuration mesurée.** Le contrôleur PCI `1414:580c` existe, mais `CONFIG_SOUND` est désactivé et aucun pilote n'y est attaché. Le patch contient `snd-xenon.c`, qui décrit deux sorties PCM, analogique et numérique, en stéréo S16_LE à 48 kHz. Le fonctionnement HDMI n'a pas été démontré.
+Other source risks: private SMC access bypasses core serialization; unbounded readiness wait; unchecked DMA allocation; handle masked before free; IRQ handler always returns IRQ_HANDLED while PCM advances through a timer. HZ=300 cannot guarantee a requested 200-microsecond cadence.
 
-L'activer immédiatement serait prématuré. Le code utilise encore `pci_alloc_consistent`, `pci_free_consistent`, `from_timer` et `del_timer_sync`, absents des en-têtes Linux v6.18 inspectés. Les interfaces modernes correspondantes sont les API DMA cohérentes, `timer_container_of` et les fonctions `timer_delete*`/`timer_shutdown*`, à sélectionner selon le cycle de vie réellement nécessaire.
+No PowerPC audio build or playback occurred here. Installing a userspace mixer/ALSA alone would not resolve these issues. Later audio reports document actual porting and remaining protocol gaps.
 
-D'autres problèmes demandent une revue avant portage : accès direct au SMC sans utiliser la sérialisation du pilote central ; attente matérielle sans délai maximum ; retour d'allocation DMA non vérifié ; adresse DMA masquée en place avant sa libération ; gestionnaire IRQ qui retourne toujours `IRQ_HANDLED`, tandis que l'évolution PCM est suivie par un timer. Avec `CONFIG_HZ=300`, une demande de timer à 200 microsecondes ne garantit pas une cadence réelle de 200 microsecondes.
+Sources: historical snd-xenon.c; [Linux v6.18 timer API](https://github.com/torvalds/linux/blob/v6.18/include/linux/timer.h), [DMA API](https://github.com/torvalds/linux/blob/v6.18/include/linux/dma-mapping.h).
 
-Aucune compilation PowerPC ni restitution audio effectuée. Installer seulement un mixeur ou ALSA en espace utilisateur ne résoudrait pas ces éléments.
+## F05 — Network, temperatures, and interrupts
 
-Sources : `sound/pci/snd-xenon.c` dans le patch Linux figé ; [API timer Linux v6.18](https://github.com/torvalds/linux/blob/v6.18/include/linux/timer.h) et [API DMA](https://github.com/torvalds/linux/blob/v6.18/include/linux/dma-mapping.h).
+One direct snapshot reports enp1s7 at **100 Mbit/s full duplex**, zero RX/TX errors, zero collisions, and 84 dropped RX packets. Drops alone do not prove physical failure. Queried logs contained no new watchdog, timeout, Oops, or BUG at that moment; this does not establish resolution of the historical TX watchdog or load stability.
 
-## F05 — Réseau, températures et interruptions
+Observed peripheral IRQs arrive on CPU0; IPI/timers also use other threads. hwmon readings, in the studied driver's order: CPU **55.121°C**, GPU **49.195°C**, eDRAM **52.925°C**, board **27.898°C**. No thermal setpoint changed.
 
-**Mesure directe ponctuelle.** `enp1s7` indique 100 Mbit/s duplex intégral. Compteurs au relevé : zéro erreur RX/TX, zéro collision, 84 paquets RX abandonnés. Les abandons ne prouvent pas une panne physique. Le journal interrogé ne contient pas de nouveau watchdog, timeout, Oops ou BUG à cet instant. Cela ne démontre pas la résolution du watchdog historique ni la stabilité sous charge.
+The network patch contains a fixed fallback MAC and restricts Gigabit negotiation to SiS191. These source facts do not diagnose the transmit timeout.
 
-Les interruptions des périphériques observés arrivent sur CPU0 ; les IPI et timers utilisent aussi les autres threads. Températures relevées : CPU 55,121 °C, GPU 49,195 °C, eDRAM 52,925 °C, carte 27,898 °C, selon l'ordre du pilote hwmon déjà étudié. Aucune consigne thermique modifiée.
+## Remaining work at this checkpoint
 
-Le patch réseau contient un MAC de secours fixe et limite correctement la négociation Gigabit au type SiS191. Ces faits de code ne diagnostiquent pas la cause du timeout de transmission.
-
-## Carte du travail restant
-
-| Sous-système | Ce qui est établi | Ce qui manque |
+| Subsystem | Established | Missing |
 |---|---|---|
-| CPU / RAM / interruptions | Inventaire, topologie Linux, route des IRQ et configuration | Mesures de caches, performances, cohérence DMA ; aucune analyse du silicium |
-| GPU / HDMI | Mode 720p corrélé, défaut d'allocation reproduit hors machine | Noyau candidat compilé, validation DMA, tables et horloges 1080p, accélération 3D |
-| Audio / XMA | Contrôleurs PCI et pilote audio historique analysés | Portage testé, restitution physique, décodeur XMA |
-| SATA / USB / manette | Disque monté, pilotes liés, événements de manette | Validation prolongée et protocoles propriétaires non étudiés |
-| SMC / ANA / thermique | Commandes d'état, captures et code des pilotes | Sens exact des registres restants, robustesse des échanges |
-| NAND / boot | Stub Linux, protocole SFCX étudié, défaut XeLL reproduit | Cause du gel, géométrie réelle, acquisition contrôlée, ECC, bootloaders propres à la console |
-| Ethernet | Liaison active et compteurs ; code du pilote identifié | Cause du watchdog et validation sous charge maîtrisée |
+| CPU/RAM/interrupts | Inventory, Linux topology, IRQ route, configuration | Cache/performance/DMA-coherence measurements; no silicon analysis |
+| GPU/HDMI | Correlated 720p, reproduced allocation defect | Candidate build then DMA validation, 1080p clocks/tables, 3D acceleration |
+| Audio/XMA | PCI endpoints and historical driver analysis | Tested port, physical playback, XMA decoder |
+| SATA/USB/controller | Mounted disk, bound drivers, input events | Prolonged validation, proprietary protocols |
+| SMC/ANA/thermal | Status commands, captures, source | Remaining register meanings and robust exchanges |
+| NAND/boot | Linux stub, SFCX source, reproduced XeLL defect | Freeze cause, actual geometry, controlled acquisition, ECC, console bootloaders |
+| Ethernet | Active link, counters, identified driver | Watchdog cause and controlled load validation |
 
-Le démarrage indépendant du système Xbox demeure non réalisé. Aucun nouvel exploit persistant n'est établi par ces analyses, et aucune mémoire de démarrage n'a été effacée ou reprogrammée.
+Independent Linux boot remains unfinished. No new persistent exploit is established, and no boot memory was erased or programmed.

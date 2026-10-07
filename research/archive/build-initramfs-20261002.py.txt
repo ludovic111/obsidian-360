@@ -1,0 +1,28 @@
+import os,sys,pathlib,hashlib,subprocess,json,datetime,platform,tarfile
+base=pathlib.Path('/var/tmp/obsidian-clock-preflight-20261002'); release='6.18.11-xenon-obsidian-clock'
+assert platform.release()=='6.18.11-xenon-obsidian4' and os.geteuid()==0
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+report={'console_started_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'clock_note':'Console wall clock is not calibrated; use host collection bracket.','release':release,'steps':[]}
+manifest=json.loads((base/'bundle.json').read_text()); assert sha(base/'bundle.tar.gz')==manifest['archive_sha256']
+assert not (base/'root').exists() and not (base/'initramfs.img').exists()
+with tarfile.open(base/'bundle.tar.gz') as t:
+ for m in t.getmembers():
+  assert m.isfile() and not pathlib.PurePosixPath(m.name).is_absolute() and '..' not in pathlib.PurePosixPath(m.name).parts
+ t.extractall(base,filter='data')
+modules=base/'root/lib/modules'/release
+for m in manifest['modules']:assert sha(modules/'kernel'/m['path'])==m['sha256']
+assert sha(modules/'vmlinuz')==manifest['kernel_sha256']
+def run(cmd):
+ p=subprocess.run(cmd,text=True,capture_output=True,timeout=180)
+ report['steps'].append({'command':cmd,'returncode':p.returncode,'stdout':p.stdout,'stderr':p.stderr})
+ (base/'build-result.json').write_text(json.dumps(report,indent=2)+'\n')
+ assert p.returncode==0,p.stderr
+run(['depmod','-b',str(base/'root'),'-e','-E',str(base/'Module.symvers'),release])
+assert not report['steps'][-1]['stderr']
+run(['mkinitcpio','-r',str(base/'root'),'-k',release,'--nopost','-g',str(base/'initramfs.img')])
+run(['lsinitcpio','-a',str(base/'initramfs.img')])
+report['image']={'bytes':(base/'initramfs.img').stat().st_size,'sha256':sha(base/'initramfs.img')}
+assert report['image']['bytes']<32*1024*1024
+report['console_finished_utc']=datetime.datetime.now(datetime.timezone.utc).isoformat();report['success']=True
+(base/'build-result.json').write_text(json.dumps(report,indent=2)+'\n')
+print(json.dumps(report,indent=2))

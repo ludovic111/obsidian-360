@@ -1,36 +1,38 @@
-# Candidat de correction d’horloge : préparation E71
+# Clock-correction boot preparation — E71
 
-Le noyau `6.18.11-xenon-obsidian-clock` est préparé séparément sur le disque interne et la clé USB. Il reprend obsidian4 avec le correctif optionnel 0016, sans les changements audio expérimentaux. L’option `xenon_tb_hz=49875000` ajuste la conversion des ticks ; elle ne programme pas l’oscillateur ni les tensions. La mesure de référence et les limites sont dans [TIMEBASE-CALIBRATION.md](TIMEBASE-CALIBRATION.md).
+Kernel `6.18.11-xenon-obsidian-clock` was prepared separately on the internal disk and USB drive. It retains obsidian4 with optional patch 0016, excluding experimental audio changes. `xenon_tb_hz=49875000` changes tick conversion, not oscillator or voltage programming. See [calibration](TIMEBASE-CALIBRATION.md) for the baseline and limits.
 
-## Construction et contrôle
+This report covers staging. The subsequent successful boot and measurement are documented separately in [E73](TIMEBASE-FIRST-BOOT.md).
 
-La console répond sous obsidian4 avant préparation ; racine interne ext4, clé ARCH vfat distincte, aucun service en échec listé. Les 65 modules candidats et l’image ont été emballés depuis la sortie E70 après comparaison de chaque empreinte. Archive reçue avec empreinte identique, extraite dans un nouveau répertoire de travail sans écraser les modules actifs.
+## Build and inspection
 
-`depmod -e -E` et `mkinitcpio --nopost` réussissent, sans erreur ni avertissement de compilation de l’image. La configuration reprend les hooks base, udev, modconf, block, filesystems, keyboard et fsck, avec compression zstd niveau 1. La commande d’analyse de l’image a initialement émis un diagnostic d’affichage `tput` lié à TERM absent, sans échec de génération ; les inspections suivantes utilisent TERM=dumb.
+Before preparation, SSH responded under obsidian4, with internal ext4 root, a separate ARCH vfat USB partition, and no listed failed units. The 65 candidate modules and kernel image were packaged from E70 after individual hash comparisons. The received archive matched its hash and was extracted into a new work directory without replacing active modules.
 
-L’initramfs fait **16 171 806 octets**, sous la limite de 32 Mio du LibXenon étudié. SHA-256 : `0f2bea5579d397127a75b9daa27aa724a24deb2d2be3984749de64c16e937eef`. L’extraction contient uniquement le répertoire de version attendu et **43 modules**, tous comparés octet pour octet par SHA-256 aux modules E70. Six programmes essentiels sont ELF32 PowerPC big-endian et leurs chemins résolus restent dans l’image extraite. Présence de /init et du hook udev vérifiée.
+`depmod -e -E` and `mkinitcpio --nopost` succeeded without image-build errors or warnings. Configuration used base, udev, modconf, block, filesystems, keyboard, and fsck hooks, with zstd level 1. The image analysis command initially emitted a `tput` display diagnostic because TERM was absent; generation still succeeded, and later inspections used TERM=dumb.
 
-Image noyau SHA-256 : `85b39fd069950625ad6e6cb8f5c17c71aa2755c7d325d3459cf848b69fa241cb`. Les empreintes et les commandes exactes sont dans `evidence/2026-10-02/timebase-boot/`.
+The initramfs is **16,171,806 bytes**, below the studied LibXenon 32 MiB limit. SHA-256: `0f2bea5579d397127a75b9daa27aa724a24deb2d2be3984749de64c16e937eef`. Extraction contains only the expected module-version directory and **43 modules**, each hash-matched to E70. Six essential programs are ELF32 big-endian PowerPC, with resolved paths confined to the extracted image. `/init` and the udev hook are present.
 
-## Disposition préparée
+Kernel image SHA-256: `85b39fd069950625ad6e6cb8f5c17c71aa2755c7d325d3459cf848b69fa241cb`. Hashes and exact commands are in `evidence/2026-10-02/timebase-boot/`.
 
-- Modules : `/usr/lib/modules/6.18.11-xenon-obsidian-clock`, nouveau répertoire, 65 empreintes revérifiées.
-- Clé : `obsidian-clock/kernel` et `obsidian-clock/initrd`.
-- Menu : nouvelle entrée **obsidian_clock**, 168 octets, avec la même racine que l’entrée obsidian4 et l’option de cadence à 49 875 000 Hz.
-- Menu précédent sauvegardé dans `Recovery/kboot-before-obsidian-clock.conf`.
-- Défaut **linux_hdd conservé** ; entrées obsidian4 et récupération existantes conservées. Huit fichiers de démarrage/récupération préexistants restent aux empreintes relevées avant copie.
+## Staged layout
 
-Une seconde lecture après démontage/remontage en lecture seule confirme les nouveaux fichiers, les secours et le menu ; la copie Mac de l’initramfs a la même empreinte. SSH reste sous obsidian4, aucun service en échec listé.
+- Modules: new `/usr/lib/modules/6.18.11-xenon-obsidian-clock` directory; all 65 hashes rechecked.
+- USB: `obsidian-clock/kernel` and `obsidian-clock/initrd`.
+- Menu: new **obsidian_clock** entry, 168 bytes, reusing obsidian4's root parameter and adding the 49,875,000 Hz conversion option.
+- Previous menu: `Recovery/kboot-before-obsidian-clock.conf`.
+- Default: **linux_hdd unchanged**; obsidian4 and existing recovery entries retained. Eight pre-existing boot/recovery files match their pre-copy hashes.
 
-Le menu est écrit seulement après vérification des deux fichiers nouveaux et des modules. Le fichier temporaire du menu est synchronisé puis renommé ; la clé est synchronisée et démontée. Cela réduit les possibilités d’une entrée pointant vers une copie incomplète, sans constituer une garantie contre toute panne physique. Les procédures exactes sont archivées comme texte sous `research/archive/`, pour audit et non pour répétition automatique.
+A second read after unmounting and remounting read-only confirmed the new files, fallback files, and menu. The Mac copy of the initramfs also matched. SSH still reported obsidian4 and no failed units at the end of staging.
 
-## Essai physique requis
+The menu was changed only after verifying both new boot files and the installed modules. Its temporary file was synchronized and renamed, followed by filesystem synchronization and unmount. This reduces incomplete-copy exposure; it does not guarantee recovery from every physical storage failure. Exact procedures are archived as text under `research/archive/` for audit, not automatic replay.
 
-1. Éteindre normalement la console et débrancher Ethernet.
-2. Relancer Rock Band Blitz, choisir USB si demandé, puis sélectionner explicitement **obsidian_clock** dans XeLL.
-3. Rebrancher Ethernet seulement après arrivée au bureau Linux.
-4. Vérifier par SSH la version obsidian-clock, l’option de démarrage, le message de calibration, la racine et les services ; refaire les sept échantillons de cadence sur 60 secondes avec le même outil qu’E69.
+## Physical boot procedure
 
-Si cette entrée bloque, revenir par un démarrage physique à **obsidian4**, qui a déjà atteint le bureau. linux_hdd et la récupération sont aussi conservés, mais leur simple présence ne démontre pas une nouvelle validation de démarrage. Aucun redémarrage n’est envoyé par les procédures de préparation. Aucun firmware/NAND/eFuse modifié.
+1. Shut down normally and disconnect Ethernet.
+2. Start Rock Band Blitz, choose USB if requested, and explicitly select **obsidian_clock** in XeLL.
+3. Reconnect Ethernet only after the Linux desktop appears.
+4. Verify the release, command line, calibration message, root and services through SSH; repeat the seven-sample, 60-second E69 measurement.
 
-**Limite actuelle : fichiers préparés, candidat pas encore démarré.** La réduction effective de dérive, le bureau et les entrées utilisateur sous ce noyau restent à vérifier. Les horodatages console des rapports sont laissés tels quels et doivent être interprétés avec les horodatages hôte, compte tenu du défaut mesuré E69.
+If the candidate stalls, physically restart into **obsidian4**, which previously reached the desktop. linux_hdd and live recovery are also retained, but their presence is not a new boot-validation result. Staging scripts issue no reboot and change no firmware, NAND, or eFuses.
+
+At E71 completion only the files were ready. E73 subsequently confirmed boot, desktop responsiveness, and improved cadence. Preserve console-issued report timestamps as recorded and interpret them alongside host timestamps because E69 established a clock discrepancy.

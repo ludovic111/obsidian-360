@@ -1,0 +1,54 @@
+{
+  "root_uuid": "e9584d6f-d7ed-40ba-80a2-6834f8d91f31",
+  "swap_uuid": "59f3e035-07cf-404f-8f89-48012d60ee21",
+  "installed_ssh_test": "passed",
+  "boot_config": "linux_hdd activated",
+  "first_hdd_boot": "verified: /dev/sda1 ext4, hostname xbox-linux, SSH authenticated",
+  "initramfs_sha256": "f01d99340d4e1539c0f4c52721f44fa715db0218b62cc94950040f28d53d3b09",
+  "desktop": {
+    "verified_at": "2026-10-01T21:51:30.184947",
+    "status": "Was verified running; console now frozen pending manual reboot.",
+    "packages": "IceWM 4.0.0-1, Xorg 21.1.24-1, Python 3.14.6-1, Tk 8.6.16-2, PCManFM, polkit",
+    "graphics": "1280x720 Xorg modesetting, AccelMethod none, SWcursor true, PageFlip false; all desktop processes user xbox; original Xorg.wrap permissions restored",
+    "startup": "getty@tty1 autologin xbox -> .bash_profile startx -> IceWM -> xbox_desktop.py",
+    "tests": [
+      "Xorg screenshot visually verified",
+      "XTest end-to-end wrote xbox360 into test xterm",
+      "Virtual keyboard clicks wrote 123 and submitted Enter into test xterm",
+      "No failed systemd services"
+    ],
+    "controller": "Internal receiver 045e:0291 bound to xpad; no js0 device yet, input counter zero; user asked to turn on controller",
+    "memory": "129 MiB available of 458 MiB; 67 MiB swap used at final check",
+    "disk": "2.5 GiB used, 100 GiB free",
+    "ssh_update_fix": "/etc/pacman.d/hooks/99-xbox-restart-sshd.hook ensures post-update restart",
+    "boot": "Still needs Rock Band Blitz exploit and USB at cold boot; automatic Linux cold boot not configured"
+  },
+  "desktop_access_issue": {
+    "observed_at": "2026-10-01T21:34:28.968923",
+    "ping": "XBOX_LINUX_IP responds via en0",
+    "ssh": "TCP22 accepts then connection resets before SSH banner",
+    "suspected_cause": "Old running sshd incompatible with upgraded helper; old post-transaction restart hook replaced by new pre-transaction mark hook",
+    "package_transaction": "Downloads and signature validation completed; installation began; final status unavailable",
+    "recovery": "At existing root console run systemctl restart sshd. Do not interrupt package installation or power off blindly.",
+    "desktop_config": "Scripts staged, setup not executed; recopy latest local xbox_desktop.py before setup; ensure polkit installed for restricted poweroff rule",
+    "resolved": "User restarted sshd locally after changing keyboard USB port; SSH restored, package transaction Result=success."
+  },
+  "video_boot_investigation": {
+    "date": "2026-10-01T21:55:05.184468",
+    "actual_resolution": "1280x720 at 60Hz; XRandR output None-1",
+    "1080p_attempt": "xrandr --output None-1 --mode 1920x1080 -> cannot find mode; display remains 720p",
+    "source_findings": "Xenos DRM reads D1GRPH_X_END/Y_END and exposes fixed_mode; upstream libxenon modes 0..12 have no 1920x1080; modeset implementation does not program full HDMI timings",
+    "nand": "No /proc/mtd or /dev/mtd exposed by installed kernel. No NAND dump captured, no NAND writes performed. Existing backups concern disk regions only.",
+    "boot": "BadUpdate patches runtime after authenticated Xbox boot. No new boot-chain bypass discovered. Known independent boot path requires compatible hardware modification and console-specific boot image. ABadAvatar can reduce interaction but still depends on Xbox system.",
+    "next_requirement": "Identify exact motherboard and establish hardware modification/recovery path before replacing boot firmware."
+  },
+  "current_console_state": "User confirms frozen image after read-only flash aperture probe. Manual power cycle and Rock Band Blitz USB boot requested; Linux recovery not yet verified.",
+  "hardware_audit": {
+    "report": "outputs/Xbox360-analyse-materielle/Rapport.txt",
+    "bundle": "outputs/Xbox360-analyse-materielle.zip",
+    "pci_devices": 12,
+    "gpu_family": "Jasper per PCI1414:5831, not visually confirmed",
+    "read_flash_probe": "Read-only resource1 mmap; froze console. No flash write/erase command. No validated NAND backup. Do not repeat probe.",
+    "acquired_platform_data": "SMC version/AV status, four temperatures, 15 GPU display registers, 1024-byte ANA dump. Last raw files remain on console and need copying after recovery."
+  }
+}

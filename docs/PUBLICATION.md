@@ -4,11 +4,11 @@
 
 Mise à jour du 2 octobre : commit public `2d31efbd2230c28dfd23ad199ffab231c7a12b12`, enfant direct de f9da49e, 203 fichiers. Inspecteur XEX2, tests et outil d'audit de l'historique inclus ; vérification API du commit et de l'arbre réussie. L'audit avant push a couvert les deux commits et 213 objets texte atteignables. Voir `evidence/2026-10-02/public-audit/publication.json`.
 
-Le dépôt [ludovic111/obsidian-360](https://github.com/ludovic111/obsidian-360) est créé ; il est désormais privé. Premier commit : `f9da49e7cc39a3bf06983e97b9fffe73a8e63606`, sans parent, 187 fichiers. L'API GitHub confirmait alors la visibilité publique de cette première publication, la branche main, SHA du commit et égalité de l'arbre distant avec l'export audité. Preuve : `evidence/2026-10-01/publication/verification.json`.
+Le dépôt public [ludovic111/OBSIDIAN-360](https://github.com/ludovic111/OBSIDIAN-360) est créé. Premier commit : `f9da49e7cc39a3bf06983e97b9fffe73a8e63606`, sans parent, 187 fichiers. L'API GitHub confirme visibilité publique, branche main, SHA du commit et égalité de l'arbre distant avec l'export audité. Preuve : `evidence/2026-10-01/publication/verification.json`.
 
 Deux relevés ont été dérivés pour masquer l'adresse MAC. Dix-sept chemins ont été exclus de la sélection initiale, dont le manifeste SHA original (remplacé par celui des dérivés), les acquisitions binaires, les archives et les extraits tiers retenus localement. Les attributions publiques amont restent conservées ; aucune identité Git privée de l'opérateur n'est dans le nouvel historique.
 
-Le checkout de publication local est `.local/public-export-reviewed-20261001`, avec son propre Git et son remote origin. Le dépôt de recherche principal suit désormais origin (`ludovic111/obsidian-360.git`) pour `main`, tandis que la branche de recherche `research/bootstrap` reste locale, sans remote : ne pas en déduire que les modifications locales suivantes sont automatiquement publiées. Repréparer et auditer un export pour chaque mise à jour, sans mélanger les deux historiques.
+Le checkout de publication local est `.local/public-export-reviewed-20261001`, avec son propre Git et son remote origin. Le dépôt de recherche principal n'a pas de remote : ne pas en déduire que les modifications locales suivantes sont automatiquement publiées. Repréparer et auditer un export pour chaque mise à jour, sans mélanger les deux historiques.
 
 L'utilisateur autorise une publication GitHub publique dans l'objectif v2. Le dépôt de recherche local et son historique restent conservés : ils contiennent des traces et métadonnées personnelles qui ne doivent pas être poussées telles quelles.
 
@@ -47,3 +47,5 @@ Publication E63/E64 vérifiée à 2026-10-02T12:11:33.298267+00:00 : commit publ
 Publication E65/E66 vérifiée à 2026-10-02T12:57:15.785188+00:00 : commit public `6d597f74c644f253f889d7c78e3f05f3113af2c9`, 410 fichiers, parent et arbre GitHub conformes après audits. Preuve : `evidence/2026-10-02/public-audit/stop-publication.json`. STOP analogique observé ; contrat mémoire ALSA testé, aucun son activé.
 
 Publication E67–E70 vérifiée à 2026-10-02T13:27:32.850304+00:00 : commit public `db44cdd3e537a6d0a2dd13ac565a939f9b90e043`, 442 fichiers, parent et arbre GitHub conformes après audits. Preuve : `evidence/2026-10-02/public-audit/timebase-publication.json`. Acquittements analogiques observés ; cadence mesurée et noyau de correction compilé, non installé.
+
+Publication E71 vérifiée à 2026-10-02T13:43:05.979127+00:00 : commit public `47b0a02d8820d009aa6cde4741a925b6e6018cae`, 452 fichiers, parent et arbre GitHub conformes après audits. Preuve : `evidence/2026-10-02/public-audit/timebase-boot-publication.json`. Ensemble de démarrage prêt ; essai physique encore attendu.

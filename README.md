@@ -1,60 +1,70 @@
-# obsidian-360
+# OBSIDIAN-360
 
-**Comprendre la machine. Documenter chaque preuve. Construire son avenir sous Linux.**
+**Understand the hardware. Preserve the evidence. Build a useful Linux system.**
 
-Laboratoire d'analyse d'une Xbox 360 : matériel, chaîne de démarrage, pilotes Linux, interface à la manette et expériences reproductibles.
+OBSIDIAN-360 is an ongoing hardware and systems research project for one Xbox 360. It combines console measurements, source and binary analysis, original tooling, kernel changes, a controller-oriented desktop, and documented recovery procedures. The repository is written in English.
 
-## État vérifié
+## Verified status — October 2, 2026
 
-- ArchPOWER installé et démarré sur le disque interne de 120 Go ; swap de 2 Gio.
-- Bureau IceWM personnalisé en 1280 × 720, clavier visuel et moteur de saisie testés.
-- Douze fonctions PCI relevées ; GPU identifié par sa signature PCI comme famille Jasper ; six threads CPU visibles.
-- obsidian4 a démarré après sélection manuelle dans XeLL : noyau confirmé en SSH, bureau actif, racine interne, zéro service en échec et allocation framebuffer corrigée vérifiée. La cause du blocage précédent reste inconnue.
-- Le gel du bureau lors du redimensionnement à la manette est récupéré sans reboot Linux ; le mécanisme X11 est reproduit hors console et corrigé par configuration. Validation physique du redimensionnement encore attendue.
-- Lecteur : secteurs de CD audio lus, mais jeu Just Cause 2 et DVD vidéo Big Order non reconnus sous Linux. Composant fautif et compatibilité régionale non déterminés.
-- L'entrée obsidian4 reste optionnelle ; linux_hdd demeure le choix par défaut. Stabilité prolongée et redémarrages répétés encore à valider.
-- Audio : tampons et suivi par sortie corrigés hors console, noyau candidat haute résolution et 70 modules compilés. Soumission des échantillons et protocole encore incomplets ; aucun son ni chargement du candidat.
-- Ni 1080p, ni démarrage indépendant du système Xbox, ni rétro-ingénierie intégrale réalisés.
+| Area | Established result | Important limit |
+|---|---|---|
+| Persistent Linux | ArchPOWER boots from the internal 120 GB drive, with ext4 root and 2 GiB swap | Startup still requires the stock Xbox chain, Rock Band Blitz, XeLL, and USB boot files |
+| Current kernel | `6.18.11-xenon-obsidian-clock` booted and was identified over SSH | One confirmed boot of this version; no default-menu promotion |
+| Clock calibration | Raw-clock drift improved from −2,531…−2,481 ppm to −28…+14 ppm relative to the Mac over approximately 60 seconds | This measures cadence, not absolute time accuracy; the civil clock remains about 243 seconds behind |
+| Desktop | Xorg and IceWM active at 1280 × 720; user confirms the desktop responds after the new boot | No 1080p or hardware-accelerated desktop validated |
+| Framebuffer | obsidian4's padded tiled allocation is active; the new clock kernel retains it | Long-duration graphics stress and all modes remain untested |
+| Input | Controller receiver, xpad events, desktop launcher, and virtual keyboard have been investigated | A responsive desktop does not validate every controller gesture or repeated resize |
+| Optical drive | Audio CD TOC and selected audio sectors read successfully | Just Cause 2 and Big Order DVD detection failed; the drive is not repaired |
+| Audio | Candidate driver builds and host tests; analog STOP and individual status acknowledgements observed before the latest reboot | No working playback, no experimental audio driver loaded, and no proven DMA release protocol |
+| Game analysis | Original Rust XEX2 structural inspector, synthetic fixtures, bounded parsing | No decryption, execution, proprietary asset distribution, or successful owned-game acquisition |
+| Firmware | Boot-chain and NAND-controller research, preserved evidence of a failed flash-window read | No validated restorable raw NAND backup or independent Linux boot |
 
-## Lire et continuer
+The project has **not** completed reverse engineering of the console. PCI signatures are not a complete motherboard identification; passing tests are not hardware guarantees. [Current state](docs/STATE.md) identifies the latest evidence, superseded observations, and remaining uncertainty.
 
-1. [État courant](docs/STATE.md) et [prochaines étapes](docs/NEXT.md).
-2. [Architecture et faits établis](docs/ARCHITECTURE.md).
-3. [Incidents et expériences](docs/EXPERIMENTS.md).
-4. [Construction et installation](docs/BUILD-AND-RECOVERY.md), [journal](docs/JOURNAL.md) et [actions physiques différées](docs/BLOCKED.md).
-5. [Mesures structurées](evidence/2026-10-01/mesures.json), [contrôleurs PCI](evidence/2026-10-01/peripheriques-pci.csv) et [sources](docs/SOURCES.md).
-6. [Analyse approfondie : deux défauts mémoire reproduits, vidéo, audio et NAND](docs/DEEP-AUDIT-2026-10-01.md), [correctifs candidats](research/patches/README.md) et [tests hors console](research/tests/README.md).
-7. [Noyau réellement installé : désassemblage, DMA, PCI et défaut IPI](docs/BINARY-AUDIT-2026-10-01.md).
-8. [Cache et protocole SMC ; premier noyau candidat compilé](docs/SMC-AUDIT-2026-10-01.md) et [diagnostic des interruptions de session](docs/SESSION-RECOVERY.md).
-9. [Pilote LED et nettoyage des ressources](docs/LED-AUDIT-2026-10-01.md), [noyau candidat, modules et image vérifiés](docs/KERNEL-CANDIDATE-2026-10-01.md).
-10. [Objectif étendu et critères de preuve](docs/OBJECTIVE.md), [préparation et essai obsidian4](docs/BOOT-PREFLIGHT-2026-10-01.md), [diagnostic initial du lecteur](docs/OPTICAL-DRIVE.md).
-11. [Trace hors console des fonctions vidéo et limites du passage 1080p](docs/VIDEO-MODE-TRACE-2026-10-01.md).
-12. [Première référence de performances](docs/PERFORMANCE-BASELINE-2026-10-01.md) et [carte des inconnues](docs/RESEARCH-MAP.md).
-13. [Analyse structurelle XEX2](docs/XEX2-INSPECTION.md) et [inspecteur Rust](game-analysis/xex-inspect/README.md), validé sur échantillons synthétiques uniquement.
-14. [Récupération du gel graphique](docs/DESKTOP-RESIZE-RECOVERY.md) et [test reproductible sous Xvfb](docs/DESKTOP-TESTING.md).
-15. [Tampons audio ALSA](docs/AUDIO-PCM-DMA.md), [suivi et fermeture des flux](docs/AUDIO-STREAM-POLLING.md), [audit de la soumission](docs/AUDIO-SUBMISSION-AUDIT.md).
-16. [File PCM originale et gestion de la fin de flux](research/audio/README.md), testée mais non intégrée au pilote.
-17. Adaptateur audio E60 : [soumission ALSA, tests et limite du dernier bloc](docs/AUDIO-ALSA-ADAPTER.md). Candidat non installé ; aucune lecture sonore validée.
-18. Audio E62 : [longueurs de blocs et hypothèse de registres SiS](docs/AUDIO-REGISTER-HYPOTHESIS.md), avec référence distinguant fin DMA et sortie sonore ; candidat toujours non installé.
+## Latest measured result
 
-## Organisation
+The firmware advertises a 50 MHz timebase. A bounded SSH clock comparison and LibXenon source analysis supported 49.875 MHz on this console. Patch 0016 adds an explicit `xenon_tb_hz` override to the kernel's software conversion, without programming an oscillator, PLL, power setting, or thermal control.
 
-- `evidence/` : relevés datés et sommes SHA-256 ; observations ponctuelles, pas état courant garanti.
-- `desktop/` : lanceur Python à la manette et configuration vidéo fonctionnelle.
-- `tools/` : accès SSH local, collecte d’inventaire et conversion des captures XWD.
-- `research/archive/` : scripts historiques d’installation, conservés comme texte non exécutable.
-- `research/blocked/` : sonde ayant gelé la console, pour analyse seulement.
-- `.local/` : configuration d’accès ignorée par Git ; aucune clé privée versionnée.
+The separately staged **obsidian_clock** entry has now booted. The kernel log and `/proc/cpuinfo` confirm 49,875,000 Hz; seven timestamp exchanges show an error interval containing zero. The conservative absolute-error bound improved by more than 88 times between the two measured windows. This is not a claim of zero physical oscillator error or long-term clock stability.
 
-## Accès local
+Read [calibration analysis](docs/TIMEBASE-CALIBRATION.md), [boot preparation](docs/TIMEBASE-BOOT.md), and [first-boot results](docs/TIMEBASE-FIRST-BOOT.md). Raw samples, runtime checks, and comparison hashes are in `evidence/2026-10-02/timebase-first-boot/`.
+
+## Research guide
+
+| Topic | Documentation |
+|---|---|
+| Status and priorities | [STATE](docs/STATE.md), [NEXT](docs/NEXT.md), [physical actions](docs/BLOCKED.md) |
+| Objective and evidence standards | [Full objective](docs/OBJECTIVE.md), [research map](docs/RESEARCH-MAP.md), [working instructions](AGENTS.md) |
+| Hardware and boot | [Architecture](docs/ARCHITECTURE.md), [build and recovery](docs/BUILD-AND-RECOVERY.md), [obsidian4 boot](docs/BOOT-PREFLIGHT-2026-10-01.md) |
+| Experiment history | [Experiment ledger](docs/EXPERIMENTS.md), [research journal](docs/JOURNAL.md), [sources](docs/SOURCES.md) |
+| Kernel and binaries | [Deep audit](docs/DEEP-AUDIT-2026-10-01.md), [binary audit](docs/BINARY-AUDIT-2026-10-01.md), [kernel artifacts](docs/KERNEL-CANDIDATE-2026-10-01.md) |
+| SMC, LED, and SMP | [SMC audit](docs/SMC-AUDIT-2026-10-01.md), [bounded SMC post](docs/SMC-BOUNDED-POST.md), [LED lifecycle](docs/LED-AUDIT-2026-10-01.md) |
+| Video and desktop | [Mode tracing](docs/VIDEO-MODE-TRACE-2026-10-01.md), [resize recovery](docs/DESKTOP-RESIZE-RECOVERY.md), [Xvfb regression](docs/DESKTOP-TESTING.md) |
+| Performance | [Initial baseline](docs/PERFORMANCE-BASELINE-2026-10-01.md), [timebase calibration](docs/TIMEBASE-CALIBRATION.md) |
+| Optical and games | [Drive investigation](docs/OPTICAL-DRIVE.md), [XEX2 analysis](docs/XEX2-INSPECTION.md), [Rust inspector](game-analysis/xex-inspect/README.md) |
+| Audio buffers and submission | [DMA/PCM](docs/AUDIO-PCM-DMA.md), [stream polling](docs/AUDIO-STREAM-POLLING.md), [submission audit](docs/AUDIO-SUBMISSION-AUDIT.md), [ALSA adapter](docs/AUDIO-ALSA-ADAPTER.md) |
+| Audio protocol and memory lifetime | [Register hypothesis](docs/AUDIO-REGISTER-HYPOTHESIS.md), [STOP](docs/AUDIO-STOP-EXPERIMENT.md), [ACK/reset](docs/AUDIO-ACK-RESET.md), [PCI isolation limits](docs/AUDIO-PCI-ISOLATION.md) |
+| Original code and verification | [PCM queue](research/audio/README.md), [patch index](research/patches/README.md), [host tests](research/tests/README.md) |
+
+## Repository layout
+
+- `docs/`: technical analysis, results, chronology, recovery limits, and next steps.
+- `evidence/`: dated observations and SHA-256 lists. A historical capture is not a live-state assertion.
+- `desktop/`: Python controller-oriented launcher and desktop configuration.
+- `tools/`: local SSH wrapper, collectors, artifact verifiers, and publication checks.
+- `research/`: original research components, candidate patches, host tests, and source provenance.
+- `game-analysis/`: original software-format inspection tools.
+- `research/archive/`: historical installation/staging procedures stored as text, excluded from the public export.
+- `research/blocked/`: the probe that hung the console, retained for analysis, not execution.
+- `.local/` and `private/`: ignored local material, access configuration, private captures, and non-redistributable files.
+
+## Local checks
 
 ```sh
 ./tools/ssh-xbox 'uptime'
 python3 desktop/xbox_desktop.py --self-test
 ```
 
-Le premier appel nécessite la configuration locale créée sur ce Mac et la clé existante hors dépôt. Il ne recherche pas d’autres machines et conserve la vérification de clé d’hôte. Le test Python ne simule pas une manette physique.
+SSH requires the operator's existing private configuration and key outside Git. It does not discover unrelated machines and keeps host-key verification. The desktop self-test does not simulate physical controller use. Refer to the [test guide](research/tests/README.md) for source-dependent C/ALSA/PCI tests and the [build guide](docs/BUILD-AND-RECOVERY.md) for kernel prerequisites.
 
-Chaque expérience doit préciser : objectif, état initial, action, preuve, résultat et récupération. Les instructions de travail sont dans [AGENTS.md](AGENTS.md).
-
-La branche `main` exclut les données privées et les binaires non redistribuables ; certaines preuves restent locales. Lire [la procédure de publication](docs/PUBLICATION.md) et [les licences](THIRD_PARTY.md). La recherche est incomplète et aucun installateur universel n'est fourni.
+No universal installer is provided. Boot files, firmware, games, disc images, console secrets, and third-party binaries are not bundled. Public snapshots pass content/history checks described in [PUBLICATION](docs/PUBLICATION.md); licensing and attribution are detailed in [THIRD_PARTY](THIRD_PARTY.md).

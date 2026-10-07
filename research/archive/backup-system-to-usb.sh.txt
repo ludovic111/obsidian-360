@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Read the Xbox HDD; write backup files only to the mounted SanDisk USB.
+set -euo pipefail
+disk=/dev/sda
+usb=/run/archiso/bootmnt
+test "$(blockdev --getsize64 "$disk")" = 120034123776
+test "$(cat /sys/block/sda/device/model | xargs)" = 'Hitachi HTS54251'
+test "$(lsblk -dn -o SERIAL "$disk" | xargs)" = REDACTED_DISK_SERIAL
+test "$(findmnt -n -o SOURCE --target "$usb")" = /dev/sdb1
+test "$(blockdev --getsize64 /dev/sdb)" = 123060879360
+dir="$usb/Xbox360-system-backup"
+mkdir -p "$dir"
+dd if="$disk" of="$dir/header.bin.partial" bs=1M count=1 status=none
+test "$(stat -c %s "$dir/header.bin.partial")" = 1048576
+mv "$dir/header.bin.partial" "$dir/header.bin"
+dd if="$disk" iflag=skip_bytes,count_bytes skip=4496818176 count=350420992 bs=1M status=none | gzip -1 > "$dir/avatar-system.bin.gz.partial"
+gzip -t "$dir/avatar-system.bin.gz.partial"
+test "$(gzip -dc "$dir/avatar-system.bin.gz.partial" | wc -c)" = 350420992
+mv "$dir/avatar-system.bin.gz.partial" "$dir/avatar-system.bin.gz"
+cd "$dir"
+sha256sum header.bin avatar-system.bin.gz > SHA256SUMS
+printf 'Header: offset 0, length 1048576. Avatar system: offset 4496818176, length 350420992. These are partial system backups, not a complete HDD backup.\n' > README.txt
+sync
+cat SHA256SUMS

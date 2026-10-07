@@ -1,24 +1,25 @@
-# Carte de recherche de l'exemplaire
+# Research map for this console
 
-Cette carte organise l'objectif courant ; elle ne remplace pas les preuves datées dans STATE et EXPERIMENTS. « Source » signifie code examiné, « mesure » signifie observation de cet exemplaire. Une identification logicielle ne remplace pas les marquages physiques des puces.
+This map organizes the current objective; dated evidence in STATE and EXPERIMENTS takes precedence. Source analysis, direct measurement, simulation, and hypotheses are distinct. Software identification cannot replace physical chip markings.
 
-| Bloc | Acquis et nature de preuve | Inconnues / prochaine preuve utile |
+| Area | Established evidence | Unknowns and useful next evidence |
 |---|---|---|
-| Révision et puces | Signature PCI GPU compatible famille Jasper ; inventaire de 12 fonctions | Photographies et marquages carte mère, RAM, flash, Southbridge ; révision exacte |
-| CPU et interruptions | Six threads visibles ; code et binaire du callback IPI analysés, correctif inclus dans obsidian4 | Topologie exposée, affinités IRQ, mesures de charge ; portée réelle du callback corrigé |
-| RAM / DMA | Pages noyau 64 Kio ; audit des chemins DMA et allocations graphiques | Cartographie des réservations, contraintes cohérence/cache, mesures de débit séparées du langage |
-| GPU / HDMI | Bureau 720p et allocation corrigée mesurés ; f1/f2 libxenon tracés hors matériel | Horloges et ANA/HANA 1080p, modes complets, accélération 2D/3D et format des commandes |
-| Boot / sécurité | Chaîne stock → jeu → patchs temporaires → XeLL → noyau → HDD observée | Versions précises du chargeur de cet exemplaire, démarrage indépendant, récupération avant toute substitution |
-| ROM / hyperviseur / dashboard | Dépendances de la chaîne courante identifiées fonctionnellement | Analyse des composants exacts ; aucune connaissance exhaustive des interfaces ou du silicium |
-| NAND | Sonde BAR1 gelante archivée, défaut de tampon HTTP source identifié hors matériel | Acquisition restaurable adaptée au type de flash ; ECC, blocs défectueux, concordance des lectures ; aucune répétition du mmap |
-| SMC / thermique / alimentation | Températures via hwmon, requêtes d'état historiques, défaut de cache corrigé | Contrats de concurrence et délais ; mesure de consommation nécessite un instrument ; protections intactes |
-| Ethernet | Liaison 100 Mbit/s full duplex et SSH observés ; GRO désactivé | Débit et stabilité prolongée ; mécanisme du watchdog historique non établi |
-| SATA / stockage | Racine ext4 interne et swap fonctionnels | Débit réel contrôlé, distinction cache/disque, détails du contrôleur et structure des sauvegardes historiques |
-| DVD | PLDS DG-16D2S 0251 ; tiroir fonctionne selon utilisateur, pas de lecture | Réponse SCSI de capacités, erreurs de lecture sur support connu bon, optique/moteur ; firmware exact non acquis |
-| USB / commandes | Clavier et manette identifiés ; événements observés historiquement | Validation physique sous obsidian4, répétition clavier, cohérence HID et latence |
-| Audio | Source historique examinée ; noyau avec son désactivé | Portage API, revue DMA/IRQ, compilation et test sonore réel |
-| Linux / bureau | obsidian4, Xorg/IceWM et udev vérifiés | Référence CPU/mémoire/démarrage, signatures pacman, coût du lanceur et choix des composants |
-| Rust / remplacements | Inspecteur XEX2 original sans unsafe ni dépendances, testé sur l'hôte | Compatibilité réelle, cible PowerPC et ABI, bénéfice comparé ; pas de gain de performance revendiqué |
-| Formats et fonctionnement des jeux | En-têtes XEX2 confrontés aux sources Xenia ; parseur testé sur données synthétiques | Fichiers légitimes, imports, PE, instructions, API, shaders, assets et cycle de frame non analysés sur un vrai titre |
+| Board and chips | GPU PCI signature compatible with the Jasper family; 12 PCI functions inventoried | Physical motherboard, RAM, flash, and Southbridge markings; exact revision |
+| CPU and interrupts | Six visible threads; IPI callback source/binary analysis and correction in obsidian4 | IRQ affinity, load behavior, and real reachability of the corrected callback |
+| Timebase | E73 clock kernel booted; 60-second raw-rate bounds −28.16 to +14.43 ppm relative to Mac | Longer independent measurements; absolute wall clock still approximately 243 seconds behind |
+| RAM / DMA | 64 KiB pages; source audits of DMA and graphics allocations | Reservations, cache/coherency constraints, isolated bandwidth measurements |
+| GPU / HDMI | Measured 720p desktop and corrected allocation; offline libxenon f1/f2 traces | Complete 1080p clocks and ANA/HANA sequence, acceleration, command formats |
+| Boot / security | Observed stock → game → temporary patches → XeLL → kernel → HDD chain | Exact loader identity, independent boot, validated recovery before replacement |
+| ROM / hypervisor / dashboard | Functional dependencies in the current boot path | Exact component analysis; interfaces and silicon are not exhaustively understood |
+| NAND | BAR1 mmap freeze archived; separate source-level HTTP buffer defect found | Restorable acquisition appropriate to flash geometry, ECC, bad blocks, matching reads; do not repeat mmap |
+| SMC / thermal / power | hwmon temperatures, historical status requests, corrected cache bounds | Concurrency and timing contracts; instrumented power measurement; protections preserved |
+| Ethernet | Observed 100 Mbit/s full duplex and SSH; GRO disabled | Sustained throughput and stability; historical watchdog cause unresolved |
+| SATA / storage | Working internal ext4 root and swap | Controlled cache/disk-separated throughput, controller details, historical backup structure |
+| Optical drive | PLDS DG-16D2S 0251; partial audio CD reads succeed; two DVDs report absent | Known-good DVD elsewhere, capabilities response, optics/mechanics; exact firmware unacquired |
+| USB / controls | Keyboard/controller identified and historical events observed; E73 desktop responsiveness reported | Physical resize regression, keyboard repetition, HID consistency and latency |
+| Audio | Offline geometry/lifecycle/queue/adapter contracts; bounded historical STOP/ACK experiments | Completion and DMA quiescence unresolved; prior register state superseded by E73 reboot; no sound validation |
+| Linux / desktop | obsidian4 and later clock boot verified; Xorg/IceWM; isolated resize deadlock reproduced and avoided | Physical resize test, memory/startup optimization, package-signature policy, launcher cost |
+| Rust / replacements | Original dependency-free, unsafe-free XEX2 inspector tested on host | Real-file compatibility, PowerPC ABI/build, measured benefit; no performance gain claimed |
+| Games and formats | XEX2 headers compared with Xenia; synthetic parser tests | Legitimate real samples, imports, PE, instructions, APIs, shaders, assets, and frame lifecycle |
 
-Pour chaque expérience : conserver code exact, versions, commandes, erreurs, empreintes, résultat et limites. Un dump confidentiel reste dans les espaces ignorés ; publier uniquement les métadonnées et analyses partageables. Le lecteur suivant doit pouvoir distinguer observation de la console, simulation locale et hypothèse, et retrouver un chemin de récupération réellement validé.
+Every experiment should retain exact code, versions, commands, failures, hashes, results, and limitations. Confidential dumps belong in ignored storage. Publish shareable metadata and analysis only. Readers must be able to distinguish hardware observations from local models and locate an actually validated recovery path.

@@ -1,52 +1,50 @@
-# Publication des échantillons audio — E58
+# Audio sample publication — E58
 
-Le suivi ajouté en E57 ne rend pas le pilote utilisable : sa fonction `.pointer` conserve une logique de publication incorrecte. Le nouveau banc reproduit les effets avec la fonction C réelle et les conversions réelles d’ALSA, hors console. Aucun correctif de soumission n’est activé.
+E57 tracking does not make the driver usable: pointer still contains incorrect publication logic. A new harness reproduces its effects using the actual C function and actual ALSA conversions off-console. No submission fix is activated in this experiment.
 
-## Mesures dans le banc hôte
+## Host measurements
 
-Avec un tampon de 4 096 octets réparti en 32 descripteurs de 128 octets, l’index matériel lu reste à 7. Trois appels identiques de `.pointer` renvoient donc la même position de 224 frames. Pourtant, ils écrivent alternativement deux index différents dans le champ de file.
+For a 4,096-byte ring with 32 descriptors of 128 bytes, hardware index remains 7. Three identical pointer queries return the same 224-frame position, yet alternately write two different queue indices.
 
-Le banc parcourt les 32 index de descripteurs et trois offsets applicatifs dans chacun, soit 96 cas. Pour un index applicatif D et un champ de file initial égal à D, les écritures sont successivement D−1, D, D−1, modulo 32. La condition historique dépend du champ relu, sans vérifier qu’une nouvelle donnée a été engagée par l’application. Ce résultat démontre la non-idempotence de la routine dans le modèle ; il ne mesure pas les registres vivants.
+Across 32 descriptor indices and three application offsets per descriptor (**96 cases**), an application index D and initial queue field D produce writes D−1, D, D−1 modulo 32. The historical condition depends on the field reread, without requiring newly committed application data. This proves non-idempotence in the model, not a live-register observation.
 
-Le modèle n’écrase que les bits de l’index de file lors d’une écriture à ce registre et conserve les bits de position. Cette séparation correspond à l’interprétation des sources étudiées ; le comportement MMIO exact reste à vérifier sur le contrôleur.
+The MMIO model changes only the queue-index bits and preserves position bits, matching the source interpretation. Exact physical register behavior remains unverified.
 
-Avec une seule frame engagée, soit quatre octets, un autre cas annonce le descripteur 0 entier. Si le champ désigne bien le dernier descripteur valide, comme dans LibXenon, cela annonce 128 octets alors que seulement quatre appartiennent au contenu engagé. Cette conséquence est **conditionnelle à cette sémantique**, pas une lecture DMA hors contenu observée sur la Xbox. Le tampon alloué reste plus grand : ce n’est pas le dépassement d’allocation d’E51.
+With one committed frame (four bytes), another case publishes an entire descriptor 0. If the field means last valid descriptor, as in LibXenon, it announces 128 bytes with only four committed. That consequence is conditional on the register meaning, not observed Xbox DMA beyond committed content. The allocation remains larger, so it is distinct from E51's allocation overflow.
 
-## Conversion avant réduction : débordement reproduit
+## Overflow before reduction
 
-La routine convertit le compteur applicatif complet en octets puis le réduit modulo la taille du tampon. L’helper réel `frames_to_bytes` calcule d’abord `size * runtime->frame_bits / 8`, avec un entier signé. Pour 32 bits par frame et `LONG_MAX/32 + 1` frames sur l’hôte 64 bits, UBSan signale le débordement signé attendu. Le banc conserve ce diagnostic comme reproduction réussie d’un défaut, pas comme un test normal terminé avec succès.
+The routine converts the full application counter to bytes before reducing modulo buffer size. Actual frames_to_bytes first computes signed `size * runtime->frame_bits / 8`. For 32 bits/frame and `LONG_MAX/32 + 1` frames on the 64-bit host, UBSan reports the expected signed overflow. The retained diagnostic is a successful defect reproduction, not a normal successful execution.
 
-La valeur synthétique reste sous une limite ALSA native possible : `pcm_native.c` double `boundary` tant que cette limite reste sous `LONG_MAX - buffer_size`. Le chemin de compatibilité 32 bits recalcule une limite plus petite ; le défaut n’est donc pas annoncé comme atteignable par les applications PowerPC 32 bits actuellement installées. Aucun très long flux réel n’a été exécuté. La correction doit réduire le nombre de frames à une plage bornée **avant** conversion, ou convertir un delta explicitement borné.
+The synthetic value is below a possible native ALSA boundary: pcm_native.c doubles boundary while it remains below LONG_MAX−buffer_size. The 32-bit compatibility path recomputes a smaller limit; reachability is therefore not claimed for the installed PPC32 applications. No extremely long physical stream ran. The correction must bound/reduce frames before conversion or convert an explicitly bounded delta.
 
-## Contrat à préserver pour le remplacement
+## Replacement contract
 
-La documentation ALSA prévoit `.ack` pour suivre les changements de `appl_ptr`. `pcm_lib_apply_appl_ptr` met à jour ce pointeur avant le callback et restaure l’ancienne valeur si le callback refuse. Un échec ne doit donc ni consommer l’avancement dans l’état privé du pilote, ni publier partiellement une nouvelle file. Le drapeau `SNDRV_PCM_INFO_NO_REWINDS` permet de déclarer une consommation monotone ; le retour circulaire de `boundary` doit rester accepté et distinct d’un recul.
+ALSA ack tracks appl_ptr changes. pcm_lib_apply_appl_ptr updates that pointer before the callback and restores the previous value on failure. A rejected callback must therefore neither consume private progress nor partially publish a queue. NO_REWINDS can declare monotonic consumption; boundary wrap must remain valid and distinct from rewind.
 
-Un simple déplacement des écritures vers `.ack` serait insuffisant. Le remplacement doit traiter au moins :
-
-| Cas | Condition à vérifier |
+| Case | Required behavior |
 |---|---|
-| Aucune donnée nouvelle | Aucune nouvelle publication, même si `.pointer` est rappelé |
-| Un tampon complet engagé d’un coup | Ne pas le confondre avec zéro donnée après réduction modulo |
-| Écriture qui termine un descripteur | Publier les blocs complets seulement après la barrière DMA |
-| Dernière écriture partielle puis drain | Jouer exactement le contenu final ou définir un bourrage silencieux contrôlé, sans attente infinie |
-| Retour du compteur à `boundary` | Delta avant correct, sans débordement signé |
-| Recul ou saut invalide | Refus avant mutation, en cohérence avec le rollback du cœur ALSA |
-| Prepare, reset ou arrêt suivi de reprise | Recaler le suivi privé sur les conventions du cœur |
-| Deux sorties | États applicatifs et publications indépendants |
+| No new data | No publication even if pointer is queried again |
+| Full ring committed at once | Do not confuse modulo zero with no data |
+| Write completes a descriptor | Publish complete blocks only after DMA barrier |
+| Partial final write followed by drain | Exact final content or defined silent padding, without indefinite wait |
+| Counter wraps at boundary | Correct forward delta without signed overflow |
+| Invalid rewind/jump | Reject before mutation, consistent with ALSA rollback |
+| Prepare/reset/stop then restart | Rebase private accounting to core conventions |
+| Two outputs | Independent counters and publication |
 
-Le `.prepare` du pilote est appelé avant le reset générique du cœur : il ne faut pas mémoriser aveuglément l’ancien `appl_ptr` à cet instant. Le reset en cours de lecture a aussi un chemin distinct. L’encodage des longueurs reste divergent entre Linux et LibXenon ; modifier un descripteur partiel pendant DMA sans comprendre son acquisition serait une nouvelle hypothèse matérielle.
+Prepare runs before the core's generic reset, so capturing old appl_ptr there is wrong. Reset during playback also has a separate path. At E58 descriptor-length encoding still differed between Linux and LibXenon; changing a partial descriptor during DMA without understanding fetch behavior would introduce another hardware assumption.
 
-## Références supplémentaires et limites
+## Additional references and limits
 
-Le contrôleur audio de [Xenon Emulator](https://github.com/xenon-emu/xenon/blob/0284bbe6c8125935d97bf54ab3132089c6c65c8b/Xenon/Core/PCI/Devices/AUDIOCTRLLR/AudioController.cpp) a été examiné au commit `0284bbe6c8125935d97bf54ab3132089c6c65c8b`. Les écritures y sont journalisées ; aucune consommation de descripteurs ou lecture d’échantillons n’est implémentée dans cette classe. Il ne fournit donc pas un modèle de référence pour trancher la longueur ou la fin de file. Cette conclusion concerne ce fichier à cette révision, pas tous les autres périphériques de l’émulateur.
+[Xenon Emulator AudioController](https://github.com/xenon-emu/xenon/blob/0284bbe6c8125935d97bf54ab3132089c6c65c8b/Xenon/Core/PCI/Devices/AUDIOCTRLLR/AudioController.cpp), revision `0284bbe6c8125935d97bf54ab3132089c6c65c8b`, logs writes but implements no descriptor consumption/sample reading in that class. It is not a reference model for length or end-of-queue semantics. This conclusion concerns that file/revision, not every emulator device.
 
-Sources locales analysées : noyau `a293dd19311668900eb1eeb2f6cb01dcac54f330`, LibXenon `a333adef440f28b436a667be0a4f014afce6349d`. Le fichier `sound.c` de LibXenon emploie un index de dernier bloc complet ; sa fonction de soumission ne règle pas à elle seule le drain d’une taille quelconque dans ALSA. Sa lecture suspecte du registre de base lors du redémarrage ne doit pas être copiée sans vérification.
+Pinned local sources: Linux `a293dd19311668900eb1eeb2f6cb01dcac54f330` and LibXenon `a333adef440f28b436a667be0a4f014afce6349d`. LibXenon sound.c uses a last-complete-block index, but its submission routine does not by itself solve arbitrary ALSA drain lengths. Its suspicious base-register read during restart must not be copied without verification.
 
-Preuves : `evidence/2026-10-02/audio-submission/validation.json` et `sources.json`. Les sources tierces récupérées restent locales ; le dépôt publie les empreintes, références, modèles et assertions originaux.
+Evidence: `evidence/2026-10-02/audio-submission/validation.json` and `sources.json`. Retrieved third-party sources remain local; public material contains hashes, references, original models, and assertions.
 
 ```sh
-python3 research/tests/check-audio-submission.py --source APRES_0012/sound/pci/snd-xenon.c --pcm-header SOURCE/include/sound/pcm.h --output submission.json
+python3 research/tests/check-audio-submission.py --source AFTER_0012/sound/pci/snd-xenon.c --pcm-header SOURCE/include/sound/pcm.h --output submission.json
 ```
 
-Aucune interaction avec la console pendant E58. L’étape suivante est de fixer le contrat de soumission et de fin de flux avant de proposer le remplacement de `.pointer`/`.ack`. Les variantes audio restent non activables tant que ces chemins et le protocole DMA ne sont pas validés.
+E58 performs no console interaction. The next step is a complete submission/end-of-stream contract before replacing pointer/ack. The audio variants remain unsuitable for activation until these paths and the DMA protocol are validated.

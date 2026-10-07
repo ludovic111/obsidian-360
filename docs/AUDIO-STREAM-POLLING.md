@@ -1,67 +1,65 @@
-# Suivi des flux et synchronisation audio — E57
+# Audio stream tracking and synchronization — E57
 
-Le correctif 0012 s’applique après 0011. Chaque sortie possède son propre timer ; START l’arme, STOP marque le flux arrêté, et `.sync_stop` attend la fin des callbacks avant reconfiguration. Les tests hôtes passent. La variante finale avec haute résolution compile avec 70 modules, sans avertissement ; aucun fichier installé sur la console.
+Patch 0012 follows 0011. Each output owns its timer; START arms it, STOP marks the stream stopped, and sync_stop waits for callbacks before reconfiguration. Host tests pass. The final high-resolution variant builds with 70 modules and no warnings; nothing was installed on the console.
 
-## Défauts reproduits dans la version précédente
+## Previous defects reproduced
 
-Le banc extrait les fonctions C de la variante 0011. Après START, aucun timer n’est armé. Il appelle ensuite directement deux fois le callback historique, avec le même registre de position nul : deux notifications de période sont produites, malgré l’absence de déplacement. C’est une reproduction hors matériel d’un défaut latent du calcul, pas une notification observée sur la Xbox ; le timer non armé empêchait justement cette exécution normale.
+The harness extracts 0011's actual C functions. START arms no timer. Directly invoking the historical callback twice with unchanged zero position generates two period notifications despite no movement. This reproduces a latent accounting defect off hardware; the unarmed timer itself prevented normal execution of that callback on this path.
 
-Le calcul historique comparait la taille du tampon moins une estimation de la file restante à la taille d’une période. Il ne conservait pas de progression depuis la précédente notification. Le callback libérait aussi le verrou puis relisait `playback_substream`, sans synchronisation PCM garantissant sa durée de vie.
+Historical calculation compared buffer size minus estimated queued data against one period, without tracking progress since the previous notification. The callback also unlocked and reread playback_substream without a PCM lifetime guarantee.
 
-## Nouveau suivi
+## New tracking
 
-Un `hrtimer` en mode relatif soft est initialisé pour chaque canal avant que la carte ALSA ne devienne propriétaire des ressources. `.open` ne remet plus toute la structure à zéro, ce qui détruirait ce timer. START mémorise la position initiale, remet le compteur de période à zéro et arme le suivi à 200 microsecondes nominales.
+Each channel gets a relative soft hrtimer before ALSA takes resource ownership. Open no longer clears the whole device structure and destroys its timer. START records initial position, resets period progress, and arms a nominal **200-microsecond** interval.
 
-Sous le verrou du pilote, le callback lit l’index du descripteur, calcule son déplacement modulo le tampon, puis accumule les octets depuis la dernière période. Une position inchangée n’ajoute rien. Le reste est conservé après notification. Si plusieurs périodes sont franchies, un seul appel à `snd_pcm_period_elapsed` suffit : le cœur ALSA actualise sa position et sa disponibilité, comme l’indique `sound/core/pcm_lib.c`.
+Under the driver lock, the callback reads descriptor index, computes modulo-buffer movement, and accumulates bytes. Unchanged position adds nothing. Remainder survives notification. If multiple periods elapsed, one snd_pcm_period_elapsed call suffices for the ALSA core to update position/availability, as documented in `sound/core/pcm_lib.c`.
 
-La position reste grossière, au niveau des descripteurs. Le champ de longueur résiduelle n’est pas intégré tant que sa sémantique matérielle n’est pas établie. Cette limite peut retarder les notifications des périodes plus petites qu’un descripteur ; aucun objectif de latence réelle n’est annoncé.
+Position remains descriptor-granular. Residual length is not used until hardware semantics are established. Periods smaller than a descriptor may be reported late; no real latency target is claimed.
 
-Un compteur modulo ne distingue pas zéro déplacement d’un tour entier. Si l’intervalle entre deux observations atteint la durée théorique du tampon à 48 kHz, stéréo 16 bits, le candidat arrête le canal et signale un XRUN au lieu de supposer un déplacement. Un temps simulé négatif est également refusé. Ce choix est conservateur : un gros retard d’ordonnancement peut provoquer un arrêt même si le matériel n’avait pas réellement consommé tout le tampon. Il dépend du débit de lecture attendu et ne valide pas celui du contrôleur.
+A modulo counter cannot distinguish no movement from a complete unobserved ring. If elapsed time reaches one theoretical buffer duration at 48 kHz, stereo 16-bit, the candidate stops and reports XRUN instead of guessing. Negative simulated elapsed time is rejected too. This conservative policy can stop a stream after scheduler delay even if hardware did not consume a full ring. It assumes the expected rate; it does not validate actual controller throughput.
 
-## Ordre des verrous et fermeture
+## Locks and close
 
-Les callbacks `.trigger` et `.pointer` sont atomiques et invoqués avec les interruptions locales désactivées selon la documentation ALSA de cette source. Le timer prend le verrou du pilote avec sauvegarde des interruptions. Il en sort avant d’appeler `snd_pcm_period_elapsed` ou `snd_pcm_stop_xrun`, qui peuvent reprendre le verrou ALSA puis rappeler STOP. Un STOP déclenché par cette notification empêche le réarmement.
+In the examined ALSA contract, trigger/pointer are atomic with local interrupts disabled. The timer takes the driver lock with interrupt-state preservation and releases it before snd_pcm_period_elapsed or snd_pcm_stop_xrun, which may acquire the ALSA lock and call STOP. STOP during notification prevents rearming.
 
-STOP ne fait pas d’annulation synchrone : attendre un callback qui cherche le verrou ALSA déjà détenu risquerait un interblocage. `.sync_stop` annule le timer hors verrou du pilote, après l’arrêt et avant reconfiguration. `.hw_free` arrête le canal, invalide sa géométrie, puis effectue aussi cette synchronisation avant de rendre la main au cœur ALSA. `.close` passe par ce chemin avant d’effacer le propriétaire.
+STOP does not cancel synchronously: waiting for a callback that needs the already-held ALSA lock could deadlock. sync_stop cancels outside the driver lock after stop and before reconfiguration. Hw_free stops the channel, invalidates geometry, then synchronizes before returning to ALSA. Close uses that path before clearing ownership.
 
-Le retrait de la carte marque `shutting_down`, arrête les deux canaux, annule les deux timers et désactive la maîtrise du bus avant libération des ressources. Le marqueur interdit un nouveau START. Les accès MMIO restent ceux du pilote ; l’arrêt effectif des transactions DMA n’est pas prouvé par une écriture et une relecture de registre.
+Card removal marks shutting_down, stops both channels, cancels both timers, and clears bus mastering before releasing resources. The flag blocks START. Actual DMA completion is not proven by a register write/readback; E66 and E72 later analyze this lifetime gap.
 
-## Précision du timer : configuration distincte
+## Separate high-resolution configuration
 
-La configuration héritée désactivait `CONFIG_HIGH_RES_TIMERS`, avec `CONFIG_HZ=300`. Demander 200 microsecondes ne suffit pas à les obtenir dans ce mode : un tick vaut environ 3,33 ms, contre 0,667 ms de contenu pour le tampon minimal de 128 octets.
+Inherited configuration had HIGH_RES_TIMERS disabled and HZ=300. Requesting 200 microseconds cannot provide that cadence with approximately 3.33 ms ticks, while the minimum 128-byte buffer contains only **0.667 ms** of audio.
 
-La configuration candidate active `CONFIG_HIGH_RES_TIMERS`. Les choix dérivés comprennent `CONFIG_TICK_ONESHOT` et `CONFIG_SCHED_HRTICK` ; leur différence complète est conservée. Le pilote refuse `.open` avec `-ENODEV` si le timer du canal n’a pas la haute résolution active. Une compilation avec l’option ne prouve pas son activation sur chaque CPU ni sa latence réelle : il faudra mesurer celles-ci après un démarrage coordonné, lorsque le protocole audio sera prêt. La cadence nominale représente jusqu’à 5 000 callbacks par seconde et par sortie ; son coût CPU est inconnu, à mesurer avant optimisation.
+The candidate enables CONFIG_HIGH_RES_TIMERS; derived choices include TICK_ONESHOT and SCHED_HRTICK, with the full diff retained. Open returns -ENODEV unless the channel timer reports active high-resolution mode. Compilation does not prove activation on every CPU or actual latency. Nominal cost can reach **5,000 callbacks per second per output**; CPU cost needs measurement after a coordinated boot once protocol issues are resolved.
 
-## Preuves et essais
+## Evidence and failures
 
-Les fonctions du pilote sont extraites de la source locale ; les tests ne réimplémentent pas leur algorithme.
+Actual driver functions are extracted, not rewritten in the harness.
 
-- Quinze scénarios de suivi : position fixe et départ non nul, seuil et reste de période, franchissement de plusieurs périodes, retour circulaire, arrêt d’une sortie, annulation d’une sortie, arrêt pendant notification, retards et frontières temporelles, horloge simulée inverse, période nulle, retrait, fermeture concurrente.
-- Le cas concurrent utilise deux threads pthread. Une notification est suspendue à un point contrôlé ; `.hw_free` atteint l’annulation et doit attendre. La libération simulée n’est autorisée qu’après sortie du callback. L’autre canal reste armé. Cela couvre cet entrelacement précis, pas tous les ordres possibles dans le noyau.
-- Vingt scénarios de ressources passent, dont retrait avec les deux timers actifs et échecs d’allocation partiels.
-- Quinze scénarios PCM passent, dont refus d’une période nulle/trop grande et d’un timer sans haute résolution. La régression sur 16 369 tailles conserve 512 tailles acceptées sans descripteur hors tampon.
+- Fifteen tracking scenarios cover fixed/nonzero start positions, threshold/remainder, multiple periods, wrap, per-output stop/cancel, stop during notification, delay boundaries, backward simulated time, zero period, remove, and concurrent close.
+- The concurrent pthread case suspends notification at a controlled point; hw_free must wait at cancellation before simulated free. The other channel stays armed. This covers one explicit interleaving, not every kernel schedule.
+- Twenty resource cases cover both active timers and partial allocation failures.
+- Fifteen PCM cases include zero/oversized period and unavailable high resolution. Geometry regression retains 512 accepted sizes among 16,369 with no out-of-buffer descriptor.
 
-ASan/UBSan sont activés ; verrous noyau, ALSA, DMA, MMIO et temps matériel sont remplacés par des modèles. L’absence de diagnostic ne constitue pas une validation SMP, temps réel ou matérielle.
+ASan/UBSan are active; kernel locks, ALSA, DMA, MMIO, and hardware time are models. Clean output is not an SMP, real-time, or hardware proof.
 
-Deux premières compilations complètes ont réussi avec l’ancienne configuration basse résolution. La première version a toutefois échoué au banc hôte plus strict sur deux comparaisons signées/non signées ; les conversions et le traitement du temps négatif ont été corrigés. Les premières preuves sont conservées avec leurs empreintes distinctes. Elles ne prouvent pas la compilation de la variante finale haute résolution.
+Two initial full builds succeeded with the old low-resolution configuration. The first source variant failed the stricter host harness on two signed/unsigned comparisons; conversions and negative-time handling were corrected. Initial artifacts remain separately hashed and do not prove the final high-resolution build.
 
-Une erreur de commande du banc de géométrie (`--output` non pris en charge) a été corrigée en redirigeant sa sortie JSON ; la recette E55 est rectifiée. Ce n’était pas un échec de géométrie.
+A geometry-test invocation used unsupported --output; redirecting JSON stdout fixed the command, and E55's recipe was corrected. This was not a geometry failure. Evidence: `evidence/2026-10-02/audio-poll/`. Patches 0008–0012 reconstruct the three candidate sources exactly; final configuration and earlier logs remain identifiable.
 
-Preuves : `evidence/2026-10-02/audio-poll/`. Les patches 0008 à 0012 reconstruisent exactement les trois sources candidates. La configuration finale y est conservée ; les journaux des premières compilations sont identifiés comme tels.
-
-## Reproduction et limites restantes
+## Reproduction and remaining work
 
 ```sh
-python3 research/tests/check-audio-poll.py --previous APRES_0011/sound/pci/snd-xenon.c --candidate APRES_0012/sound/pci/snd-xenon.c --output polling.json
-python3 research/tests/check-audio-lifecycle.py --original ORIGINAL/sound/pci/snd-xenon.c --candidate APRES_0012/sound/pci/snd-xenon.c --output lifecycle.json
-python3 research/tests/check-audio-pcm.py --source APRES_0012/sound/pci/snd-xenon.c --output pcm.json
-python3 research/tests/check-audio-buffers.py --original ORIGINAL/sound/pci/snd-xenon.c --candidate APRES_0012/sound/pci/snd-xenon.c > buffers.json
+python3 research/tests/check-audio-poll.py --previous AFTER_0011/sound/pci/snd-xenon.c --candidate AFTER_0012/sound/pci/snd-xenon.c --output polling.json
+python3 research/tests/check-audio-lifecycle.py --original ORIGINAL/sound/pci/snd-xenon.c --candidate AFTER_0012/sound/pci/snd-xenon.c --output lifecycle.json
+python3 research/tests/check-audio-pcm.py --source AFTER_0012/sound/pci/snd-xenon.c --output pcm.json
+python3 research/tests/check-audio-buffers.py --original ORIGINAL/sound/pci/snd-xenon.c --candidate AFTER_0012/sound/pci/snd-xenon.c > buffers.json
 ```
 
-Utiliser ensuite la configuration fournie et l’environnement LLVM 16 d’E53 avec `LOCALVERSION=-audio-poll`, cibles `olddefconfig vmlinux modules`. Aucun initramfs ou fichier XeLL de cette variante n’est préparé.
+Use the supplied configuration and E53 LLVM 16 environment, LOCALVERSION=-audio-poll, and olddefconfig/vmlinux/modules targets. No initramfs or XeLL image was prepared.
 
-La publication des échantillons dans `.pointer` reste à remplacer par un suivi de `appl_ptr` via `.ack`. Restent aussi l’encodage des longueurs, la limite mémoire basse et l’initialisation analogique/HDMI. Aucun son mesuré, aucune nouvelle interaction matérielle durant E57 ; dernier contrôle vivant E56.
+At E57, sample publication in pointer still needed replacement by bounded appl_ptr tracking through ack. Descriptor length, low-memory range, and analog/HDMI initialization remained unresolved. No sound or new hardware interaction occurred; E56 was the latest live check.
 
-## Compilation finale vérifiée
+## Final build verified
 
-`6.18.11-xenon-audio-poll`, configuration HIGH_RES_TIMERS activée : cibles olddefconfig, vmlinux et modules terminées avec code 0. Les 70 modules et le noyau sont ELF64 PowerPC big-endian, avec vermagic concordant ; configuration et sources correspondent aux empreintes conservées. Aucun avertissement dans le journal. Preuves `final-build.json`, `final-build.log` et `final-artifacts.json`. Aucun initramfs/image XeLL, démarrage ni chargement. E58 ajoute l’audit des défauts restants de publication dans `docs/AUDIO-SUBMISSION-AUDIT.md`.
+**6.18.11-xenon-audio-poll**, with HIGH_RES_TIMERS enabled, completed olddefconfig, vmlinux, and modules with exit zero. Kernel and all 70 modules are ELF64 big-endian PowerPC with matching vermagic and source/config hashes. No warnings. Evidence: `final-build.json`, `final-build.log`, `final-artifacts.json`. No boot/load validation. E58 investigates remaining publication defects in [AUDIO-SUBMISSION-AUDIT](AUDIO-SUBMISSION-AUDIT.md).

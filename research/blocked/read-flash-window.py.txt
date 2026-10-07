@@ -1,0 +1,18 @@
+#!/usr/bin/env python3
+"""Read documented 16 MiB NAND memory aperture. No writes; excludes spare/ECC."""
+import os,mmap,hashlib,json,struct
+from pathlib import Path
+out=Path('/root/xbox-hardware-audit'); size=16*1024*1024
+resource='/sys/bus/pci/devices/0000:01:08.0/resource1'
+fd=os.open(resource,os.O_RDONLY)
+try:
+ with mmap.mmap(fd,size,flags=mmap.MAP_SHARED,prot=mmap.PROT_READ) as mm:
+  a=mm[:]
+  if a[:2]!=b'\xffO':raise RuntimeError('Unrecognized flash header; stopping without further access')
+  b=mm[:]
+finally:os.close(fd)
+sha=lambda data:hashlib.sha256(data).hexdigest()
+assert a==b,'Two reads differ; do not treat as a reliable image'
+p=out/'nand-logical-window-16MiB.bin';p.write_bytes(a);p.chmod(0o600)
+report={'bytes':size,'sha256':sha(a),'second_read_sha256':sha(b),'identical_reads':True,'magic':a[:2].hex(),'header_build':struct.unpack_from('>H',a,2)[0],'bootloader_entry':hex(struct.unpack_from('>I',a,8)[0]),'scope':'16 MiB read-only mapped NAND window; no spare/ECC; not a raw flashable full NAND backup'}
+(out/'nand-logical-window.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report))

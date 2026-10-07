@@ -1,114 +1,115 @@
-# Journal des expériences
+# Experiment ledger
 
-| ID | Action | Résultat et preuve | Suite |
+Each row records its own checkpoint. Later experiments may supersede its status; consult [STATE](STATE.md) for the current system. Host-model success is distinct from hardware validation, and console timestamps may differ from host UTC.
+
+## Initial installation, inventory, and fault analysis
+
+| ID | Action | Result and evidence | Follow-up or limit |
 |---|---|---|---|
-| E01 | Exploit Rock Band Blitz et XeLL depuis USB | Démarrage Linux observé puis SSH vérifié | Chemin de récupération à conserver |
-| E02 | Installation sur Hitachi 120 Go autorisée par utilisateur | Racine `/dev/sda1` ext4 et swap 2 Gio vérifiés après démarrage réel | Ne pas rejouer le partitionnement |
-| E03 | Mise à jour et installation du bureau | Service pacman terminé `Result=success` | SSH a nécessité un redémarrage local |
-| E04 | Xorg fbdev | Échec `no screens found` | Remplacé par modesetting ; permissions initiales Xorg rétablies |
-| E05 | Xorg modesetting, rendu logiciel | Capture 1280 × 720 vérifiée | Support 1080p manquant |
-| E06 | XTest puis clics sur clavier visuel | Terminal a reçu `xbox360`, puis `123` et Entrée | Manette physique encore à confirmer |
-| E07 | Demande XRandR 1920 × 1080 sur None-1 | `cannot find mode 1920x1080` | Développer et valider la programmation vidéo |
-| E08 | Inventaire PCI/USB/configuration/dmesg | 12 fonctions PCI et preuves copiées sur Mac | État daté, pas télémétrie continue |
-| E09 | Requêtes SMC d’état, hwmon, lecture ANA et registres vidéo ciblés | Réponses cohérentes, températures, 1 024 octets ANA, 15 registres GPU | Rapatriement vérifié en E11 |
-| E10 | Lecture mmap PROT_READ de BAR1 du contrôleur flash | SSH et ping perdus, utilisateur confirme écran figé ; aucun dump validé | Sonde bloquée. Cause inconnue ; ne pas relancer. Aucun flash/effacement envoyé |
-| E11 | Redémarrage utilisateur et reconnexion SSH | Racine ext4 interne, IceWM et lanceur actifs ; fichiers SMC/ANA/GPU récupérés et SHA-256 concordants | Incident E10 récupéré, cause encore inconnue |
-| E12 | Lecture du diagnostic de manette après redémarrage | js0 présent, device_open=true, 4 557 événements | Utilisation visible à confirmer |
-| E13 | Inventaire vivant via interfaces noyau standards | SSH, racine, bureau, températures et réseau vérifiés ; `deep-audit/runtime.json` | Aucun accès MMIO/NAND brut |
-| E14 | Décodage hors ligne GPU et comparaison ANA/libxenon | Paramètres horizontaux HDMI 720p concordants ; 109/121 entrées ANA hors sentinelles identiques | Total vertical/horloge non mesurés ; six différences expliquées par écritures de constantes |
-| E15 | Fonction C réelle xenos_blit dans banc ASan sur Mac | Dépassements heap en 720p/1080p reproduits ; allocation arrondie passe quatre tailles | Correctif candidat, noyau complet non compilé, non déployé |
-| E16 | Gestionnaire HTTP XeLL réel avec SFCX simulé sur Mac | Dépassement stack 512/528 reproduit ; correction transmet deux pages intactes | Statut/ECC à traiter ; aucune acquisition réelle de NAND |
-| E17 | Revue du pilote audio et des en-têtes Linux 6.18 | API historiques absentes, risques DMA/SMC/IRQ identifiés | Portage et compilation requis avant activation |
-| E18 | Provenance du noyau et observation pacman | Paquet linux-xenon 6.18.11-1 ; avertissement trousseau public manquant | Binaire non désassemblé ; trousseau à diagnostiquer avant installation |
-| E19 | Vérification finale du journal graphique sur la console | Allocation annoncée 0x384000 = 3 686 400 octets pour 720p ; bureau actif après 22 minutes | Corrobore la taille de F01, sans prouver une corruption ni la cause de E10 |
-| E20 | Acquisition vmlinux/System.map et comparaison ELF | SHA-256 locaux/distants concordants ; six sections identiques à l'image de démarrage, dont .text | Code sur disque identifié, sans lecture de mémoire vivante |
-| E21 | Retrouver la recette exacte puis désassembler neuf fonctions | Source linux-custom identifiée ; mode constant 720p et calcul d'allocation confirmés | Corrige l'attribution antérieure au patch Free60 |
-| E22 | Analyse DMA, PCI et routage IRQ | Pages 64 Kio ; GPU remappé par logiciel ; périphériques routés CPU0 | Chemin d'allocation précis non instrumenté sur la console |
-| E23 | Callback IPI réel testé avec MMIO simulée | 252/256 masques perdus dans l'original ; 256/256 corrects avec le candidat ; anomalie également présente dans le binaire | Le chemin SMP ordinaire utilise une autre fonction ; impact vivant non établi |
-| E24 | Corriger le chemin d'outillage | Incompatibilités PowerPC64 des anciens outils contournées ; environnement multiarchitecture construit et audit complet réussi | Aucun échec ne doit être assimilé à une preuve ; compilation noyau encore à faire |
+| E01 | Rock Band Blitz exploit and XeLL from USB | Linux startup observed, then SSH verified | Preserve this recovery path |
+| E02 | User-authorized installation on the 120 GB Hitachi drive | `/dev/sda1` ext4 root and 2 GiB swap verified after actual boot | Never replay partitioning |
+| E03 | System update and desktop installation | pacman service completed with `Result=success` | SSH required a local restart |
+| E04 | Xorg fbdev attempt | `no screens found` | Replaced with modesetting; original Xorg permissions restored |
+| E05 | Xorg modesetting with software rendering | Verified 1280 × 720 capture | 1080p support missing |
+| E06 | XTest and virtual-keyboard clicks | Terminal received `xbox360`, then `123` and Enter | Physical controller use not yet confirmed |
+| E07 | XRandR request for 1920 × 1080 on None-1 | `cannot find mode 1920x1080` | Video programming needs implementation and validation |
+| E08 | PCI/USB/configuration/dmesg inventory | Twelve PCI functions; evidence copied to Mac | Dated snapshot, not continuous telemetry |
+| E09 | SMC status, hwmon, ANA and targeted video-register reads | Consistent replies, temperatures, 1,024 ANA bytes and 15 GPU registers | Retrieval verified in E11 |
+| E10 | PROT_READ mmap of flash-controller BAR1 | SSH/ping lost; user confirmed frozen image; no validated dump | Probe blocked; cause unknown; no erase/program command sent |
+| E11 | User restart and SSH reconnection | Internal ext4 root, IceWM/launcher active; SMC/ANA/GPU files retrieved with matching hashes | E10 recovered, cause unresolved |
+| E12 | Controller diagnostic after reboot | js0 present, device_open=true, 4,557 events | Visible interaction still needed |
+| E13 | Live inventory through standard kernel interfaces | SSH, root, desktop, temperature and network checked; `deep-audit/runtime.json` | No raw MMIO/NAND access |
+| E14 | Offline GPU decoding and ANA/LibXenon comparison | HDMI 720p horizontal parameters agree; 109/121 non-sentinel ANA entries identical | Vertical total/clock not measured; six differences explained by constant writes |
+| E15 | Actual xenos_blit C function under host ASan | Heap overruns reproduced at 720p/1080p; rounded allocation passes four dimensions | Candidate patch only at this checkpoint; no full build/deployment |
+| E16 | Actual XeLL HTTP handler with mocked SFCX | 512/528-byte stack overrun reproduced; correction transmits two intact pages | Status/ECC unresolved; no real NAND acquisition |
+| E17 | Audio driver and Linux 6.18 header review | Missing legacy APIs; DMA/SMC/IRQ risks identified | Port/build required before activation |
+| E18 | Kernel provenance and pacman observation | linux-xenon 6.18.11-1; missing public-keyring warning | Binary not yet disassembled; diagnose keyring before installation |
+| E19 | Final live graphics-log check | Reported allocation 0x384000 = 3,686,400 bytes at 720p; desktop active after 22 minutes | Supports F01's size finding, not proof of corruption or E10 cause |
+| E20 | Acquire vmlinux/System.map and compare ELF | Local/remote hashes match; six sections match boot image, including .text | Identifies disk code, not live memory |
+| E21 | Find exact package recipe; disassemble nine functions | linux-custom identified; fixed 720p and allocation calculation confirmed | Corrects earlier attribution to Free60 patch |
+| E22 | DMA, PCI, and IRQ-routing analysis | 64 KiB pages; software GPU remapping; devices routed to CPU0 | Exact allocation path not instrumented on console |
+| E23 | Actual IPI callback with mocked MMIO | Original loses 252/256 masks; candidate correct for 256/256; defect also in binary | Ordinary SMP path uses another function; live impact unestablished |
+| E24 | Repair analysis toolchain | Old PowerPC64-tool incompatibilities worked around; multiarchitecture environment built; complete audit succeeds | Failed tools are not evidence; kernel build still pending then |
 
-## Expériences suivantes hors console
+## Off-console kernel work
 
-| ID | Action | Résultat et preuve | Suite |
+| ID | Action | Result and evidence | Follow-up or limit |
 |---|---|---|---|
-| E25 | Audit du cache SMC, test du C réel et désassemblage installé | Dépassement de tableau confirmé ; quatre cas ASan aux résultats attendus, recherche corrigée sur 256 identifiants ; `smc-audit/` | Aucun message matériel ; concurrence et attentes encore à traiter |
-| E26 | Archive source vérifiée, LLVM 16, olddefconfig puis build vmlinux avec trois correctifs Linux | Code 0, ELF64 PowerPC big-endian vérifié, `6.18.11-xenon-obsidian1` ; `kernel-build/` | Avertissement du pilote LED restant ; modules, image de démarrage et essai réel non validés |
-| E27 | Diagnostic des interruptions Codex et suivi du build existant | Erreur structurée `cyber_policy` sur cinq tours ; processus local encore vivant puis terminé avec succès | Contrôle de plateforme non modifiable par les scripts ; voir SESSION-RECOVERY |
-| E28 | Revue du pilote LED, désassemblage et injection de fautes hors console | 21 cas ASan/UBSan passent pour le candidat ; allocation/nettoyage/init/exit et envoi corrigés ; `led-audit/` | Aucun ordre SMP réel ni état visuel validé |
-| E29 | Compiler le pilote LED comme module PowerPC | Original : redéfinitions init/exit ; premier correctif : symbole SMC absent ; après export GPL : succès sans diagnostic | Échecs intermédiaires conservés ; module non chargé |
-| E30 | Construire noyau, modules et image XeLL obsidian3 | Codes 0 ; 65 modules et six sections de contenu vérifiés ; `kernel-build-obsidian3/` | Deux avertissements Makefile de recette concurrente ; initramfs, ensemble séparé et démarrage réel non validés |
+| E25 | SMC-cache source test and installed disassembly | Array overrun confirmed; four expected ASan outcomes; corrected search across 256 IDs; `smc-audit/` | No hardware messages; concurrency/waits unresolved |
+| E26 | Verified archive, LLVM 16, olddefconfig, vmlinux with three Linux patches | Exit zero, ELF64 big-endian PowerPC, `6.18.11-xenon-obsidian1`; `kernel-build/` | LED warning remains; modules/image/boot unvalidated |
+| E27 | Diagnose Codex interruptions and follow existing build | Structured `cyber_policy` error across five turns; local process remained live and later succeeded | Platform controls cannot be changed by project scripts; see SESSION-RECOVERY |
+| E28 | LED source/disassembly review and fault injection | 21 candidate ASan/UBSan cases pass; allocation/cleanup/init/exit/send corrected; `led-audit/` | No real SMP-order or visual LED validation |
+| E29 | Compile LED as a PowerPC module | Original duplicate init/exit; first fix missing SMC symbol; GPL export resolves build without diagnostics | Intermediate failures retained; module not loaded |
+| E30 | Build obsidian3 kernel, modules, XeLL image | Exit zero; 65 modules and six payload sections verified; `kernel-build-obsidian3/` | Two competing-recipe warnings; no initramfs/boot validation yet |
 
-## Préparation du démarrage et lecteur
+## Boot, desktop, optical drive, and tooling
 
-| ID | Action | Résultat et preuve | Suite |
+| ID | Action | Result and evidence | Follow-up or limit |
 |---|---|---|---|
-| E31 | Vérifier SSH, configuration de démarrage et clé montée en lecture seule | Noyau installé vivant, racine interne, zéro service en échec ; empreintes noyau/initramfs/récupération conservées | `boot-preflight/runtime.json` et `usb.json` |
-| E32 | Nettoyer la recette de l'image et construire obsidian4 | Trois cibles terminées code 0 sans avertissement ; 65 modules et six sections vérifiés | `kernel-build-obsidian4/` |
-| E33 | Générer un initramfs depuis les modules candidats dans un répertoire distinct | depmod/mkinitcpio/lsinitcpio codes 0 ; 43 modules extraits identiques et exécutables PPC vérifiés | Copie Mac à empreinte identique ; pas encore de démarrage |
-| E34 | Copier les nouveaux modules et une entrée USB optionnelle | 65 modules présents, kernel/initrd vérifiés, menu sauvegardé ; linux_hdd par défaut et fichiers antérieurs intacts | `boot-preflight/staging-result.json` ; procédure archivée, ne pas rejouer |
-| E35 | Identifier le lecteur via sysfs/proc/journal et analyser le repli du pilote | DG-16D2S ; page de capacités non exploitable ; utilisateur : tiroir s'ouvre, aucun disque lu | Cause non établie ; aucun disque lu ni commande mécanique envoyée |
-| E36 | Premier essai manuel demandé, photo et retour utilisateur | Écran bloqué après /init/udev/détection USB ; aucune sélection obsidian4 confirmée, noyau inconnu, SSH absent | Ne pas attribuer au candidat ; récupération linux_hdd demandée ; `first-boot-observation.json` |
-| E37 | Exécuter hors console les fonctions vidéo f1/f2 réelles avec MMIO simulée | 26 entrées, 1 846 écritures tracées, ASan/UBSan sans erreur ; 12/13 registres communs HDMI 720p concordent avec la capture ancienne | Aucune programmation matérielle ni horloge validée ; `video-mode-trace/modes.json` |
-| E38 | Utilisateur sélectionne obsidian dans XeLL ; vérification SSH du système démarré | obsidian4 confirmé, racine interne, bureau actif, zéro service en échec, udev settle code 0 ; framebuffer corrigé 0x398000 | `obsidian4-first-boot/` ; un démarrage prouvé, stabilité prolongée et cause de E36 inconnues |
-| E39 | Référence CPU/mémoire/boot via interfaces standard et courts tests userspace | Cible graphique ~34,1 s, 118,5 Mio disponibles au relevé, SHA-256 médian 22,553 Mio/s ; outils et preuve `performance-baseline/` | Deux requêtes systemd expirées ; suivi ciblé réussi ; slabinfo absent, maintenant facultatif ; aucune configuration changée |
-| E40 | Préparer un export public, auditer fichiers et objets Git, créer GitHub et contrôler son arbre | 187 fichiers ; MAC masquée dans deux relevés ; 17 chemins exclus ; commit f9da49e sans parent et arbre distant conforme | Historique local non poussé ; publication/verification.json ; refaire audit pour chaque mise à jour |
-| E41 | Confronter le format XEX2 aux sources primaires et écrire un parseur Rust borné | Dix tests, 10 000 mutations et neuf cas CLI passent ; aucune lecture des zones opaques instrumentées ; evidence/2026-10-02/xex-inspect | Aucun vrai jeu testé ; pas de décryption, authentification ou exécution ; console non sollicitée |
-| E42 | Automatiser le contrôle des fichiers publics et de l'historique Git | Cinq cas synthétiques passent, y compris marqueur retiré du fichier courant mais conservé dans un ancien commit | Audit à exécuter avant commit et push ; scanner de motifs non exhaustif ; export game-analysis désormais inclus |
-| E43 | Contrôle vivant après neuf heures et observation du lanceur pendant douze secondes | obsidian4, IceWM, zéro unité en échec ; compteurs E/S et fichier manette inchangés | Fonctionnement prolongé, pas test de charge ; aucune économie d’écriture mesurée ; état du lanceur à diagnostiquer |
-| E44 | CD musical inséré par utilisateur ; ioctl CDROM standard et échantillons audio | 20 pistes ; trois secteurs éloignés lus et premier relu avec SHA-256 identique ; optical-cd/ | CD partiellement lisible démontré ; DVD/jeux, lecture intégrale et sortie audio non vérifiés |
-| E45 | Just Cause 2 inséré ; lecture standard puis TEST UNIT READY borné | Statut 1, EIO ; CHECK CONDITION, sense 02/3a/00 ; optical-game/ | Aucun support reconnu ; CD lisible mais DVD/jeu non lu ; pas de diagnostic définitif du laser |
-| E46 | Diagnostiquer le gel signalé lors du redimensionnement et récupérer les processus graphiques | Relance IceWM forcée rétablit XRandR ; OpaqueMove/Resize à 1, lanceur relancé sans reboot ; desktop-recovery/ | Cause cohérente avec XGrabServer dans le code ; nouvel essai manette demandé, pas encore validé |
+| E31 | Check SSH, boot configuration, and read-only USB | Installed kernel live, internal root, no failed units; boot/recovery hashes retained | `boot-preflight/runtime.json`, `usb.json` |
+| E32 | Clean image recipe and build obsidian4 | Three targets exit zero without warnings; 65 modules and six sections verified | `kernel-build-obsidian4/` |
+| E33 | Generate initramfs using separately staged candidate modules | depmod/mkinitcpio/lsinitcpio exit zero; 43 extracted modules match; PPC executables checked | Matching Mac copy; no boot yet |
+| E34 | Stage modules and optional USB entry | 65 modules, verified kernel/initrd, saved menu; linux_hdd default and prior files intact | `boot-preflight/staging-result.json`; archived procedure, not replayable installation |
+| E35 | Identify drive through sysfs/proc/logs and inspect driver fallback | DG-16D2S; unusable capabilities page; user reports opening tray but no disc reading | Cause unknown; no disc read or mechanical command sent |
+| E36 | First manual boot attempt, photo and user report | Stall after /init/udev/USB detection; no confirmed obsidian4 selection; unknown kernel; no SSH | Do not blame candidate; linux_hdd recovery requested; `first-boot-observation.json` |
+| E37 | Execute real video f1/f2 functions with mocked MMIO | 26 entries, 1,846 traced writes, ASan/UBSan clean; 12/13 shared HDMI720 registers match older capture | No hardware programming/clock validation; `video-mode-trace/modes.json` |
+| E38 | Explicit user selection of obsidian, then SSH validation | obsidian4, internal root, desktop, no failed units, udev settle zero; framebuffer 0x398000 | `obsidian4-first-boot/`; one proven boot, E36 cause and long-term stability unknown |
+| E39 | CPU/memory/boot baseline through standard interfaces and short userspace tests | Graphical target ~34.1 s, 118.5 MiB available, median SHA-256 22.553 MiB/s; `performance-baseline/` | Two systemd requests timed out; targeted follow-up succeeded; absent slabinfo made optional; no settings changed |
+| E40 | Audit public export/history, create GitHub repo, verify remote tree | 187 files, two MAC redactions, 17 exclusions; parentless f9da49e and matching tree | Private history not pushed; `publication/verification.json`; repeat audit per update |
+| E41 | Cross-check XEX2 primary sources and implement bounded Rust parser | Ten tests, 10,000 mutations, nine CLI cases; no reads of instrumented opaque regions; `evidence/2026-10-02/xex-inspect` | No real game, decryption, authentication, execution, or console access |
+| E42 | Automate public-file and reachable-history checks | Five synthetic cases, including a marker removed from current content but retained in history | Run before commit/push; pattern scanner is not exhaustive; game-analysis added to export |
+| E43 | Live check after nine hours; observe launcher for twelve seconds | obsidian4, IceWM, no failed units; unchanged I/O counters and controller file | Long uptime, not load test; no measured write saving; launcher state needs diagnosis |
+| E44 | User inserts music CD; standard CDROM ioctls and samples | Twenty tracks; three separated sectors read and first repeated with same SHA-256; `optical-cd/` | Partial CD readability only; no complete-disc/DVD/game/playback proof |
+| E45 | User inserts Just Cause 2; standard check and bounded TEST UNIT READY | Status 1, EIO; CHECK CONDITION, sense 02/3a/00; `optical-game/` | Media not recognized; no definitive laser diagnosis |
+| E46 | Diagnose resize freeze and recover graphics processes | Forced IceWM restart restores XRandR; OpaqueMove/Resize=1, launcher restarted without Linux reboot; `desktop-recovery/` | Consistent with source XGrabServer path; physical retest still required |
+| E47 | Rebuild IceWM 4.0.0; compare XTest resizes under isolated Xvfb | Old mode blocks two clients; direct mode resizes 1240×640 → 1180×600 with responses; `desktop-resize-regression/` | Initial attempt without actual resize rejected; physical confirmation still needed |
+| E48 | User replaces game with Big Order DVD; two readiness checks | Same sense 02/3a/00 in spaced observations; `optical-video/` | Two unrecognized DVDs versus readable CD; exact cause and independent media health unknown |
+| E49 | Diagnose Shut Down rejection; request normal administrator shutdown | CanPowerOff=challenge, no inhibitor; systemctl poweroff timer accepted; `poweroff/request.json` | Physical shutdown not directly observed; graphical button not fixed by this test |
+| E50 | User compares Big Order in stock dashboard | User reports no detection; `stock-dvd/observation.json` | Exclusively Linux cause less likely; exact dashboard wording and media health unknown |
+| E51 | Compile original audio and execute real calculations with mocked interfaces | Build fails: eight errors/one warning; 98 out-of-buffer geometries, five excessive loops; partial patch 0008 passes; `audio-buffers/` | No sound; lifecycle/API/DMA/SMC/ALSA negotiation remain |
+| E52 | Verify Linux return and real graphical-process permissions | obsidian4 live, XRandR responds, settings persist; pkcheck allows both shutdown actions for launcher PID; `return-linux/` | Corrects SSH-subject challenge interpretation; button not triggered while user absent |
 
-| E47 | Recompiler IceWM 4.0.0 et comparer deux redimensionnements XTest sur Xvfb isolé | Ancien mode : deux clients bloqués ; mode direct : 1240×640 → 1180×600 avec réponses ; desktop-resize-regression/ | Premier essai sans vrai redimensionnement rejeté ; mécanisme reproduit hors console, validation physique encore attendue |
+## Audio software and controlled register experiments
 
-| E48 | Remplacer le jeu par le DVD vidéo Big Order et contrôler deux fois la disponibilité | Même sense 02/3a/00 aux deux relevés espacés ; optical-video/ | Deux DVD non reconnus contre CD lisible ; origine exacte et état indépendant des médias non confirmés |
+| ID | Action | Result and evidence | Follow-up or limit |
+|---|---|---|---|
+| E53 | Port audio resource ownership; inject failures into actual C | PPC object builds; twelve expected original defects reproduced; sixteen candidate cases pass; `audio-lifecycle/` | Full build tracked separately; protocol/PCM DMA/timer/concurrency unvalidated; not loaded |
+| E54 | Add bounded SMC post and link complete audio variants | Nineteen SMC and eighteen resource cases; audio-lifecycle/audio-post plus 70 modules, no warnings; `smc-post/` | Not loaded; old SMC paths unbounded; protocol and PCM DMA remain |
+| E55 | Move PCM to ALSA-managed DMA; test real callbacks | Twenty resource, twelve callback cases; 16,369-size regression; audio-pcm + 70 modules without warnings; `audio-pcm/` | No load; timer/concurrency/protocol remain |
+| E56 | Read-only SSH check after user's return | obsidian4, 5,139.44 s uptime, no failed units, 1280×720; `audio-pcm/console-status.json` | Not visual, load, or audio validation |
+| E57 | Reproduce unarmed timer/false notifications; add per-stream tracking and sync_stop | Fifteen tracking cases including controlled concurrent close, twenty resource and fifteen PCM cases; `audio-poll/` | High-resolution kernel + 70 modules verified without warnings; no load/hardware protocol proof |
+| E58 | Execute real pointer/ALSA conversions; inspect ack contract and emulator | Ninety-six alternating-queue cases without new data, expected signed overflow, conditional partial publication; `audio-submission/` | Replacement must handle drain/reset; emulator insufficient for protocol validation |
+| E59 | Implement original PCM queue with partial commitments, silent drain padding, bounded counter | 512 sizes, 54,008 operations, 24,544,033 compared frames; PPC link module; `audio-queue/` | No ALSA adapter/hardware access at this stage; DMA completion unresolved |
+| E60 | Integrate queue, ack, drain/reset and tracking; test actual callbacks/ALSA rollback | Fifteen scenarios including 512 geometries and controlled concurrent close, twenty resource cases, queue regression; kernel + 70 modules without warnings; `audio-adapter/` | Final block completion undecoded; stagnation becomes XRUN; no load |
+| E61 | Read-only SSH system check | obsidian4, 9,327.35 s uptime, no failed units, 720p; `audio-adapter/console-status.json` | Visual response/audio unverified |
+| E62 | Inspect audio history/SiS registers; correct lengths | 16,384 descriptors per variant, fifteen callback and twenty resource cases; audio-bytes + 70 modules, Linux volume build without warnings; `audio-protocol/` | Hardware correspondence unmeasured; DMA completion differs from audio output; status/FIFO open |
+| E63 | Separate control and acknowledgement under SiS model; compile module | 4,096 transitions per variant: 3,584 modeled losses before, zero after; fifteen callbacks, twenty resources, 16,384 descriptors; `audio-control/` | Hardware hypothesis not yet validated; module rebuilt against audio-bytes, not loaded |
+| E64 | Audio PCI header then three targeted four-register reads | PCI command 0x0006, no driver; stable controls 0x1d08001c, indices 0x00008000 / 0x00009616; SSH remains; `audio-control/observer-*` | Twelve reads, zero writes; mapping fixed before execution and 31,744 cases tested; no stop/DMA/output proof |
+| E65 | One guarded analog STOP write after tests/ELF32 validation | 0x1d08001c → 0x0008001d → 0x0000001d, index zero, digital unchanged, SSH responds; `audio-stop/` | Ten total reads, one write; supports halted indicator, not transaction/FIFO completion; left stopped before later reboot |
+| E66 | Execute three real ALSA functions with callback errors | 144 ASan/UBSan cases; 24 detachments including twelve dynamic frees after errors; `audio-stop/free-contract.json` | Software contract, not ALSA bug; returning an error does not retain memory |
+| E67 | Separately acknowledge three analog bits after 512 refusal tests | 0x1d → 0x19 → 0x11 → 0x01; digital unchanged; SSH responds; `audio-ack/ack-bit*.json` | Three writes, 24 reads; W1C observed while stopped, event meaning under playback unproved |
+| E68 | Request reset from analog stopped state | Write 0x02000000, read 0x00000001; zero index, digital unchanged; `audio-ack/reset-stopped.json` | One write/eight reads; compatible with self-clear, but unchanged observation does not prove complete reset |
 
-| E49 | Diagnostiquer le refus du bouton Éteindre et demander un arrêt normal administrateur | CanPowerOff challenge, aucun inhibiteur ; timer systemctl poweroff accepté ; poweroff/request.json | Extinction physique non observée directement, bouton graphique non corrigé |
-| E50 | Comparer Big Order sous le tableau de bord Xbox à la demande de l’agent | Utilisateur rapporte aucune détection ; stock-dvd/observation.json | Cause exclusivement Linux moins probable ; libellé exact et état indépendant du DVD inconnus |
+## Clock correction and subsequent validation
 
-| E51 | Compiler l’audio original et tester les vrais calculs C avec interfaces simulées | Build échoué : 8 erreurs, 1 avertissement ; 98 géométries hors tampon, 5 boucles dépassant le span ; correctif partiel 0008 passe ; audio-buffers/ | Aucun son activé ; cycle de vie, API, DMA/SMC et négociation ALSA encore à traiter |
-| E52 | Vérifier le retour Linux et les permissions du processus graphique réel | obsidian4 vivant, XRandR répond, réglages conservés ; pkcheck autorise les deux arrêts pour le PID du lanceur ; return-linux/ | Correction de portée du challenge mesuré via SSH ; bouton non déclenché, utilisateur absent |
+| ID | Action | Result and evidence | Follow-up or limit |
+|---|---|---|---|
+| E69 | Seven persistent-SSH clock samples and live device-tree read | About −0.25% over 60 s; advertised 50 MHz; compatible relative 49.8734–49.8759 MHz; `clock-calibration/` | Mac uncalibrated; no reconfiguration; console timestamps offset and old durations need context |
+| E70 | Add optional timebase conversion and build independent kernel | obsidian-clock + image + 65 modules without warnings; ELF/sections/vermagic checked; `timebase-build/` | No install/initramfs/boot at this checkpoint |
+| E71 | Prepare matching initramfs, modules, and optional USB entry | 16,171,806-byte image, 43 extracted modules match, 65 installed; obsidian_clock entry; linux_hdd/fallbacks preserved; remount verification; `timebase-boot/` | No scripted reboot; physical test requested; console timestamps not corrected |
+| E72 | Execute seven real PCI functions under simulated access outcomes | 512 capability-start, sixteen MASTER-clear and six pending cases; failed write can coexist with success from non-PCIe wait; `audio-isolation/` | Host contract test, not DMA fence or observed write failure; later E73 header refresh matches historical capability absence |
+| E73 | User boots obsidian_clock; SSH/runtime and seven-point clock comparison | Release/log/cpuinfo confirm 49.875 MHz; −28.155…+14.432 ppm versus −2,531…−2,481 before; user confirms responsive desktop; `timebase-first-boot/` | Two finite windows relative to Mac; civil clock ~243 s behind; no 1080p/audio/long-load claim; old MMIO state superseded by reboot |
 
-| E53 | Porter les ressources audio et injecter des échecs dans les fonctions C réelles | Objet PPC compilé ; 12 défauts attendus reproduits, 16 scénarios candidat passent ; audio-lifecycle/ | Compilation complète suivie séparément ; protocole, DMA PCM, timer et concurrence non validés ; aucun chargement |
+## E10 incident analysis
 
-| E54 | Ajouter et tester un envoi SMC borné, puis lier les variantes audio complètes | 19 scénarios SMC, 18 ressources audio ; audio-lifecycle et audio-post avec 70 modules, zéro avertissement ; smc-post/ | Pas de chargement ; vieux chemins SMC non bornés, protocole audio et DMA PCM à poursuivre |
+Documentation describes a read-only flash window without ECC. That did not guarantee the chosen broad read would work on this hardware/kernel combination. The program opened `resource1` with O_RDONLY, mapped PROT_READ, and contained no erase/program command. The freeze is correlated with the read; its exact mechanism remains unknown.
 
-| E55 | Migrer les PCM vers la mémoire DMA gérée ALSA et tester les callbacks réels | 20 scénarios de ressources, 12 de callbacks, régression de 16 369 tailles ; noyau audio-pcm + 70 modules sans avertissement ; audio-pcm/ | Aucun chargement ; timer/concurrence/protocole non validés |
-| E56 | Reconnexion SSH après le retour de l’utilisateur, interfaces standard en lecture seule | obsidian4, uptime 5 139,44 s, aucun service en échec, framebuffer 1280×720 ; audio-pcm/console-status.json | Pas un test visuel, de charge ou audio |
+The probe is retained as text in `research/blocked/` for examination. It is not an executable experiment to repeat. Prefer documented XeLL acquisition or a hardware interface with explicit result validation.
 
-| E57 | Reproduire le timer audio non armé et ses fausses notifications, puis ajouter suivi par sortie et sync_stop | 15 scénarios de suivi dont fermeture concurrente contrôlée, 20 ressources et 15 PCM passent ; audio-poll/ | Noyau final haute résolution + 70 modules vérifiés, sans avertissement ; protocole et matériel non validés, aucun chargement |
+## Template for future experiments
 
-| E58 | Exécuter la routine pointer et les conversions ALSA réelles ; examiner le contrat ack et un émulateur | 96 cas de file alternante sans nouvelles données, débordement signé attendu, publication partielle conditionnelle ; audio-submission/ | Remplacement à concevoir avec drain/reset ; émulateur audio insuffisant pour valider le protocole |
-
-| E59 | Écrire une file PCM originale avec engagements partiels, drain silencieux et compteur borné | 512 tailles, 54 008 opérations, 24 544 033 frames comparées ; compilation et module de liaison PPC ; audio-queue/ | Aucun adaptateur ALSA ni accès matériel ; protocole/achèvement DMA encore ouverts |
-
-| E60 | Intégrer file, ack, drain/reset et suivi au pilote candidat ; tester les callbacks et le rollback ALSA réels | 15 scénarios dont 512 géométries et fermeture concurrente contrôlée, 20 ressources, régression de file ; noyau + 70 modules sans avertissement ; audio-adapter/ | Fin du dernier bloc non décodée, stagnation = XRUN ; aucun chargement |
-| E61 | Reconnexion SSH par interfaces standard en lecture seule | obsidian4, uptime 9 327,35 s, aucun service en échec listé, framebuffer 720p ; audio-adapter/console-status.json | Réactivité visuelle et audio non vérifiés |
-
-| E62 | Examiner l'historique audio, comparer les registres SiS et corriger les longueurs | 16 384 descripteurs par variante, 15 callbacks et 20 ressources ; noyau audio-bytes + 70 modules, volume Linux sans avertissement ; audio-protocol/ | Correspondance matérielle non mesurée ; fin DMA distincte de sortie audio, statuts/FIFO ouverts |
-
-| E63 | Séparer contrôle et acquittement sous modèle SiS ; compiler le module | 4 096 transitions par variante : 3 584 pertes simulées avant, zéro après ; 15 callbacks, 20 ressources, 16 384 descripteurs ; audio-control/ | Hypothèse matérielle non validée ; module seul recompilé contre audio-bytes, aucun chargement |
-| E64 | Configuration PCI audio puis trois lectures ciblées de quatre registres | Commande PCI 0x0006, aucun pilote ; contrôles 0x1d08001c et index 0x00008000 / 0x00009616 inchangés ; SSH maintenu ; audio-control/observer-* | Douze lectures, zéro écriture ; calcul de mapping corrigé avant exécution, 31 744 cas ; interprétation SiS, arrêt DMA et sortie sonore non prouvés |
-
-| E65 | Une écriture STOP analogique conditionnée après tests et vérification ELF32 | 0x1d08001c → 0x0008001d puis 0x0000001d, index zéro, numérique inchangé ; SSH répond ; audio-stop/ | Dix lectures au total, une écriture ; indicateur DCH étayé, pas de preuve de fin des transactions/FIFO ; analogique laissé STOP |
-| E66 | Exécuter trois fonctions ALSA réelles avec erreurs de callbacks | 144 cas ASan/UBSan, 24 détachements dont 12 libérations dynamiques malgré une erreur ; audio-stop/free-contract.json | Contrat logiciel, pas bogue ALSA ; un retour erreur seul ne préserve pas le tampon et ne suffit pas pour un arrêt matériel échoué |
-
-| E67 | Acquitter séparément trois bits analogiques après tests de 512 refus | 0x1d → 0x19 → 0x11 → 0x01 ; numérique inchangé, SSH répond ; audio-ack/ack-bit*.json | Trois écritures, 24 lectures ; W1C observé au repos, signification des événements sous flux non prouvée |
-| E68 | Écrire reset depuis le statut arrêté analogique | 0x02000000 écrit, lecture 0x00000001 ; index zéro, numérique inchangé ; audio-ack/reset-stopped.json | Une écriture, huit lectures ; auto-effacement compatible, effets internes non démontrés car état observé inchangé |
-| E69 | Comparer sept horodatages console/Mac en SSH persistant et lire le device tree | Environ −0,25 % sur 60 s ; 50 MHz déclarés, 49,8734–49,8759 MHz compatibles avec la mesure relative ; clock-calibration/ | Mac non étalonné, aucune reconfiguration ; horodatages console décalés et durée historique à interpréter |
-| E70 | Ajouter une conversion timebase optionnelle et construire un noyau distinct | obsidian-clock + image + 65 modules sans avertissement, ELF/sections/vermagic vérifiés ; timebase-build/ | Aucune installation/initramfs ni validation après boot ; correction limitée à cette piste mesurée |
-| E71 | Préparer initramfs, modules et entrée USB distincte pour obsidian-clock | Image 16 171 806 octets, 43 modules extraits conformes, 65 installés ; entrée obsidian_clock, défaut linux_hdd et secours préservés ; relecture après remontage réussie ; timebase-boot/ | Aucun reboot ni validation de cadence ; essai physique demandé, horodatages console non corrigés |
-
-## Analyse de l’incident E10
-
-La documentation décrit une fenêtre flash en lecture seule, sans ECC. Cela ne garantissait pas que la méthode de lecture large employée fonctionnerait sur cette combinaison matériel/noyau. Le programme a ouvert `resource1` avec O_RDONLY, utilisé PROT_READ, et ne contenait aucune commande d’effacement ou de programmation. Le gel est corrélé à cette lecture ; son mécanisme exact n’a pas été établi.
-
-La sonde est conservée comme texte dans `research/blocked/` afin de pouvoir l’examiner. Elle ne fait pas partie des outils à exécuter. Privilégier une acquisition XeLL ou une interface matérielle documentée avec contrôle des résultats.
-
-## Fiche pour les prochaines expériences
-
-- Question précise et hypothèse.
-- État matériel/logiciel et moyen de retour au fonctionnement.
-- Action exacte et limites de durée/volume.
-- Preuve conservée, hash, résultat observé.
-- Incertitudes, effet sur le système, prochaine étape.
+- Precise question and hypothesis.
+- Initial hardware/software state and recovery path.
+- Exact action, access limits, and duration/volume bounds.
+- Preserved evidence, hashes, and observed result.
+- Uncertainty, system effects, and justified next step.

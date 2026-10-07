@@ -1,28 +1,32 @@
-# Prochaines étapes
+# Next work
 
-Priorités issues de l'analyse approfondie :
+## Immediate priorities
 
-- E71 terminé : initramfs, modules et entrée USB **obsidian_clock** vérifiés, obsidian4/linux_hdd préservés. Essai physique demandé à l’utilisateur. Au retour SSH, vérifier version/options/calibration et comparer la cadence sur 60 s ; ne pas confondre présence des fichiers et démarrage validé. Distinguer les horodatages Mac et console dans les preuves.
+1. Publish the detailed English repository update requested by the user, including E72's PCI contract result and E73's measured clock correction. Audit the controlled public export and reachable history before commit/push; verify the remote commit and tree afterward.
+2. Extend the clock validation beyond one 60-second window under representative load. Keep host and console timestamps distinct. Diagnose the approximately 243-second civil-time offset separately; a corrected raw cadence does not set the date.
+3. Design actual audio memory retention/isolation when STOP is not confirmed. E66 rules out relying on a callback error to retain ALSA buffers. E72 rules out treating the generic non-PCIe pending-transaction helper as a completion measurement. Cover samples, descriptors, mmap, reconfiguration, teardown, failed probe, and module reload.
+4. Resolve audio final-descriptor completion, FIFO drain, address limits, reset semantics, interrupt ownership, and inherited channel state before playback. The new boot invalidates the old STOP/ACK preconditions; any hardware experiment needs a new initial-state check.
+5. Continue the 1080p path through video timing/clock/ANA/HANA analysis and a recoverable USB loader experiment. Merely enlarging the desktop is insufficient.
 
-- obsidian4 est désormais confirmé en SSH avec bureau actif et framebuffer corrigé. Priorité : stabilité sous charge mesurée et validation des commandes physiques ; répéter ensuite les démarrages avec sélection explicite. Conserver linux_hdd et la récupération ; la cause de l'écran bloqué précédent reste inconnue.
-- Lecteur : CD audio partiellement lu ; Just Cause 2 et DVD Big Order répondent support absent sous Linux, avec rotation brève puis arrêt rapportés. Absence également rapportée sous tableau de bord stock ; comparer Big Order sur un autre lecteur ; région de la console et santé des DVD non confirmées. Pas de diagnostic définitif du laser.
-- Référence de performances E39 conservée ; le gel graphique E46 est désormais reproduit hors console par E47, correctif OpaqueMove/Resize installé. Attendre l’essai physique avant de déclarer toute la commande manette validée. Évaluer Rust pour un composant précis au regard de la cible PowerPC. Le périmètre étendu et les critères sont dans `docs/OBJECTIVE.md`.
-- Poursuivre la revue SMC : sérialisation des transactions, propagation des interruptions/délais et contrat du gestionnaire IRQ. Ne pas déclencher de commandes inconnues sur le matériel pour reproduire le défaut de cache.
-- Évaluer la correction du masque IPI dans cette branche, avec compilation puis test ciblé du chemin concerné ; ne pas attribuer au callback dormant les symptômes du chemin SMP ordinaire.
-- Pour une acquisition par XeLL, identifier le binaire réellement utilisé et vérifier/corriger le tampon de page physique HTTP ainsi que les erreurs SFCX. Ne pas assimiler une réponse HTTP complète à une sauvegarde NAND validée.
-- Résoudre l'observation de trousseau pacman manquant avant toute nouvelle installation de paquets ; conserver les signatures activées.
-- Poursuivre après 0008–0015 : longueurs en octets exacts étayées et corrigées (E62), adaptateur ack/drain/reset testé hors console (E60). E63 sépare contrôle/acquittement sous modèle. E64 observe les registres ; E65 provoque STOP analogique avec DCH apparent et numérique inchangé. E66 montre que les erreurs de callbacks ALSA ne retiennent pas les tampons gérés. E67 valide les acquittements analogiques au repos ; E68 reste insuffisant pour prouver tous les effets du reset. Concevoir une isolation mémoire réelle en cas d’échec de STOP, maîtriser acquittements et interruptions, distinguer consommation DMA et fin de sortie FIFO ; limites d’adresses encore ouvertes. DMA PCM et suivi par sortie testés hors console ; noyau haute résolution et 70 modules compilés. Mesurer précision/cadence/coût CPU lors d’un futur essai coordonné. Vieux chemins SMC encore non bornés ; activation audio différée tant que le protocole et la soumission restent ouverts.
+## System stability and peripherals
 
-État des étapes historiques :
+- Keep **obsidian4**, **linux_hdd**, and live recovery available. E73 confirms one obsidian-clock boot and desktop responsiveness; repeat boot/rollback and load tests before changing the default.
+- Verify physical resize and controller gestures after the E46/E47 X11 fix. General responsiveness is not a repeated-resize test.
+- Optical: audio CD samples read; Just Cause 2 and Big Order return media absent. Compare the video DVD on another player. Console region and media health remain unconfirmed; no definitive laser diagnosis.
+- Investigate TX watchdog and USB symptoms separately. Do not turn isolated observations into an unsupported common hardware diagnosis.
+- Resolve the missing pacman keyring observation before further package installation. Keep signature verification enabled.
+- Use E39 as a bounded initial performance reference, not a comprehensive benchmark. Evaluate Rust where a concrete component and the PowerPC target justify it.
 
-1. Fait : session récupérée, disque et bureau vérifiés ; erreur de module pkcs8 consignée.
-2. Fait : acquisitions SMC/ANA/GPU rapatriées et contrôlées par SHA-256, sans refaire la sonde NAND.
-3. Manette désormais détectée et événements reçus ; confirmer l’utilisation effective du pointeur, A et Y.
-4. Identifier visuellement la carte mère et le type/capacité NAND.
-5. Préparer l’acquisition NAND par XeLL ou un lecteur matériel, avec lectures concordantes et vérification ECC. Conserver clés propres à la console et dumps hors Git.
-6. Analyser les versions et fonctions des bootloaders de cet exemplaire. Cela ne constitue pas en soi un contournement de leurs signatures.
-7. Pour le 1080p : obtenir des états vidéo comparables, comprendre horloges et timings, puis tester un chargeur expérimental sur USB avec une récupération préservée.
-8. Étudier séparément support audio, watchdog Ethernet et comportement USB. Ne pas transformer des symptômes isolés en diagnostics matériels définitifs.
-9. Le démarrage indépendant exige une méthode compatible et validée ; ne pas effacer le système Xbox tant que le démarrage actuel en dépend.
+## Lower-level research
 
-Une rétro-ingénierie intégrale comprend aussi des mesures électriques, des protocoles et du silicium non accessibles via SSH. Ce dépôt sert à accumuler des preuves, sans revendiquer ces travaux comme achevés.
+- SMC: transaction serialization, interrupt propagation, timeouts, and IRQ contract. Do not issue unknown commands simply to reproduce a cache defect.
+- SMP: validate the corrected IPI callback where it is actually used; the normal SMP path in this branch uses another function.
+- NAND: identify the XeLL binary actually running, verify/fix its physical-page HTTP buffer and SFCX error handling, then establish matching raw acquisitions and ECC/bad-block checks. An HTTP response of the expected length is not a validated backup.
+- Identify motherboard markings and NAND geometry visually when possible. Keep console-specific keys, keyvaults, and firmware dumps outside Git.
+- Analyze this console's bootloader versions and functions after a legitimate acquisition. Structural understanding alone does not bypass their signatures.
+- Direct Linux boot requires an applicable, validated independent method. Do not erase the Xbox system while the working path depends on it.
+- Continue original game-format inspection tools with synthetic tests; use legitimately acquired inputs when available, without publishing copyrighted payloads.
+
+## Evidence standard
+
+The original objective remains broad: hardware, software, games, modernization, recovery, reproducibility, and publication. An inventory, source synthesis, or passing model is not complete reverse engineering. Electrical measurements, undocumented protocols, silicon behavior, and several physical validations remain beyond what SSH alone has established. See [OBJECTIVE](OBJECTIVE.md), [RESEARCH-MAP](RESEARCH-MAP.md), and [BLOCKED](BLOCKED.md).

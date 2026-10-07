@@ -1,56 +1,54 @@
-# Pilote audio : compilation et géométrie des tampons — E51
+# Audio driver: compilation and buffer geometry — E51
 
-Analyse du 2 octobre 2026 sur `sound/pci/snd-xenon.c`, source linux-custom `a293dd19311668900eb1eeb2f6cb01dcac54f330`. SHA-256 du pilote : `4289271b03404f6079b590f696e44625d07c59017f099295833390d38f89a0ac`. Aucun accès à la carte son ; aucun nouveau module installé. Le noyau fonctionnel obsidian4 conserve le son désactivé.
+October 2, 2026 analysis of `sound/pci/snd-xenon.c`, linux-custom `a293dd19311668900eb1eeb2f6cb01dcac54f330`. Driver SHA-256: `4289271b03404f6079b590f696e44625d07c59017f099295833390d38f89a0ac`. No sound-device access or new module installation occurred. The working obsidian4 kernel kept sound disabled.
 
-## Compilation originale
+## Original compilation
 
-Un dossier de sortie distinct reprend la configuration obsidian4 en activant SOUND, SND et SND_XENON comme modules et SND_PCI. La source et l’ancien build ne sont pas modifiés. Image LLVM 16 connue, réseau Docker désactivé, deux processeurs et 2 Gio maximum.
+A separate output directory reused obsidian4 configuration with SOUND, SND, and SND_XENON enabled as modules and SND_PCI enabled. Source and previous build were unchanged. The known LLVM 16 image ran without Docker networking, limited to two CPUs and 2 GiB.
 
-`olddefconfig` réussit ; la cible `sound/pci/snd-xenon.o` échoue : huit erreurs et un avertissement. Les API absentes sont `from_timer`, `pci_alloc_consistent`, `pci_free_consistent`, `snd_printk` et `del_timer_sync`. L’avertissement concerne le prototype manquant du transport SMC privé au pilote. Ces résultats confirment E17 par une compilation effective ; aucun objet audio utilisable obtenu. Log complet, configuration et méthode dans `evidence/2026-10-02/audio-buffers/`.
+`olddefconfig` succeeded; `sound/pci/snd-xenon.o` failed with eight errors and one warning. Missing APIs were `from_timer`, `pci_alloc_consistent`, `pci_free_consistent`, `snd_printk`, and `del_timer_sync`. The warning concerned a missing prototype for the driver's private SMC transport. This confirms E17 through an actual build, without producing a usable audio object. Logs, configuration, and method: `evidence/2026-10-02/audio-buffers/`.
 
-## Boucle de cache
+## Cache loop
 
-La fonction soustrait 128 à un entier signé tant qu’il est non nul. Pour une taille positive non divisible par 128, elle dépasse zéro sans l’atteindre et continue à avancer l’adresse ; un débordement signé finit par rendre le comportement C indéfini. Cela ne prouve pas un gel réel : ce pilote est désactivé sur notre console.
+The function subtracts 128 from a signed integer while it is nonzero. A positive size not divisible by 128 crosses zero without reaching it and keeps advancing the address; eventual signed overflow makes C behavior undefined. This does not prove a real console hang: that driver is disabled on this machine.
 
-Le banc conserve la boucle C réelle, remplace uniquement les deux instructions PowerPC par des hooks et interrompt l’exécution au premier parcours au-delà du nombre de lignes attendu. Cinq tailles parmi huit déclenchent ce garde-fou : 64, 68, 132, 192 et 65 532 octets. Les cas 128, 256 et 65 536 se terminent normalement. Il s’agit d’une preuve logique bornée, pas de l’exécution d’un cache PowerPC ni d’une mesure de cohérence DMA.
+The harness retains the actual C loop, replaces only two PowerPC instructions with hooks, and aborts at the first traversal beyond the expected cache-line span. Five of eight sizes trigger that guard: 64, 68, 132, 192, and 65,532 bytes. Sizes 128, 256, and 65,536 terminate normally. This is a bounded logical demonstration, not PowerPC cache execution or a DMA-coherence measurement.
 
-La préallocation ALSA de 64 Kio ne suffit pas à éviter le problème : `sound/core/pcm_memory.c`, fonction `snd_pcm_lib_malloc_pages`, affecte la taille demandée à `runtime->dma_bytes`, même quand elle réutilise une allocation plus grande.
+A 64 KiB ALSA preallocation does not avoid the problem: `snd_pcm_lib_malloc_pages` in `sound/core/pcm_memory.c` assigns the requested size to `runtime->dma_bytes` even when reusing a larger allocation.
 
-## Descripteurs
+## Descriptors
 
-Le pilote crée 32 segments de longueur arrondie vers le haut, puis retranche tout l’excédent au dernier. Pour 68 octets, il choisit 3 octets par segment, un excédent de 28 et une dernière longueur encodée par `3 - 1 - 28 = -26` ; le mot devient `0xffffffe6`. Les premiers segments dépassent déjà le tampon avant la fin du tableau.
+The driver creates 32 upward-rounded segments, then subtracts all excess from the last. For 68 bytes it chooses three bytes per segment, excess 28, and last encoded length `3 - 1 - 28 = -26`, producing `0xffffffe6`. Earlier segments already exceed the buffer before the descriptor list ends.
 
-Le banc exécute les vrais `hw_params` et `prepare`, avec allocation, verrouillage et MMIO simulés. Il parcourt les 16 369 tailles multiples de quatre de 64 à 65 536 octets : 98 géométries sortent de la plage du tampon selon l’encodage longueur moins un employé par le code. Par ailleurs, 12 273 géométries fractionnent les trames stéréo de quatre octets entre des descripteurs. **Cette deuxième propriété seule n’est pas une panne matérielle démontrée** : la capacité du contrôleur à traverser une limite de descripteur au milieu d’une trame reste non vérifiée. L’union des deux catégories vaut 12 301 tailles.
+The harness executes actual hw_params/prepare functions with mocked allocation, locking, and MMIO. Across **16,369** four-byte-aligned sizes from 64 through 65,536, **98** geometries exceed the buffer under the code's length-minus-one interpretation. Another **12,273** geometries split four-byte stereo frames across descriptors. That second property alone is not a demonstrated hardware failure: mid-frame descriptor crossing support is unverified. The union is **12,301** sizes.
 
-## Correction partielle 0008
+## Partial correction 0008
 
-La boucle s’arrête maintenant quand la taille devient non positive. `hw_params` refuse les tailles hors de 128–65 536 ou non multiples de 128 ; `prepare` répète ce contrôle avant toute opération matérielle et exige la concordance entre taille DMA et taille ALSA. Chaque taille acceptée donne alors 32 segments égaux contenant des trames entières.
+The cache loop now stops at nonpositive size. hw_params rejects values outside 128–65,536 or not divisible by 128; prepare repeats the check before hardware operations and requires DMA/ALSA size agreement. Each accepted size gives 32 equal segments containing whole frames.
 
-Les mêmes tests acceptent 512 tailles, rejettent les 15 857 autres avant allocation/mappage et ne produisent aucun segment hors tampon. Le test indépendant de désaccord DMA/ALSA passe. Huit tests de boucle passent sans dépassement du nombre de lignes attendu. ASan/UBSan ne rapportent aucune erreur dans ce banc ; les accès matériels sont simulés.
+The same tests accept **512** sizes, reject **15,857** before allocation/mapping, and produce no out-of-buffer segment. The independent DMA/ALSA mismatch test passes. Eight cache-loop tests stay within the expected span. ASan/UBSan report no error in the modeled harness.
 
-Cette restriction est un premier correctif défensif. Il reste à annoncer la contrainte dans la négociation ALSA, à tester le portage complet et à confirmer le format des descripteurs sur le matériel. Le test ne prouve pas que toutes les tailles énumérées peuvent être négociées dans un système ALSA réel, ni qu’une application choisira une taille acceptée.
+This is an initial defensive restriction. ALSA negotiation must advertise it, the complete port needs testing, and descriptor format must be confirmed on hardware. Enumerating sizes does not prove every one is negotiable in real ALSA or that an application will choose an accepted size.
 
-## Obstacles avant activation
+## Activation blockers identified at this checkpoint
 
-Analyse du code, sans expérimentation matérielle :
+- Timer initialized without an initial arm; only its callback contains mod_timer. Period notifications/calculation need review.
+- Private SMC transport bypasses the existing core lock and waits indefinitely. Adopting shared transport also requires addressing its own unbounded waits.
+- Unchecked DMA allocation under lock, masked DMA handle later freed, and ioremap of a DMA address violate or obscure memory ownership contracts.
+- Cleanup can precede timer_setup; creation failure can free a null object; ALSA registration failure can double-free. Fault injection is needed.
+- IRQ handler always claims handled, while enable/disable operations are empty. DMA stop and callback synchronization remain unvalidated.
 
-- Le timer est initialisé mais aucun armement initial n’apparaît ; seul son callback contient `mod_timer`. Les notifications de périodes et leur calcul doivent être revus.
-- Le transport SMC privé contourne le verrou du cœur existant et attend sans borne. Utiliser une interface partagée exige aussi de traiter ses propres attentes sans borne.
-- Allocation DMA non vérifiée sous verrou, handle DMA masqué puis réutilisé à la libération, conversion d’adresse DMA par `ioremap` : contrat mémoire à reprendre.
-- Nettoyage possible avant `timer_setup`, échec de création suivi d’une libération de pointeur nul, double libération après échec d’enregistrement ALSA : gestion des ressources à tester par injection de fautes.
-- IRQ toujours déclarée traitée et gestion activation/désactivation vide ; arrêt DMA et synchronisation des callbacks non validés.
+Fixing compilation alone does not make loading appropriate. E51 validates no HDMI support, audio playback, latency, or stability.
 
-Ne pas charger le pilote après une simple correction des erreurs de compilation. Aucun support HDMI, lecture audio, latence ou stabilité n’est validé par E51.
+## Reproduction without hardware
 
-## Reproduction hors console
-
-Appliquer le diff 0008 à une copie de la source originale. Exécuter :
+Apply patch 0008 to a copy of the original:
 
 ```sh
-python3 research/tests/check-audio-buffers.py --original ORIGINAL/snd-xenon.c --candidate CANDIDAT/snd-xenon.c
+python3 research/tests/check-audio-buffers.py --original ORIGINAL/snd-xenon.c --candidate CANDIDATE/snd-xenon.c
 ```
 
-Le banc exige Clang et ses runtimes ASan/UBSan ; il crée des fichiers temporaires et ne contacte aucun matériel. Pour le build initial, dans l’image LLVM 16 documentée, monter la source en lecture seule sur `/src` et un nouveau dossier de sortie sur `/build`, copier la configuration, puis :
+The harness requires Clang and ASan/UBSan runtimes, creates temporary files, and contacts no hardware. For the original build, mount source read-only at /src and a new output at /build in the documented LLVM 16 image, copy configuration, then run:
 
 ```sh
 /src/scripts/config --file /build/.config -m SOUND -m SND -e SND_PCI -m SND_XENON
@@ -58,4 +56,4 @@ make -C /src O=/build ARCH=powerpc LLVM=1 LOCALVERSION=-audio-audit olddefconfig
 make -C /src O=/build ARCH=powerpc LLVM=1 LOCALVERSION=-audio-audit -j2 sound/pci/snd-xenon.o
 ```
 
-Cette compilation originale doit échouer avec les diagnostics conservés. Elle ne constitue pas une procédure d’installation.
+This original build is expected to fail with the retained diagnostics. It is not an installation procedure.

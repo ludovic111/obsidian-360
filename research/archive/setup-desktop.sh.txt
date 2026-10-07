@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+set -euo pipefail
+test "$(findmnt -n -o SOURCE /)" = /dev/sda1
+test "$(blkid -s UUID -o value /dev/sda1)" = e9584d6f-d7ed-40ba-80a2-6834f8d91f31
+for binary in icewm-session startx Xorg python3 pcmanfm; do command -v "$binary"; done
+python3 -c 'import tkinter, ctypes'
+python3 /root/xbox_desktop.py --self-test
+if ! getent passwd xbox >/dev/null; then
+    useradd -m -G audio,video,input -s /bin/bash xbox
+fi
+install -d /root/xbox-desktop-backup /usr/local/lib/xbox-desktop /etc/X11/xorg.conf.d
+cp -n /etc/systemd/system/getty@tty1.service.d/autologin.conf /root/xbox-desktop-backup/autologin.conf
+install -m 755 /root/xbox_desktop.py /usr/local/lib/xbox-desktop/xbox_desktop.py
+install -d -o xbox -g xbox /home/xbox/.icewm /home/xbox/.local/state/xbox-desktop
+cat > /etc/X11/xorg.conf.d/20-xbox-modesetting.conf <<'EOF'
+Section "Device"
+    Identifier "XboxVideo"
+    Driver "modesetting"
+    Option "kmsdev" "/dev/dri/card0"
+    Option "AccelMethod" "none"
+    Option "SWcursor" "true"
+    Option "PageFlip" "false"
+EndSection
+Section "Screen"
+    Identifier "XboxScreen"
+    Device "XboxVideo"
+    DefaultDepth 24
+EndSection
+EOF
+install -d -m 1777 -o root -g root /tmp/.X11-unix
+cat > /home/xbox/.xinitrc <<'EOF'
+#!/bin/sh
+xset s off
+xset -dpms
+xset r rate 400 20
+exec dbus-run-session -- icewm-session
+EOF
+cat > /home/xbox/.icewm/startup <<'EOF'
+#!/bin/sh
+python3 /usr/local/lib/xbox-desktop/xbox_desktop.py >> "$HOME/.local/state/xbox-desktop/launcher.log" 2>&1 &
+EOF
+cat > /home/xbox/.icewm/preferences <<'EOF'
+WorkspaceNames="Bureau"
+TaskBarShowWorkspaces=0
+TaskBarShowMailboxStatus=0
+TaskBarShowCPUStatus=0
+TaskBarShowNetStatus=0
+TaskBarShowAPMStatus=0
+TaskBarShowClock=1
+OpaqueMove=0
+OpaqueResize=0
+DesktopBackgroundColor="#101610"
+TitleFontNameXft="DejaVu Sans:size=14"
+MenuFontNameXft="DejaVu Sans:size=14"
+TaskBarFontNameXft="DejaVu Sans:size=12"
+EOF
+cat > /home/xbox/.icewm/menu <<'EOF'
+prog "Fichiers" folder pcmanfm
+prog "Terminal" utilities-terminal xterm -fa "DejaVu Sans Mono" -fs 13
+separator
+prog "Éteindre" system-shutdown systemctl poweroff
+EOF
+cat > /home/xbox/.bash_profile <<'EOF'
+if [[ -z ${DISPLAY:-} && $(tty) == /dev/tty1 ]]; then
+    mkdir -p "$HOME/.local/state/xbox-desktop"
+    startx > "$HOME/.local/state/xbox-desktop/xorg-start.log" 2>&1
+    printf '\nLe bureau s’est arrêté. L’accès SSH reste disponible.\n'
+fi
+EOF
+chmod 755 /home/xbox/.xinitrc /home/xbox/.icewm/startup
+chown -R xbox:xbox /home/xbox/.icewm /home/xbox/.local /home/xbox/.xinitrc /home/xbox/.bash_profile
+if command -v polkitd >/dev/null || test -d /etc/polkit-1/rules.d; then
+    install -d /etc/polkit-1/rules.d
+    cat > /etc/polkit-1/rules.d/50-xbox-poweroff.rules <<'EOF'
+polkit.addRule(function(action, subject) {
+    if (subject.user === "xbox" && subject.local && subject.active &&
+        (action.id === "org.freedesktop.login1.power-off" ||
+         action.id === "org.freedesktop.login1.power-off-multiple-sessions")) {
+        return polkit.Result.YES;
+    }
+});
+EOF
+fi
+cat > /etc/systemd/system/getty@tty1.service.d/autologin.conf <<'EOF'
+[Service]
+ExecStart=
+ExecStart=-/sbin/agetty --noclear --autologin xbox %I $TERM
+EOF
+systemctl daemon-reload
+echo DESKTOP_CONFIGURED_READY_TO_START
