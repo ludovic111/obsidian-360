@@ -1,8 +1,8 @@
-# OBSIDIAN-360
+# obsidian-360
 
 **Comprendre la machine. Documenter chaque preuve. Construire son avenir sous Linux.**
 
-Laboratoire d’analyse d'une Xbox 360 : matériel, chaîne de démarrage, pilotes Linux, interface à la manette et expériences reproductibles.
+Laboratoire d'analyse d'une Xbox 360 : matériel, chaîne de démarrage, pilotes Linux, interface à la manette et expériences reproductibles.
 
 ## État vérifié
 
@@ -31,12 +31,11 @@ Laboratoire d’analyse d'une Xbox 360 : matériel, chaîne de démarrage, pilot
 11. [Trace hors console des fonctions vidéo et limites du passage 1080p](docs/VIDEO-MODE-TRACE-2026-10-01.md).
 12. [Première référence de performances](docs/PERFORMANCE-BASELINE-2026-10-01.md) et [carte des inconnues](docs/RESEARCH-MAP.md).
 13. [Analyse structurelle XEX2](docs/XEX2-INSPECTION.md) et [inspecteur Rust](game-analysis/xex-inspect/README.md), validé sur échantillons synthétiques uniquement.
-
 14. [Récupération du gel graphique](docs/DESKTOP-RESIZE-RECOVERY.md) et [test reproductible sous Xvfb](docs/DESKTOP-TESTING.md).
-
 15. [Tampons audio ALSA](docs/AUDIO-PCM-DMA.md), [suivi et fermeture des flux](docs/AUDIO-STREAM-POLLING.md), [audit de la soumission](docs/AUDIO-SUBMISSION-AUDIT.md).
-
 16. [File PCM originale et gestion de la fin de flux](research/audio/README.md), testée mais non intégrée au pilote.
+17. Adaptateur audio E60 : [soumission ALSA, tests et limite du dernier bloc](docs/AUDIO-ALSA-ADAPTER.md). Candidat non installé ; aucune lecture sonore validée.
+18. Audio E62 : [longueurs de blocs et hypothèse de registres SiS](docs/AUDIO-REGISTER-HYPOTHESIS.md), avec référence distinguant fin DMA et sortie sonore ; candidat toujours non installé.
 
 ## Organisation
 
@@ -58,8 +57,4 @@ Le premier appel nécessite la configuration locale créée sur ce Mac et la cl�
 
 Chaque expérience doit préciser : objectif, état initial, action, preuve, résultat et récupération. Les instructions de travail sont dans [AGENTS.md](AGENTS.md).
 
-L'export public exclut les données privées et les binaires non redistribuables ; certaines preuves restent locales. Lire [la procédure de publication](docs/PUBLICATION.md) et [les licences](THIRD_PARTY.md). La recherche est incomplète et aucun installateur universel n'est fourni.
-
-Adaptateur audio E60 : [soumission ALSA, tests et limite du dernier bloc](docs/AUDIO-ALSA-ADAPTER.md). Candidat non installé ; aucune lecture sonore validée.
-
-Audio E62 : [longueurs de blocs et hypothèse de registres SiS](docs/AUDIO-REGISTER-HYPOTHESIS.md), avec référence distinguant fin DMA et sortie sonore ; candidat toujours non installé.
+La branche `main` exclut les données privées et les binaires non redistribuables ; certaines preuves restent locales. Lire [la procédure de publication](docs/PUBLICATION.md) et [les licences](THIRD_PARTY.md). La recherche est incomplète et aucun installateur universel n'est fourni.

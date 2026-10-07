@@ -1,4 +1,4 @@
-# OBSIDIAN-360 — instructions de travail
+# obsidian-360 — instructions de travail
 
 - Lire `docs/STATE.md` puis `docs/EXPERIMENTS.md` avant toute interaction matérielle.
 - Communiquer en français et distinguer mesure directe, analyse du code, hypothèse et résultat non vérifié.
