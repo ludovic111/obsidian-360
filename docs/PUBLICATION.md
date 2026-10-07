@@ -4,7 +4,7 @@
 
 October 2 update: public commit `2d31efbd2230c28dfd23ad199ffab231c7a12b12`, direct child of f9da49e, 203 files. XEX2 inspector, tests and the history audit tool included; API verification of the commit and tree succeeded. The pre-push audit covered both commits and 213 reachable text objects. See `evidence/2026-10-02/public-audit/publication.json`.
 
-The public repository [ludovic111/OBSIDIAN-360](https://github.com/ludovic111/OBSIDIAN-360) is created. First commit: `f9da49e7cc39a3bf06983e97b9fffe73a8e63606`, no parent, 187 files. The GitHub API confirms public visibility, the main branch, the commit SHA, and equality of the remote tree with the audited export. Evidence: `evidence/2026-10-01/publication/verification.json`.
+The repository [ludovic111/obsidian-360](https://github.com/ludovic111/obsidian-360) is created as a public repository (originally under an uppercase name; it has since been made private). First commit: `f9da49e7cc39a3bf06983e97b9fffe73a8e63606`, no parent, 187 files. The GitHub API confirms public visibility, the main branch, the commit SHA, and equality of the remote tree with the audited export. Evidence: `evidence/2026-10-01/publication/verification.json`.
 
 Two captures were derived to mask the MAC address. Seventeen paths were excluded from the initial selection, including the original SHA manifest (replaced by the one for the derivatives), the binary acquisitions, the archives, and third-party excerpts kept locally. Upstream public attributions are preserved; no private Git identity of the operator is in the new history.
 

@@ -1,4 +1,4 @@
-# OBSIDIAN-360 — working instructions
+# obsidian-360 — working instructions
 
 - Read `docs/STATE.md`, then `docs/EXPERIMENTS.md`, before any hardware interaction.
 - Communicate with the user in French. Write repository documentation, comments, reports, and contribution material in English. Distinguish direct measurements, source analysis, hypotheses, and unverified results.

@@ -1,8 +1,8 @@
-# OBSIDIAN-360
+# obsidian-360
 
 **Understand the hardware. Preserve the evidence. Build a useful Linux system.**
 
-OBSIDIAN-360 is an ongoing hardware and systems research project for one Xbox 360. It combines console measurements, source and binary analysis, original tooling, kernel changes, a controller-oriented desktop, and documented recovery procedures. The repository is written in English.
+obsidian-360 is an ongoing hardware and systems research project for one Xbox 360. It combines console measurements, source and binary analysis, original tooling, kernel changes, a controller-oriented desktop, and documented recovery procedures. The repository is written in English.
 
 ## Verified status — October 2, 2026
 

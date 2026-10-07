@@ -9,7 +9,7 @@ The root MIT license covers original project tools, tests, and writing. It does 
 - The XEX2 parser is an original implementation of format facts cross-checked against Xenia `95a5c3ee250f80c3b9d139658649d9ffb6db3eec` and Free60. Neither Xenia binaries nor decryption code are bundled. The reference project's license notice is retained in `LICENSES/xenia-BSD.txt` for attribution.
 - The X11 harness rebuilds IceWM 4.0.0 (`5ebafddba37de22fc115d6cde43cb01cfc9ef263`) from its upstream archive; its binary is not tracked. Short compiler-diagnostic source excerpts retain the upstream GNU Library GPL version 2 license, copied in `LICENSES/icewm-LGPL-2.0.txt`. They are not relicensed under the original tests' MIT license.
 
-Upstream authors retain their rights. Repository links and exact revisions appear in `docs/SOURCES.md` and provenance reports. No upstream component is presented as an original OBSIDIAN-360 discovery or creation.
+Upstream authors retain their rights. Repository links and exact revisions appear in `docs/SOURCES.md` and provenance reports. No upstream component is presented as an original obsidian-360 discovery or creation.
 
 ## Audio and extracted-function tests
 
