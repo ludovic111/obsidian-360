@@ -1,6 +1,6 @@
 # Research objective
 
-The following is the full user-defined project objective. The overnight absence described in item 12 is historical: the user returned on October 2. All substantive research, recovery, evidence, and publication requirements remain active. Repository prose is now required to be in English.
+The following is the full user-defined project objective. The overnight absence described in item 12 is historical: the user returned on October 2. All substantive research, recovery, evidence, and publication requirements remain active. Repository prose is now required to be in English. The verbatim user-supplied text is kept in [OBJECTIVE-USER-2026-10-01-v2.md](OBJECTIVE-USER-2026-10-01-v2.md) (SHA-256 `3c5431252bc8c736c755523e760e855c451043434ca6172a29959f13ca45c9d5`), which supersedes the first detailed version, kept in [OBJECTIVE-USER-2026-10-01.md](OBJECTIVE-USER-2026-10-01.md).
 
 Your objective is to reverse-engineer this Xbox 360 as deeply and completely as possible and document everything inside this repository.
 

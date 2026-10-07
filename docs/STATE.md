@@ -82,6 +82,7 @@ The Rust XEX2 inspector works on synthetic structural fixtures. No legitimate ga
 - Earlier TX watchdog and USB keyboard symptoms are real observations with unresolved causes; do not combine them into a definitive hardware diagnosis.
 - The first IPI mask defect was reproduced and patched, but its callback is not the ordinary SMP IPI path in this branch.
 - The SMC cache bound and LED lifecycle fixes are in the booted base. The new bounded SMC post API is part of the separate audio work; historical SMC paths still contain unbounded behavior.
+- After the E10 recovery reboot, the boot log reported the optional `pkcs8_key_parser` module as missing (requested by `/usr/lib/modules-load.d/pkcs8.conf`); no unit failed. No kernel change was made for it; examine it separately if a cryptographic feature depends on it. Evidence: `evidence/2026-10-01/recovery.json`.
 - Package installation previously encountered a missing pacman keyring. Do not disable signature verification; investigate before installing new packages.
 - Direct flash BAR1 reading hung the console. Never rerun the archived probe without resolving the mechanism. XeLL HTTP page-size analysis alone does not validate a raw NAND backup, ECC, or bad-block handling.
 - Motherboard revision, NAND geometry, independent recovery, 1080p, GPU acceleration, reliable audio, and owned-game analysis remain unfinished.
