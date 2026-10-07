@@ -269,7 +269,7 @@
     {
       "path": "docs/PUBLICATION.md",
       "source_sha256": "7cf0602c53274a8d3089999bb3a656c8ffb4457e54df3d1e871d731de89e5f6d",
-      "public_sha256": "917baef79a26a25b92bc48ed927234dd663082d7383bea5a8f53ef9ef24096a6",
+      "public_sha256": "be1c6f2ae43398d7a870e57b05edb42464f917790c37a4ba33807ae751651f38",
       "sanitized": false
     },
     {
@@ -305,7 +305,7 @@
     {
       "path": "docs/STATE.md",
       "source_sha256": "3a586c3e409b9d88eb52c5407486e1a0044e7e137c2f32eb42fa312f8d96effe",
-      "public_sha256": "6c215048778c3c3f4285a051208095eb0843f97cd42976d619a6f896c7c4913e",
+      "public_sha256": "7c7e01155ac61b4f4ad538b711e3d1c9e23e07346613c9d5a75389223af900bd",
       "sanitized": false
     },
     {

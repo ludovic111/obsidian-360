@@ -8,7 +8,7 @@ Le dépôt [ludovic111/obsidian-360](https://github.com/ludovic111/obsidian-360)
 
 Deux relevés ont été dérivés pour masquer l'adresse MAC. Dix-sept chemins ont été exclus de la sélection initiale, dont le manifeste SHA original (remplacé par celui des dérivés), les acquisitions binaires, les archives et les extraits tiers retenus localement. Les attributions publiques amont restent conservées ; aucune identité Git privée de l'opérateur n'est dans le nouvel historique.
 
-Le checkout de publication local est `.local/public-export-reviewed-20261001`, avec son propre Git et son remote origin. Le dépôt de recherche principal suit désormais origin (`ludovic111/obsidian-360.git`) pour `main`, et la branche de recherche `research/bootstrap` y est aussi présente : ne pas en déduire que les modifications locales suivantes sont automatiquement publiées. Repréparer et auditer un export pour chaque mise à jour, sans mélanger les deux historiques.
+Le checkout de publication local est `.local/public-export-reviewed-20261001`, avec son propre Git et son remote origin. Le dépôt de recherche principal suit désormais origin (`ludovic111/obsidian-360.git`) pour `main`, tandis que la branche de recherche `research/bootstrap` reste locale, sans remote : ne pas en déduire que les modifications locales suivantes sont automatiquement publiées. Repréparer et auditer un export pour chaque mise à jour, sans mélanger les deux historiques.
 
 L'utilisateur autorise une publication GitHub publique dans l'objectif v2. Le dépôt de recherche local et son historique restent conservés : ils contiennent des traces et métadonnées personnelles qui ne doivent pas être poussées telles quelles.
 
