@@ -34,4 +34,4 @@ The driver copies pixels into the hardware's expected tiled layout. The correcte
 
 ALSA buffer ownership, DMA addresses, CPU mappings, descriptor lifetime, and hardware completion are separate contracts. E66 demonstrates that callback errors do not prevent managed buffers from being detached or freed. E72 demonstrates that a generic PCI wait may return success without reading a non-PCIe endpoint. Neither a software flag nor an MMIO readback alone establishes that hardware has finished all memory accesses.
 
-See the subsystem reports, [research map](RESEARCH-MAP.md), and [initial report](rapport-initial.txt) for the detailed evidence and open questions.
+See the subsystem reports, [research map](RESEARCH-MAP.md), and [initial report](INITIAL-REPORT.txt) for the detailed evidence and open questions.

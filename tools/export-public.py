@@ -13,7 +13,7 @@ TOP = {'README.md', 'AGENTS.md', '.gitignore', '.gitattributes', 'LICENSE',
 SUFFIXES = {'.md', '.py', '.c', '.h', '.patch', '.txt', '.json', '.log', '.config',
             '.csv', '.asm', '.sh', '.conf', '.hook', '.example', '.sha256', '.rs', '.toml', '.lock'}
 EXCLUDE = {
-    'docs/historique-installation.txt', 'docs/rapport-initial.txt',
+    'docs/INSTALLATION-HISTORY.txt', 'docs/INITIAL-REPORT.txt',
     'research/metadata/installed-state.json',
     'research/patches/0002-xell-allocate-physical-page.patch',
     'evidence/2026-10-01/boot-preflight/candidate-init.txt',

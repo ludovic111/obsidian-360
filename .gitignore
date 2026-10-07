@@ -1,4 +1,4 @@
-# Accès local, clés et acquisitions sensibles
+# Local access, keys and sensitive acquisitions
 .local/
 private/
 dumps-local/
@@ -16,7 +16,7 @@ id_rsa*
 *flashdmp*
 updflash.bin
 updxell.bin
-# Fichiers de travail
+# Working files
 __pycache__/
 **/target/
 *.pyc

@@ -1,10 +1,10 @@
-# Banc d'analyse hors console
+# Off-console analysis bench
 
-`check-memory-bounds.py` utilise Python 3 et un Clang disposant d'AddressSanitizer. Les sources externes sont récupérées localement dans `.local/upstream/` et identifiées par `evidence/2026-10-01/deep-audit/sources.json`. Ne pas remplacer silencieusement les commits figés par les dernières branches.
+`check-memory-bounds.py` uses Python 3 and a Clang with AddressSanitizer. External sources are fetched locally into `.local/upstream/` and identified by `evidence/2026-10-01/deep-audit/sources.json`. Do not silently replace the pinned commits with the latest branches.
 
-Les copies `.local/analysis-source/xenos.c` et `snd-xenon.c` proviennent des fichiers nouvellement ajoutés dans `patch-6.18-xenon0.30.diff`. `prepare-research-sources.py` vérifie les commits et empreintes avant de les extraire. L'empreinte de `xenos.c` est également consignée dans les résultats des tests.
+The copies `.local/analysis-source/xenos.c` and `snd-xenon.c` come from the files newly added in `patch-6.18-xenon0.30.diff`. `prepare-research-sources.py` verifies the commits and hashes before extracting them. The hash of `xenos.c` is also recorded in the test results.
 
-Exécution depuis la racine du dépôt :
+Run from the repository root:
 
 ```sh
 python3 tools/prepare-research-sources.py
@@ -19,71 +19,71 @@ python3 tools/analyze-video.py \
   --tables .local/upstream/libxenon/libxenon/drivers/xenos/xenos_videomodesdata.h
 ```
 
-Le premier programme vérifie quatre résolutions avec allocation initiale puis arrondie, et le gestionnaire HTTP XeLL avant/après correction du tampon. Il échoue si un dépassement attendu n'est pas détecté ou si un cas corrigé échoue. La compilation utilise `-O0` pour empêcher l'élimination des écritures graphiques dont le résultat n'est pas affiché. Les essais de dépassement ont lieu uniquement dans les processus locaux du banc.
+The first program checks four resolutions with the initial and then the rounded allocation, and the XeLL HTTP handler before/after the buffer fix. It fails if an expected overflow is not detected or if a corrected case fails. Compilation uses `-O0` to prevent elimination of graphics writes whose result is never displayed. Overflow attempts happen only inside the bench's local processes.
 
-Le second programme ne lit que des fichiers ; il ne programme aucun registre. Il vérifie la longueur de la capture et des tables, puis expose les différences sans assimiler la comparaison à une validation matérielle.
+The second program only reads files; it programs no register. It checks the length of the capture and of the tables, then reports the differences without treating the comparison as hardware validation.
 
-Collecte vivante, après lecture de STATE et EXPERIMENTS :
+Live collection, after reading STATE and EXPERIMENTS:
 
 ```sh
 ./tools/ssh-xbox 'python3 -' < tools/collect-runtime.py
 ```
 
-Cette collecte utilise `/proc`, des attributs sysfs standards et des commandes d'état. Elle ne lit ni BAR PCI, ni `/dev/mem`, ni NAND, ni eFuses ; elle ne relève pas d'adresse IP ou de clé. Les sorties restent des instantanés et les erreurs sont conservées.
+This collection uses `/proc`, standard sysfs attributes and status commands. It reads no PCI BAR, no `/dev/mem`, no NAND and no eFuses; it records no IP address or key. The outputs remain snapshots and errors are kept.
 
-## Cache SMC et compilation
+## SMC cache and compilation
 
-`check-smc-cache.py --original CHEMIN_SOURCE --candidate CHEMIN_CORRIGE` compile le tableau et la fonction de recherche réels dans un processus ASan local. Les identifiants connus et l'ensemble des 256 valeurs possibles sont testés dans les deux variantes. Aucun périphérique n'est ouvert. Les chemins et SHA-256 de l'expérience sont décrits dans `docs/SMC-AUDIT-2026-10-01.md` et `smc-audit/cache-bounds.json`.
+`check-smc-cache.py --original SOURCE_PATH --candidate CORRECTED_PATH` compiles the real table and lookup function in a local ASan process. The known identifiers and all 256 possible values are tested in both variants. No device is opened. The experiment's paths and SHA-256 values are described in `docs/SMC-AUDIT-2026-10-01.md` and `smc-audit/cache-bounds.json`.
 
-`tools/build-kernel.py --source CHEMIN_SOURCE --output CHEMIN_BUILD --jobs 4` compile une arborescence déjà préparée, avec son `.config`, dans l'image locale LLVM 16. Il ne télécharge, n'installe et ne démarre rien sur la Xbox. Conserver le journal et suivre le processus existant avant toute reprise ; voir `docs/SESSION-RECOVERY.md`. Le succès de `vmlinux` ne vaut pas validation des modules, du chargeur ni du fonctionnement physique.
+`tools/build-kernel.py --source SOURCE_PATH --output BUILD_PATH --jobs 4` compiles an already prepared tree, with its `.config`, in the local LLVM 16 image. It downloads, installs and boots nothing on the Xbox. Keep the log and follow the existing process before any resumption; see `docs/SESSION-RECOVERY.md`. A successful `vmlinux` does not validate the modules, the loader or physical operation.
 
-## Cycle de vie LED
+## LED lifecycle
 
 ```sh
-python3 research/tests/check-led-lifecycle.py --source CHEMIN_LED_CORRIGE --output CHEMIN_RAPPORT.json
+python3 research/tests/check-led-lifecycle.py --source CORRECTED_LED_PATH --output REPORT_PATH.json
 ```
 
-Le fichier C réel est compilé avec ASan/UBSan et des modèles de ressources/FIFO. Les 21 cas comprennent neuf échecs d'allocation, huit échecs d'enregistrement LED, les erreurs de création du pilote/périphérique, le report de probe et le succès avec retrait. Les en-têtes et le main du banc sont adjacents au script. Aucune vérification de concurrence physique ; voir `docs/LED-AUDIT-2026-10-01.md`.
+The real C file is compiled with ASan/UBSan and resource/FIFO models. The 21 cases include nine allocation failures, eight LED registration failures, driver/device creation errors, probe deferral, and success with removal. The bench's headers and main are next to the script. No physical concurrency is verified; see `docs/LED-AUDIT-2026-10-01.md`.
 
-`tools/check-kernel-artifacts.py` vérifie le format et la version des modules de `modules.order`, ainsi que six sections entre le noyau et son image. Le rapport est publié seulement si ces contrôles passent ; il ne prouve pas un démarrage.
+`tools/check-kernel-artifacts.py` checks the format and version of the modules in `modules.order`, as well as six sections between the kernel and its image. The report is published only if these checks pass; it does not prove a boot.
 
-## Traces vidéo
+## Video traces
 
-`tools/trace-video-modes.py` exécute les fonctions C f1/f2 réelles de libxenon sur le Mac sous ASan/UBSan et remplace les accès GPU par une trace bornée. Les tables standard/Corona sont parcourues, puis les valeurs finales sont comparées à une capture ancienne. L'attente LUT est simulée ; aucune validation d'horloge, d'ANA ou de sortie vidéo physique. Commande et limites dans `docs/VIDEO-MODE-TRACE-2026-10-01.md`.
+`tools/trace-video-modes.py` runs the real libxenon f1/f2 C functions on the Mac under ASan/UBSan and replaces GPU accesses with a bounded trace. The standard/Corona tables are walked, then the final values are compared with an older capture. The LUT wait is simulated; there is no validation of clocks, ANA or physical video output. Command and limits in `docs/VIDEO-MODE-TRACE-2026-10-01.md`.
 
-## Publication et exécutables
+## Publication and executables
 
-`python3 research/tests/check-public-audit.py` utilise un Git temporaire avec données fictives. Il vérifie contenu non audité, empreinte modifiée, motif de jeton factice et persistance du motif dans un ancien commit après nettoyage du fichier courant. Il n'accède à aucune vraie clé.
+`python3 research/tests/check-public-audit.py` uses a temporary Git repository with dummy data. It checks unaudited content, a modified hash, a dummy token pattern, and persistence of the pattern in an older commit after the current file is cleaned. It accesses no real key.
 
-Le parseur Rust et les neuf essais de sa CLI sont décrits dans `game-analysis/xex-inspect/README.md`. Les échantillons synthétiques sont construits pendant les tests ; aucun fichier XEX commercial n'est nécessaire.
+The Rust parser and the nine tests of its CLI are described in `game-analysis/xex-inspect/README.md`. The synthetic samples are built during the tests; no commercial XEX file is needed.
 
-## Audio : modèles de fonctions réelles
+## Audio: models of real functions
 
-- `check-audio-buffers.py` : 16 369 tailles, descripteurs et ancienne boucle de cache. La boucle supprimée après 0011 représente zéro cas candidat, pas une validation du cache réel. Sortie JSON sur stdout.
-- `check-audio-lifecycle.py` : treize scénarios originaux et vingt candidats après 0011/0012, bilan des ressources et injections d’erreurs.
-- `check-smc-post.py` : dix-neuf scénarios SMC avec fonctions et macros iopoll extraites.
-- `check-audio-pcm.py` : quinze scénarios après 0012 ; zones mémoire, contraintes, tailles, adresses, fermeture séquentielle et refus du timer basse résolution.
-- `check-audio-poll.py` : un scénario précédent reproduit deux défauts ; quinze scénarios candidats vérifient progression, arrêt et un entrelacement pthread contrôlé pendant la libération.
-- `check-audio-submission.py` : reproduit 96 cas de publication non idempotente, un débordement signé attendu dans les helpers ALSA et un cas de bloc partiel sous hypothèse de protocole. Il ne valide pas une correction.
+- `check-audio-buffers.py`: 16,369 sizes, descriptors and the old cache loop. The loop removed after 0011 represents zero candidate cases, not a validation of the real cache. JSON output on stdout.
+- `check-audio-lifecycle.py`: thirteen original scenarios and twenty candidate scenarios after 0011/0012, resource accounting and error injection.
+- `check-smc-post.py`: nineteen SMC scenarios with extracted functions and iopoll macros.
+- `check-audio-pcm.py`: fifteen scenarios after 0012; memory areas, constraints, sizes, addresses, sequential close and rejection of the low-resolution timer.
+- `check-audio-poll.py`: one earlier scenario reproduces two defects; fifteen candidate scenarios check progress, stop, and a controlled pthread interleaving during release.
+- `check-audio-submission.py`: reproduces 96 cases of non-idempotent publication, an expected signed overflow in the ALSA helpers, and a partial-block case under a protocol hypothesis. It does not validate a fix.
 
-Recettes et limites dans `docs/AUDIO-PCM-DMA.md`, `docs/AUDIO-STREAM-POLLING.md` et `docs/AUDIO-SUBMISSION-AUDIT.md`. ASan/UBSan ne remplace ni tests matériels, ni preuves générales de concurrence. `check-kernel-artifacts.py --kernel-only` valide noyau/modules sans exiger d’image de démarrage.
+Recipes and limits in `docs/AUDIO-PCM-DMA.md`, `docs/AUDIO-STREAM-POLLING.md` and `docs/AUDIO-SUBMISSION-AUDIT.md`. ASan/UBSan replace neither hardware tests nor general concurrency proofs. `check-kernel-artifacts.py --kernel-only` validates the kernel/modules without requiring a boot image.
 
-`check-audio-queue.py` teste le composant original de `research/audio/` avec une file de contenu de référence, 512 tailles et deux flux entrelacés. Il compare les frames synthétiques et le silence final, pas des registres ou de la mémoire DMA réelle. Voir `research/audio/README.md`.
+`check-audio-queue.py` tests the original component in `research/audio/` with a reference content queue, 512 sizes and two interleaved streams. It compares synthetic frames and the final silence, not registers or real DMA memory. See `research/audio/README.md`.
 
-## Adaptateur ALSA (E60)
+## ALSA adapter (E60)
 
-`check-audio-adapter.py --source CANDIDAT --kernel SOURCE_LINUX --output RAPPORT` extrait les callbacks du correctif 0013, le rollback applicatif réel et les gardes mmap ALSA. Quinze scénarios, dont les 512 tailles et une fermeture concurrente contrôlée. Les registres et achèvements DMA sont simulés ; la stagnation du dernier bloc doit produire une erreur, pas un succès. Voir `docs/AUDIO-ALSA-ADAPTER.md`.
+`check-audio-adapter.py --source CANDIDATE --kernel LINUX_SOURCE --output REPORT` extracts the callbacks of patch 0013, the real application rollback and the ALSA mmap guards. Fifteen scenarios, including the 512 sizes and a controlled concurrent close. Registers and DMA completions are simulated; a stalled last block must produce an error, not a success. See `docs/AUDIO-ALSA-ADAPTER.md`.
 
-## Descripteurs et piste de registres audio (E62)
+## Descriptors and audio register lead (E62)
 
-`check-audio-descriptors.py` compare les prepare avant/après 0014 sur 512 tailles et 16 384 entrées par variante. Il compile les définitions de registres SiS réelles et exécute les fonctions LibXenon sur des mots simulés. La concordance de sources ne démontre ni le protocole Xbox ni la fin de sortie sonore. Recette et limites : `docs/AUDIO-REGISTER-HYPOTHESIS.md`.
-
-
-## Arrêt audio et durée de vie ALSA (E65/E66)
-
-`check-audio-stop.py` teste le filtre et l'emprise de l'unique écriture sur mémoire ordinaire, sans matériel. `check-audio-free-contract.py --kernel SOURCE --output RAPPORT` extrait trois fonctions ALSA pour confronter les retours d'erreur à la libération et au détachement des tampons. Le comportement réel du canal analogique et les limites sont dans `docs/AUDIO-STOP-EXPERIMENT.md`. Les tests n'exécutent pas l'outil matériel.
+`check-audio-descriptors.py` compares the prepare functions before/after 0014 over 512 sizes and 16,384 entries per variant. It compiles the real SiS register definitions and runs the LibXenon functions on simulated words. Agreement between sources demonstrates neither the Xbox protocol nor the end of sound output. Recipe and limits: `docs/AUDIO-REGISTER-HYPOTHESIS.md`.
 
 
-## Protocole analogique et horloges (E67–E70)
+## Audio stop and ALSA lifetime (E65/E66)
 
-`check-audio-protocol-step.py` vérifie le sélecteur, les préconditions et l'emprise des écritures ACK/reset sur mémoire ordinaire. Il ne lance pas les opérations matérielles. `check-clock-analysis.py` teste les bornes temporelles avec un taux connu et des captures invalides. `tools/measure-clock-drift.py --analyze CAPTURE --output NOUVEAU_RAPPORT` reproduit l'analyse sans accès SSH ; sans --analyze, il effectue seulement des lectures standard sur la console. Voir `docs/AUDIO-ACK-RESET.md` et `docs/TIMEBASE-CALIBRATION.md`.
+`check-audio-stop.py` tests the filter and the footprint of the single write on ordinary memory, without hardware. `check-audio-free-contract.py --kernel SOURCE --output REPORT` extracts three ALSA functions to compare the error returns with buffer release and detachment. The real behavior of the analog channel and the limits are in `docs/AUDIO-STOP-EXPERIMENT.md`. The tests do not run the hardware tool.
+
+
+## Analog protocol and clocks (E67–E70)
+
+`check-audio-protocol-step.py` checks the selector, the preconditions and the footprint of the ACK/reset writes on ordinary memory. It does not launch the hardware operations. `check-clock-analysis.py` tests the timing bounds with a known rate and invalid captures. `tools/measure-clock-drift.py --analyze CAPTURE --output NEW_REPORT` reproduces the analysis without SSH access; without --analyze, it only performs standard reads on the console. See `docs/AUDIO-ACK-RESET.md` and `docs/TIMEBASE-CALIBRATION.md`.

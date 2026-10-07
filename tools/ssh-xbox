@@ -4,7 +4,7 @@ repo_dir=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 config="$repo_dir/.local/ssh_config"
 if [ ! -f "$config" ]; then
     printf '%s
-' 'Configuration locale absente : créer .local/ssh_config à partir du modèle.' >&2
+' 'Local configuration missing: create .local/ssh_config from the example (tools/ssh_config.example).' >&2
     exit 1
 fi
 exec ssh -F "$config" xbox "$@"

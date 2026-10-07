@@ -103,18 +103,18 @@ class Desktop:
         self.state_dir = Path.home()/'.local/state/xbox-desktop'
         self.state_dir.mkdir(parents=True, exist_ok=True)
         self.label('XBOX  /  LINUX', 31, '#8bdc43').pack(anchor='w', padx=34, pady=(24,4))
-        self.label('Votre bureau à la manette', 16, '#cbd6c7').pack(anchor='w', padx=36)
-        self.status = self.label('Connexion à la manette…', 12, '#a7b69f')
+        self.label('Your desktop, controller-driven', 16, '#cbd6c7').pack(anchor='w', padx=36)
+        self.status = self.label('Connecting to the controller…', 12, '#a7b69f')
         self.status.pack(anchor='w', padx=36, pady=(7,12))
         grid = tk.Frame(self.root, bg='#101610')
         grid.pack(fill='both', expand=True, padx=30, pady=4)
         tiles = [
-            ('Fichiers', 'Explorer le disque', lambda: self.launch('pcmanfm')),
-            ('Terminal', 'Ouvrir une console', lambda: self.launch('xterm','-fa','DejaVu Sans Mono','-fs','13')),
-            ('Clavier', 'Y dans une application', self.toggle_keyboard),
-            ('Commandes', 'Les boutons de la manette', self.help),
-            ('Système', 'Mémoire et stockage', self.info),
-            ('Éteindre', 'Arrêter proprement la Xbox', self.poweroff),
+            ('Files', 'Browse the disk', lambda: self.launch('pcmanfm')),
+            ('Terminal', 'Open a console', lambda: self.launch('xterm','-fa','DejaVu Sans Mono','-fs','13')),
+            ('Keyboard', 'Y inside an application', self.toggle_keyboard),
+            ('Controls', 'The controller buttons', self.help),
+            ('System', 'Memory and storage', self.info),
+            ('Shut Down', 'Cleanly power off the Xbox', self.poweroff),
         ]
         for i, (title, desc, action) in enumerate(tiles):
             b=tk.Button(grid,text=f'{title}\n{desc}',command=action,font=('DejaVu Sans',17),
@@ -125,8 +125,8 @@ class Desktop:
             self.buttons.append(b)
         for c in range(3): grid.columnconfigure(c,weight=1,uniform='tiles')
         for r in range(2): grid.rowconfigure(r,weight=1,uniform='rows')
-        self.label('STICK GAUCHE  Pointeur     A  Clic     X  Clic droit     B  Retour',12,'#cbd6c7').pack(pady=(16,4))
-        self.label('STICK DROIT  Défiler     Y  Clavier     START  Accueil     RB  Entrée',12,'#a7b69f').pack(pady=(0,18))
+        self.label('LEFT STICK  Pointer     A  Click     X  Right click     B  Back',12,'#cbd6c7').pack(pady=(16,4))
+        self.label('RIGHT STICK  Scroll     Y  Keyboard     START  Home     RB  Enter',12,'#a7b69f').pack(pady=(0,18))
         for key, delta in [('Left',-1),('Right',1),('Up',-3),('Down',3)]:
             self.root.bind('<'+key+'>',lambda e,d=delta:self.select(d))
         self.root.bind('<Return>',lambda e:self.buttons[self.selected].invoke())
@@ -156,17 +156,17 @@ class Desktop:
         subprocess.Popen(cmd,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
 
     def help(self):
-        self.messagebox.showinfo('Commandes','Stick gauche : pointeur\nA : clic / glisser\nX : clic droit\nB : Échap / retour\nY : clavier à l’écran\nStick droit : défilement\nCroix : flèches\nLB : effacer\nRB : Entrée\nBACK : Tabulation\nSTART : revenir à cet accueil',parent=self.root)
+        self.messagebox.showinfo('Controls','Left stick: pointer\nA: click / drag\nX: right click\nB: Escape / back\nY: on-screen keyboard\nRight stick: scroll\nD-pad: arrow keys\nLB: backspace\nRB: Enter\nBACK: Tab\nSTART: return to this home screen',parent=self.root)
 
     def info(self):
         mem={l.split(':')[0]:int(l.split()[1]) for l in Path('/proc/meminfo').read_text().splitlines()}
         s=os.statvfs('/')
-        self.messagebox.showinfo('Système',f'ArchPOWER · Xbox 360\n\nRAM disponible : {mem["MemAvailable"]//1024} Mo\nSwap : {mem["SwapTotal"]//1024} Mo\nDisque libre : {s.f_bavail*s.f_frsize/2**30:.1f} Gio\n\nBureau léger, rendu sans effets 3D.',parent=self.root)
+        self.messagebox.showinfo('System',f'ArchPOWER · Xbox 360\n\nAvailable RAM: {mem["MemAvailable"]//1024} MiB\nSwap: {mem["SwapTotal"]//1024} MiB\nFree disk: {s.f_bavail*s.f_frsize/2**30:.1f} GiB\n\nLightweight desktop, rendered without 3D effects.',parent=self.root)
 
     def poweroff(self):
-        if self.messagebox.askyesno('Éteindre','Éteindre la Xbox maintenant ?',default='no',parent=self.root):
+        if self.messagebox.askyesno('Shut Down','Shut down the Xbox now?',default='no',parent=self.root):
             r=subprocess.run(['systemctl','poweroff'],capture_output=True,text=True)
-            if r.returncode:self.messagebox.showerror('Arrêt',r.stderr,parent=self.root)
+            if r.returncode:self.messagebox.showerror('Shutdown',r.stderr,parent=self.root)
 
     def type_key(self, symbol):
         self.x.set_focus(self.keyboard_target)
@@ -196,12 +196,12 @@ class Desktop:
                     bg='#2a3a28',fg='white',activebackground='#50733a',relief='flat',
                     command=lambda v=key:self.type_key(v)).pack(side='left',fill='both',expand=True,padx=2)
         f=self.tk.Frame(k,bg='#111b12'); f.pack(fill='both',expand=True,padx=6,pady=3)
-        for text,key in [('Tab','Tab'),('Espace','space'),('Effacer','BackSpace'),('Entrée','Return')]:
+        for text,key in [('Tab','Tab'),('Space','space'),('Backspace','BackSpace'),('Enter','Return')]:
             self.tk.Button(f,text=text,command=lambda v=key:self.type_key(v),takefocus=False,
                 font=('DejaVu Sans',13),bg='#37502b',fg='white',relief='flat').pack(side='left',fill='both',expand=True,padx=2)
-        self.tk.Button(f,text='Maj ⇧',command=lambda:setattr(self,'shifted',not self.shifted),takefocus=False,
+        self.tk.Button(f,text='Shift ⇧',command=lambda:setattr(self,'shifted',not self.shifted),takefocus=False,
             font=('DejaVu Sans',13),bg='#37502b',fg='white',relief='flat').pack(side='left',fill='both',expand=True,padx=2)
-        self.tk.Button(f,text='Fermer · Y',command=self.toggle_keyboard,takefocus=False,
+        self.tk.Button(f,text='Close · Y',command=self.toggle_keyboard,takefocus=False,
             font=('DejaVu Sans',13),bg='#50733a',fg='white',relief='flat').pack(side='left',fill='both',expand=True,padx=2)
         self.root.after(60,lambda:self.x.set_focus(self.keyboard_target))
 
@@ -237,7 +237,7 @@ class Desktop:
         try:
             if self.fd is None:
                 self.fd=os.open('/dev/input/js0',os.O_RDONLY|os.O_NONBLOCK)
-                self.status.config(text='MANETTE DÉTECTÉE  ·  Stick pour déplacer le pointeur')
+                self.status.config(text='CONTROLLER DETECTED  ·  Use the stick to move the pointer')
             while True:
                 try: data=os.read(self.fd,512)
                 except BlockingIOError:break
@@ -245,7 +245,7 @@ class Desktop:
                 for _,val,typ,num in struct.iter_unpack('=IhBB',data):self.event(typ,num,val)
         except OSError:
             if self.fd is not None:os.close(self.fd); self.fd=None; self.release()
-            self.status.config(text='Allumez la manette Xbox 360')
+            self.status.config(text='Turn on the Xbox 360 controller')
         delta=[]
         for n in (0,1):
             value=stick(self.axes.get(n,0))*780*dt+self.remainder[n]

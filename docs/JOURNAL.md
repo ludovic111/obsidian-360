@@ -1,304 +1,304 @@
-# Journal chronologique
+# Chronological journal
 
-Horodatages en UTC. Les expériences antérieures E01–E38 sont décrites dans EXPERIMENTS avec leurs preuves datées ; ne pas inventer d'horodatage de manipulation lorsqu'il n'a pas été enregistré.
+Timestamps in UTC. Earlier experiments E01–E38 are described in EXPERIMENTS with their dated evidence; do not invent a timestamp for a hands-on action when none was recorded.
 
 ## 2026-10-01 — 21:45:47 — E38
 
-- Objectif : identifier le noyau réellement démarré après sélection utilisateur.
-- Action : SSH, état du bureau, udev, journal graphique et interfaces standard.
-- Observation : obsidian4, racine interne, Xorg/IceWM actifs, allocation 0x398000, zéro service en échec.
-- Résultat : premier démarrage candidat confirmé.
-- Interprétation : activation effective du correctif graphique ; pas de preuve de stabilité prolongée ni de cause du gel antérieur.
-- Suite : établir une référence de performances sans changer la configuration.
+- Objective: identify the kernel actually booted after user selection.
+- Action: SSH, desktop state, udev, graphics log and standard interfaces.
+- Observation: obsidian4, internal root, Xorg/IceWM active, allocation 0x398000, zero failed services.
+- Result: first candidate boot confirmed.
+- Interpretation: graphics fix effectively active; no evidence of prolonged stability or of the cause of the earlier freeze.
+- Next: establish a performance baseline without changing the configuration.
 
 ## 2026-10-01 — 21:50:15 — E39
 
-- Objectif : mesurer boot, mémoire, topologie et deux charges userspace courtes.
-- Action : collect-baseline.py avec trois échantillons puis collect-boot-detail.py.
-- Observation : cible graphique à 34,1 s, 118,5 Mio disponibles au premier relevé, SHA-256 médian 22,553 Mio/s ; deux analyses systemd expirées.
-- Résultat : référence conservée et suivi ciblé réussi ; /proc/slabinfo absent, erreur initiale conservée puis interface rendue facultative.
-- Interprétation : référence d'un démarrage ; la copie Python ne mesure pas la RAM brute, la cible graphique ne mesure pas le bureau visible.
-- Suite : décomposer le démarrage et la mémoire ; comparer toute optimisation future à une méthode équivalente.
+- Objective: measure boot, memory, topology and two short userspace workloads.
+- Action: collect-baseline.py with three samples, then collect-boot-detail.py.
+- Observation: graphical target at 34.1 s, 118.5 MiB available at the first reading, median SHA-256 22.553 MiB/s; two systemd analyses timed out.
+- Result: baseline kept and targeted follow-up succeeded; /proc/slabinfo absent, initial error kept, then interface made optional.
+- Interpretation: baseline of a single boot; the Python copy does not measure raw RAM, and the graphical target does not measure the visible desktop.
+- Next: break down boot and memory; compare any future optimization using an equivalent method.
 
-## 2026-10-01 — révision d'objectif pendant E39
+## 2026-10-01 — objective revision during E39
 
-- Objectif : intégrer le texte de référence actualisé sans perdre l'historique.
-- Action : conserver les deux versions détaillées, leurs empreintes et une carte des inconnues.
-- Observation : ajout de l'analyse des jeux, de la modernisation, de l'autonomie nocturne et d'une autorisation GitHub publique conditionnée à l'audit.
-- Résultat : OBJECTIVE, RESEARCH-MAP et BLOCKED mis à jour.
-- Interprétation : la publication n'autorise pas l'envoi des données confidentielles ni de l'ancien historique privé.
-- Suite : export public contrôlé, licence et instructions reproductibles. Aucun reboot demandé à l'utilisateur absent.
+- Objective: integrate the updated reference text without losing history.
+- Action: keep both detailed versions, their hashes and a map of unknowns.
+- Observation: addition of game analysis, modernization, overnight autonomy and a public GitHub authorization conditional on audit.
+- Result: OBJECTIVE, RESEARCH-MAP and BLOCKED updated.
+- Interpretation: publication does not authorize sending confidential data or the old private history.
+- Next: controlled public export, license and reproducible instructions. No reboot requested from the absent user.
 
 ## 2026-10-01 — 22:01 UTC — E40
 
-- Objectif : publier le projet autorisé sans exporter l'historique privé.
-- Action : export textuel à sélection explicite, contrôle des empreintes, recherche de secrets/identifiants, compilation syntaxique des scripts Python, nouveau Git avec identité de projet, audit des objets atteignables puis création/push GitHub.
-- Observation : première revue trouve l'adresse MAC dans deux relevés ; ajout d'une règle bloquante et masquage dans les dérivés. Originaux locaux intacts. Attributions amont distinguées des données personnelles de l'opérateur.
-- Résultat : 187 fichiers publics, 17 chemins exclus de la sélection initiale ; premier commit f9da49e sans parent. L'API GitHub confirme visibilité publique et arbre identique à l'export contrôlé.
-- Interprétation : publication de connaissances/outils et de preuves sélectionnées, pas distribution de firmware ou de jeux. Le scanner de motifs n'est pas une preuve universelle d'absence de secrets.
-- Suite : maintenir les deux historiques séparés, actualiser les exports après audit, poursuivre les mesures et l'analyse de formats avec échantillons synthétiques en attendant des supports légitimes accessibles.
+- Objective: publish the authorized project without exporting the private history.
+- Action: text export with explicit selection, hash checks, search for secrets/identifiers, syntax compilation of the Python scripts, new Git with project identity, audit of reachable objects, then GitHub creation/push.
+- Observation: the first review finds the MAC address in two records; blocking rule added and masking applied in derived files. Local originals intact. Upstream attributions distinguished from the operator's personal data.
+- Result: 187 public files, 17 paths excluded from the initial selection; first commit f9da49e with no parent. The GitHub API confirms public visibility and a tree identical to the controlled export.
+- Interpretation: publication of knowledge/tools and selected evidence, not distribution of firmware or games. The pattern scanner is not universal proof of the absence of secrets.
+- Next: keep the two histories separate, refresh exports after audit, continue measurements and format analysis with synthetic samples while waiting for accessible legitimate media.
 
 ## 2026-10-02T07:07:37.271107+00:00 — E41
 
-- Objectif : préparer une inspection reproductible des exécutables de jeux sans acquérir ni distribuer de binaire propriétaire.
-- Action : lecture des sources Xenia figées et Free60, implémentation Rust originale, tests structurels et CLI avec échantillons synthétiques.
-- Observation : différence de traitement des clés à taille zéro dans les références ; dix tests Rust et neuf cas CLI passent, ainsi que 10 000 mutations déterministes.
-- Résultat : JSON structurel, bornes vérifiées, champs opaques non lus dans le test instrumenté ; fichiers d'entrée inchangés.
-- Interprétation : outil de métadonnées validé sur l'hôte ; pas d'authentification, de désassemblage de jeu ou de validation sur fichier commercial.
-- Suite : validation de compatibilité sur entrée légitime, formats des imports et PE, puis profilage ; export et audit public avant publication. Aucune interaction avec la console pendant E41.
+- Objective: prepare a reproducible inspection of game executables without acquiring or distributing any proprietary binary.
+- Action: reading of pinned Xenia and Free60 sources, original Rust implementation, structural and CLI tests with synthetic samples.
+- Observation: difference in handling of zero-size keys across the references; ten Rust tests and nine CLI cases pass, as well as 10,000 deterministic mutations.
+- Result: structural JSON, checked bounds, opaque fields not read in the instrumented test; input files unchanged.
+- Interpretation: metadata tool validated on the host; no authentication, game disassembly or validation on a commercial file.
+- Next: compatibility validation on legitimate input, import and PE formats, then profiling; export and public audit before publication. No interaction with the console during E41.
 
 ## 2026-10-02T07:10:20.726239+00:00 — E42
 
-- Objectif : rendre reproductible l'audit exigé avant chaque publication.
-- Action : contrôle du manifeste, de la sélection, des sommes de preuve et des objets Git atteignables ; cinq cas dans un dépôt jetable.
-- Observation : le contrôle trouve aussi le marqueur factice retiré du fichier courant mais toujours présent dans un ancien commit.
-- Résultat : cinq cas aux résultats attendus ; historique public existant audité sans anomalie détectée.
-- Interprétation : contrôle de motifs et provenance, avec limites explicites ; ne démontre pas l'absence de tout secret arbitraire.
-- Suite : exporter les sources Rust et leurs preuves, auditer avant commit puis avant push, vérifier le SHA distant.
+- Objective: make the audit required before each publication reproducible.
+- Action: check of the manifest, the selection, the evidence checksums and reachable Git objects; five cases in a throwaway repository.
+- Observation: the check also finds the dummy marker removed from the current file but still present in an old commit.
+- Result: five cases with the expected results; existing public history audited with no anomaly detected.
+- Interpretation: pattern and provenance check, with explicit limits; does not demonstrate the absence of every arbitrary secret.
+- Next: export the Rust sources and their evidence, audit before commit and then before push, verify the remote SHA.
 
-Publication E41/E42 vérifiée à 2026-10-02T07:14:53.060765+00:00 : commit public `2d31efbd2230c28dfd23ad199ffab231c7a12b12`, 203 fichiers, arbre GitHub identique à l'export audité. Dix tests Rust passent aussi après compilation dans le checkout public. Historique local privé non poussé.
+E41/E42 publication verified at 2026-10-02T07:14:53.060765+00:00: public commit `2d31efbd2230c28dfd23ad199ffab231c7a12b12`, 203 files, GitHub tree identical to the audited export. Ten Rust tests also pass after compilation in the public checkout. Private local history not pushed.
 
-## 2026-10-02 — matin — E43/E44
+## 2026-10-02 — morning — E43/E44
 
-- Objectif : vérifier le fonctionnement prolongé, puis profiter du retour de l’utilisateur pour diagnostiquer le lecteur.
-- Action : interfaces Linux standards ; observation douze secondes du lanceur ; CD musical inséré par l’utilisateur, lecture TOC et quatre secteurs audio.
-- Observation : obsidian4 actif après neuf heures, aucun service en échec ; aucune écriture observée du lanceur pendant la fenêtre. Le CD présente 20 pistes ; trois positions audio lisibles, relecture de la première identique.
-- Résultat : première preuve de lecture effective du lecteur, limitée au CD et aux secteurs échantillonnés. Métadonnées et empreintes conservées, pas le contenu audio.
-- Interprétation : la piste initiale de réécritures inutiles du lanceur vient du code, mais n’est pas confirmée sur le processus vivant ; ne pas revendiquer un gain. La panne DVD n’est ni identifiée ni réparée.
-- Suite : comparaison avec DVD demandée ; diagnostic du lanceur et mesures avant tout changement. Pas de redémarrage ni commande firmware.
+- Objective: verify prolonged operation, then take advantage of the user's return to diagnose the drive.
+- Action: standard Linux interfaces; twelve-second observation of the launcher; audio CD inserted by the user, TOC read and four audio sectors.
+- Observation: obsidian4 active after nine hours, no failed service; no launcher write observed during the window. The CD has 20 tracks; three audio positions readable, reread of the first one identical.
+- Result: first evidence of the drive actually reading, limited to the CD and the sampled sectors. Metadata and hashes kept, not the audio content.
+- Interpretation: the initial lead of unnecessary rewrites by the launcher comes from the code, but is not confirmed on the live process; do not claim a gain. The DVD fault is neither identified nor repaired.
+- Next: comparison with a DVD requested; launcher diagnosis and measurements before any change. No reboot or firmware command.
 
 ## 2026-10-02 — 07:30–07:37 UTC Mac — E45/E46
 
-- Objectif : comparer CD/DVD et rétablir le bureau figé.
-- Action : disque Just Cause 2 inséré par l’utilisateur ; lecture et statut SCSI standards. Diagnostic graphique et relances ciblées, sans redémarrage Linux.
-- Observation : le lecteur renvoie « medium not present » pour le jeu. L’utilisateur corrige son premier retour : redimensionnement la veille suivi d’un gel. L’arrêt forcé du gestionnaire, contrairement à celui du lanceur et au SIGHUP, rétablit les requêtes X11.
-- Résultat : OpaqueMove/Resize activés avec sauvegarde des préférences ; manette rouverte par le lanceur. Cinq tests synthétiques de sense passent.
-- Interprétation : mécanisme XGrabServer cohérent avec le code et les symptômes ; pas encore reproduction contrôlée ni confirmation manuelle du correctif. Différence CD/DVD réelle, pièce fautive encore inconnue.
-- Suite : utilisateur invité à redimensionner de nouveau ; besoin d’un DVD vidéo connu fonctionnel pour distinguer panne DVD et disque particulier.
+- Objective: compare CD/DVD and restore the frozen desktop.
+- Action: Just Cause 2 disc inserted by the user; standard read and SCSI status. Graphics diagnosis and targeted restarts, without a Linux reboot.
+- Observation: the drive returns "medium not present" for the game. The user corrects their first report: a resize the day before, followed by a freeze. Force-stopping the window manager, unlike stopping the launcher and SIGHUP, restores X11 requests.
+- Result: OpaqueMove/Resize enabled with a backup of the preferences; controller reopened by the launcher. Five synthetic sense tests pass.
+- Interpretation: XGrabServer mechanism consistent with the code and the symptoms; not yet a controlled reproduction nor manual confirmation of the fix. CD/DVD difference is real, faulty part still unknown.
+- Next: user invited to resize again; a known-working video DVD is needed to distinguish a DVD fault from a particular disc.
 
-Publication E43–E46 vérifiée à 2026-10-02T07:41:15.538940+00:00 : commit public `ec431c9c7e114e11074628d0fb95358d1128a752`, 221 fichiers, arbre distant identique ; preuve `public-audit/optical-publication.json`. Validation manuelle du redimensionnement encore attendue.
+E43–E46 publication verified at 2026-10-02T07:41:15.538940+00:00: public commit `ec431c9c7e114e11074628d0fb95358d1128a752`, 221 files, remote tree identical; evidence `public-audit/optical-publication.json`. Manual validation of resizing still pending.
 
 ## 2026-10-02 — 07:42–07:49 UTC — E47
 
-- Objectif : dépasser l’hypothèse de blocage au redimensionnement en reproduisant le mécanisme indépendamment du matériel Xbox.
-- Action : service Docker initialement arrêté, redémarré après vérification de son état ; source IceWM 4.0.0 figée et contrôlée, compilation aarch64, deux serveurs Xvfb privés sans réseau ni socket graphique hôte.
-- Observation : l’ancien mode empêche la fin d’une requête XTest et la réponse d’un autre client. Le nouveau mode redimensionne réellement et les deux clients répondent. Le premier test, qui manquait le bord du thème, n’avait rien redimensionné et est conservé comme échec.
-- Résultat : test automatisé discriminant réussi ; aucune interaction Xbox pendant cette expérience.
-- Interprétation : preuve du mécanisme X11 et de la correction de configuration dans cet environnement. Pas une preuve de toutes les fonctions de la manette, du pilote graphique ou de la stabilité prolongée sur Xbox.
-- Suite : confirmation manuelle sur Xbox ; garder les avertissements de compilation de l’applet réseau amont comme piste distincte, sans les attribuer au gel.
+- Objective: go beyond the resize-freeze hypothesis by reproducing the mechanism independently of the Xbox hardware.
+- Action: Docker service initially stopped, restarted after checking its state; IceWM 4.0.0 source pinned and verified, aarch64 compilation, two private Xvfb servers without network or host graphics socket.
+- Observation: the old mode prevents an XTest request from completing and another client from responding. The new mode actually resizes and both clients respond. The first test, which missed the theme border, had resized nothing and is kept as a failure.
+- Result: discriminating automated test succeeded; no Xbox interaction during this experiment.
+- Interpretation: evidence of the X11 mechanism and of the configuration fix in this environment. Not evidence for all controller functions, the graphics driver or prolonged stability on the Xbox.
+- Next: manual confirmation on the Xbox; keep the upstream network applet compilation warnings as a separate lead, without attributing them to the freeze.
 
-## 2026-10-02 — piste utilisateur PAL/NTSC
+## 2026-10-02 — PAL/NTSC user lead
 
-- Observation rapportée : Just Cause 2 et les autres boîtes de jeux portent PAL.
-- Action : vérifier la documentation Microsoft archivée sur les régions et la signification T10 du code 3a/00 ; demander si ces jeux fonctionnaient auparavant sur cette console.
-- Interprétation : région non vérifiée, marquage des boîtes insuffisant ; erreur mesurée de support absent différente d’un refus explicite de région. Aucune commande matérielle ni modification de région exécutée.
+- Reported observation: Just Cause 2 and the other game boxes are marked PAL.
+- Action: check archived Microsoft documentation on regions and the T10 meaning of code 3a/00; ask whether these games previously worked on this console.
+- Interpretation: region unverified, box marking insufficient; the measured medium-not-present error differs from an explicit region refusal. No hardware command or region modification executed.
 
-Retour utilisateur : achat simultané de la console et des jeux en magasin d’occasion ; fonctionnement antérieur de cet ensemble inconnu. Compatibilité régionale toujours non confirmée ; disponibilité d’un DVD vidéo demandée.
+User feedback: console and games bought together at a second-hand store; prior operation of this set unknown. Regional compatibility still unconfirmed; availability of a video DVD requested.
 
-Publication E47 et piste PAL vérifiée à 2026-10-02T07:57:41.408927+00:00 : commit public `a67d28f83a160fde6048efc74a9824c808745f74`, 230 fichiers, arbre GitHub identique ; preuve `evidence/2026-10-02/public-audit/resize-publication.json`.
+E47 and PAL lead publication verified at 2026-10-02T07:57:41.408927+00:00: public commit `a67d28f83a160fde6048efc74a9824c808745f74`, 230 files, GitHub tree identical; evidence `evidence/2026-10-02/public-audit/resize-publication.json`.
 
 ## 2026-10-02 — 07:58 UTC Mac — E48
 
-- Objectif : distinguer une restriction propre au jeu Xbox d’un refus plus général de DVD.
-- Action : l’utilisateur insère Big Order ; deux TEST UNIT READY standards, intervalle observé 59.2 s, aucun changement de firmware/région.
-- Observation : 02/3a/00 à chaque fois ; l’observation n’est donc pas limitée à l’instant de l’insertion. Aucun secteur vidéo lu.
-- Résultat : deuxième DVD non reconnu, de catégorie différente du jeu.
-- Interprétation : piste de reconnaissance DVD renforcée ; panne laser non prouvée, état du disque et bruits encore à confirmer.
-- Suite : retour sur rotation/clics demandé ; comparaison sous système d’origine avant toute ouverture du lecteur.
+- Objective: distinguish a restriction specific to the Xbox game from a more general DVD refusal.
+- Action: the user inserts Big Order; two standard TEST UNIT READY commands, observed interval 59.2 s, no firmware/region change.
+- Observation: 02/3a/00 each time; the observation is therefore not limited to the moment of insertion. No video sector read.
+- Result: second DVD not recognized, of a different category from the game.
+- Interpretation: DVD recognition lead strengthened; laser fault not proven, disc condition and noises still to be confirmed.
+- Next: feedback on spinning/clicks requested; comparison under the original system before any opening of the drive.
 
-Retour utilisateur E48 : le DVD tourne brièvement puis s’arrête, comme Just Cause 2. Contrôle sous le tableau de bord Xbox d’origine demandé, avec arrêt propre depuis Linux et sans relancer le jeu de démarrage. Le résultat reste en attente.
+User feedback E48: the DVD spins briefly then stops, like Just Cause 2. Check under the original Xbox dashboard requested, with a clean shutdown from Linux and without relaunching the boot game. The result is still pending.
 
-Publication E48 vérifiée à 2026-10-02T08:03:48.586991+00:00 : commit public `b4b49e2b2fdcc42f522fbc6cd4b74b1b96202632`, 234 fichiers et arbre distant conforme ; preuve `evidence/2026-10-02/public-audit/video-publication.json`. Résultat du contrôle sous tableau de bord stock encore attendu.
-
-
-## 2026-10-02 — E49/E50 — arrêt et comparaison sous le système d’origine
-
-- Objectif : comparer le comportement de Big Order hors Linux.
-- Observation utilisateur : le bouton d’arrêt du bureau affiche « failed request ». Mesure administrative préalable : CanPowerOff = challenge, aucun inhibiteur.
-- Action : arrêt normal demandé par un timer administrateur, accepté à 08:05:45 UTC ; aucune extinction forcée ni modification de permission. Extinction physique non observée directement.
-- Résultat rapporté ensuite : aucun DVD détecté lors du contrôle stock demandé. Libellé exact non fourni ; pas de capture ni de confirmation de lisibilité du média ailleurs.
-- Interprétation : une cause exclusivement Linux est moins probable ; panne matérielle précise non démontrée. Le défaut du bouton Éteindre reste à corriger après vérification du contexte de session normal.
-- Suite : retour Linux par Rock Band Blitz, choix obsidian4 et Ethernet uniquement après arrivée au bureau. Pas de nouvelle connexion lancée pendant la manipulation utilisateur.
+E48 publication verified at 2026-10-02T08:03:48.586991+00:00: public commit `b4b49e2b2fdcc42f522fbc6cd4b74b1b96202632`, 234 files and remote tree compliant; evidence `evidence/2026-10-02/public-audit/video-publication.json`. Result of the stock dashboard check still pending.
 
 
-## 2026-10-02 — E51/E52 — audio hors matériel et retour Linux
+## 2026-10-02 — E49/E50 — shutdown and comparison under the original system
 
-- Objectif : avancer sur le son pendant la manipulation DVD, puis vérifier le retour de la console.
-- Action hors console : nouvelle sortie de build, audio original en module ; reproduction des calculs par extraction du C réel, hooks pour cache/MMIO et ASan/UBSan.
-- Observation : API disparues confirmées par compilation ; 98 tailles produisent un tableau sortant du tampon selon l’encodage du pilote, cinq cas de boucle de cache dépassent le nombre de lignes attendu. Le fractionnement de trames constitue une propriété distincte, pas une panne matérielle prouvée.
-- Résultat : correctif 0008 partiel, 512 tailles acceptées sans géométrie hors tampon sur 16 369 examinées ; portage complet et son toujours non validés.
-- Mesure matérielle : à 08:17:42 UTC obsidian4 répond après 201,58 s, zéro unité en échec, XRandR répond en 720p. Préférences contre le gel conservées.
-- Correction du diagnostic d’arrêt : CanPowerOff depuis runuser dans SSH renvoie encore challenge, mais pkcheck sur le vrai PID 429 du lanceur local autorise power-off et power-off-multiple-sessions. La règle étroite existait déjà. Le contexte du lanceur relancé depuis SSH est une explication cohérente de l’ancien refus, pas une reproduction complète.
-- Suite : utilisateur parti temporairement, travail autonome demandé ; aucun redémarrage volontaire ni test effectif du bouton. Poursuivre le portage audio hors matériel et valider l’arrêt lors d’un créneau physique.
-
-Publication E49–E52 vérifiée à 2026-10-02T08:25:04.519035+00:00 : commit public `fd75dd4f20e7d0c0d0fc1475b1423d013d7cfa00`, 248 fichiers, parent et arbre GitHub conformes après audits. Preuve `evidence/2026-10-02/public-audit/audio-publication.json`. Audio non activé ; aucun arrêt depuis le retour Linux.
+- Objective: compare Big Order behavior outside Linux.
+- User observation: the desktop shutdown button displays "failed request". Prior administrative measurement: CanPowerOff = challenge, no inhibitor.
+- Action: normal shutdown requested via an administrator timer, accepted at 08:05:45 UTC; no forced power-off or permission change. Physical power-off not directly observed.
+- Result reported afterwards: no DVD detected during the requested stock check. Exact wording not provided; no capture or confirmation of media readability elsewhere.
+- Interpretation: an exclusively Linux cause is less likely; precise hardware fault not demonstrated. The Shut Down button defect remains to be fixed after checking the normal session context.
+- Next: return to Linux via Rock Band Blitz, choose obsidian4, and Ethernet only after reaching the desktop. No new connection initiated during the user's hands-on manipulation.
 
 
-## 2026-10-02 — E53 — cycle de vie audio et divergence de protocole
+## 2026-10-02 — E51/E52 — off-hardware audio and Linux return
 
-- Objectif : corriger les ressources du pilote avant activation.
-- Action : propriétaire unique ALSA, nettoyage des acquisitions partielles, arrêt avant destruction des PCM, API DMA/timer modernes, transport SMC partagé. Banc de fonctions C extraites sous ASan/UBSan, hors matériel.
-- Observation : douze échecs attendus dans treize scénarios de l’original ; seize scénarios du candidat passent. Le premier essai du banc ne compilait pas, corrigé et conservé comme échec d’outillage. Régression des tampons inchangée.
-- Résultat : objet PPC compilé sans avertissement ; compilation noyau/modules lancée séparément avec source figée. Aucun fichier installé sur Xbox.
-- Analyse du code : LibXenon mentionne les premiers 32 Mio et encode les longueurs différemment ; HDMI y exige une initialisation absente du pilote Linux. Masque 29 bits et encodage historique non validés sur le matériel. ALSA fournit déjà de la mémoire DMA cohérente, à utiliser directement pour les PCM.
-- Suite : achever et vérifier la compilation complète ; poursuivre contrat DMA, callbacks/timer et protocole. Aucun redémarrage pendant l’absence utilisateur.
+- Objective: make progress on sound during the DVD manipulation, then verify the console's return.
+- Off-console action: new build output, original audio as a module; reproduction of the calculations by extracting the real C, hooks for cache/MMIO and ASan/UBSan.
+- Observation: removed APIs confirmed by compilation; 98 sizes produce a table overflowing the buffer according to the driver's encoding, five cache-loop cases exceed the expected number of lines. Frame splitting is a distinct property, not a proven hardware fault.
+- Result: partial fix 0008, 512 sizes accepted without out-of-buffer geometry out of 16,369 examined; complete port and sound still not validated.
+- Hardware measurement: at 08:17:42 UTC obsidian4 responds after 201.58 s, zero failed units, XRandR responds in 720p. Anti-freeze preferences retained.
+- Correction of the shutdown diagnosis: CanPowerOff from runuser within SSH still returns challenge, but pkcheck on the real PID 429 of the local launcher allows power-off and power-off-multiple-sessions. The narrow rule already existed. The context of the launcher restarted from SSH is a consistent explanation of the earlier refusal, not a full reproduction.
+- Next: user temporarily away, autonomous work requested; no voluntary reboot nor actual test of the button. Continue the off-hardware audio port and validate shutdown during a physical-access window.
 
-
-## 2026-10-02 — E54 — envoi SMC borné et liaison audio
-
-- Objectif : éviter les attentes sans borne sur la nouvelle voie audio et confirmer la liaison des modules.
-- Action : nouvelle API processus avec deux trylocks, budget atomique de polling, message aligné et absence d’écriture en cas d’échec ; protection probe/remove spécifique à cette voie. Les anciens expéditeurs ne sont pas migrés.
-- Observation : dix-neuf scénarios du C réel et des macros iopoll réelles passent ; régression audio étendue à dix-huit scénarios. Premier échec d’outillage sur paramètre inutilisé conservé.
-- Résultat : première compilation complète audio-lifecycle terminée code 0 ; copie indépendante puis compilation audio-post code 0. Soixante-dix modules chacune, aucun avertissement, formats PowerPC et vermagic vérifiés, nouvel export GPL présent.
-- Limites : budget logique, pas borne de transaction MMIO ; tests séquentiels sans validation SMP. Le mutex ne protège pas les anciennes voies. Aucun envoi réel, noyau/image ni module installé.
-- Suite : publication après audit ; contrat DMA PCM, timer/notifications et protocole avant activation.
-
-Publication E53/E54 vérifiée à 2026-10-02T08:57:54.026744+00:00 : commit public `5dd3293b9936669ba7a8e25935de8dd6b918fafc`, 273 fichiers, parent et arbre GitHub conformes après audits. Preuve `evidence/2026-10-02/public-audit/smc-publication.json`. Deux builds audio complets validés, aucun installé.
+E49–E52 publication verified at 2026-10-02T08:25:04.519035+00:00: public commit `fd75dd4f20e7d0c0d0fc1475b1423d013d7cfa00`, 248 files, parent and GitHub tree compliant after audits. Evidence `evidence/2026-10-02/public-audit/audio-publication.json`. Audio not enabled; no shutdown since the Linux return.
 
 
-## 2026-10-02T09:43:49.512960+00:00 — E55/E56 — mémoire PCM et contrôle vivant
+## 2026-10-02 — E53 — audio lifecycle and protocol divergence
 
-- Objectif : retirer le remappage CPU erroné des tampons DMA et clarifier leur propriétaire.
-- Action : correctif 0011 après 0008–0010, contraintes ALSA, tampons gérés, barrières, arrêt du canal avant libération et validation des bornes. Aucun chargement.
-- Observation : 20 scénarios ressources et 12 callbacks passent sous ASan/UBSan ; 16 369 tailles examinées, 512 acceptées sans dépassement. Suppression de la fonction privée de cache, pas test matériel de cohérence.
-- Résultat : noyau audio-pcm et 70 modules compilés sans avertissement, ELF/vermagic et reconstruction des patches vérifiés. Outil de contrôle étendu au mode sans image XeLL ; voie complète obsidian4 encore valide.
-- Mesure directe distincte : à 2026-10-02T09:40:09.815799+00:00, SSH répond sous obsidian4, uptime 5 139,44 s, zéro unité en échec, framebuffer 720p. Réactivité visuelle non vérifiée.
-- Retour utilisateur : de nouveau disponible ; aucune action physique nécessaire pour ce travail.
-- Limites : aucun son, aucune validation DMA réelle ; ancien timer non armé, synchronisation des callbacks et protocole à résoudre. Prochaine étape : notifications de progression et durée de vie des flux, hors matériel.
-
-Publication E55/E56 vérifiée à 2026-10-02T09:45:58.581719+00:00 : commit public `74ba6693755aaef77e96d016bbcbc6e7cf473713`, 287 fichiers, parent et arbre GitHub conformes après audits. Preuve : `evidence/2026-10-02/public-audit/pcm-publication.json`. Candidat audio-pcm non installé.
+- Objective: fix the driver's resources before activation.
+- Action: single ALSA owner, cleanup of partial acquisitions, stop before destroying PCMs, modern DMA/timer APIs, shared SMC transport. Test bench of extracted C functions under ASan/UBSan, off-hardware.
+- Observation: twelve expected failures in thirteen scenarios of the original; sixteen candidate scenarios pass. The first bench attempt did not compile; fixed and kept as a tooling failure. Buffer regression unchanged.
+- Result: PPC object compiled without warnings; kernel/module compilation started separately with pinned source. No file installed on the Xbox.
+- Code analysis: LibXenon mentions the first 32 MiB and encodes lengths differently; HDMI there requires an initialization absent from the Linux driver. 29-bit mask and historical encoding not validated on hardware. ALSA already provides coherent DMA memory, to be used directly for PCMs.
+- Next: finish and verify the full compilation; continue DMA contract, callbacks/timer and protocol. No reboot while the user is away.
 
 
-## 2026-10-02T10:04:39.273970+00:00 — E57 — suivi audio par sortie
+## 2026-10-02 — E54 — bounded SMC post and audio linking
 
-- Objectif : lancer et synchroniser correctement le suivi de lecture.
-- Observation : START n’arme pas le timer ; deux appels directs du vieux callback avec position identique produisent deux fausses notifications. Reproduction hors matériel, pas un relevé vivant.
-- Action : hrtimer par sortie, progression modulo et reste de période, XRUN si observation trop tardive, notification hors verrou du pilote, sync_stop/hw_free attendent le callback.
-- Résultat hôte : 15 scénarios timer, 20 ressources, 15 PCM passent sous ASan/UBSan ; cas pthread avec notification retenue pendant la fermeture. Géométrie : 512 tailles acceptées sur 16 369, sans dépassement parmi elles.
-- Échecs conservés : deux comparaisons signées au premier banc ; option --output incorrecte pour le banc de géométrie. Corrigés, recettes mises à jour.
-- Configuration : ancien noyau sans HIGH_RES_TIMERS, incompatible avec la cadence nominale pour les plus petits tampons. Activation dans la copie candidate et refus de open si haute résolution inactive. Deux builds intermédiaires réussis ; build final démarré à 2026-10-02T09:59:37Z, encore vivant au relevé.
-- Limites : modèle temporel et un entrelacement déterministe ; aucune validation SMP/latence/DMA. Ni installation ni nouvelle interaction Xbox. Prochain axe : publication des échantillons via ack puis protocole matériel.
+- Objective: avoid unbounded waits on the new audio path and confirm module linking.
+- Action: new process API with two trylocks, atomic polling budget, aligned message and no write on failure; probe/remove protection specific to this path. The old senders are not migrated.
+- Observation: nineteen scenarios of the real C and real iopoll macros pass; audio regression extended to eighteen scenarios. First tooling failure on an unused parameter kept.
+- Result: first complete audio-lifecycle compilation finished with code 0; independent copy, then audio-post compilation code 0. Seventy modules each, no warnings, PowerPC formats and vermagic verified, new GPL export present.
+- Limits: logical budget, not an MMIO transaction bound; sequential tests without SMP validation. The mutex does not protect the old paths. No real send, kernel/image or module installed.
+- Next: publication after audit; PCM DMA contract, timer/notifications and protocol before activation.
 
-
-## 2026-10-02T10:16:13.670215+00:00 — fin E57 et audit E58
-
-- Résultat E57 : build haute résolution terminé code 0 ; 70 modules, ELF/vermagic et empreintes vérifiés, aucun avertissement. Le processus existant a été suivi jusqu’à sa fin, sans relance. Aucun déploiement.
-- Objectif E58 : comprendre la publication audio avant migration vers ack.
-- Observation hôte : trois requêtes identiques alternent la file sur 96 cas. Les helpers ALSA réels reproduisent un dépassement signé pour une valeur synthétique native 64 bits ; atteignabilité par les applications 32 bits actuelles non démontrée. Publication d’un bloc partiellement engagé interprétée sous l’hypothèse dernier-descripteur-valide.
-- Analyse : ack doit préserver rollback, retour de boundary, tampon complet, écritures partielles, drain et reset. Déplacer simplement les écritures ne suffirait pas.
-- Référence examinée : xenon-emu/xenon au commit 0284bbe6c8125935d97bf54ab3132089c6c65c8b ; classe audio sans consommation de descripteurs, donc pas de validation du protocole.
-- Suite : documenter et publier après audit ; concevoir soumission/fins de flux, sans activer les noyaux audio encore incomplets. Dernier relevé matériel inchangé : E56.
-
-Publication E57/E58 vérifiée à 2026-10-02T10:19:25.216637+00:00 : commit public `987fea14abdeb6059b4b8d4a6b1215345cefabbe`, 312 fichiers, parent et arbre GitHub conformes après audits. Preuve : `evidence/2026-10-02/public-audit/poll-publication.json`. Noyau audio-poll compilé, non installé ; soumission encore à corriger.
+E53/E54 publication verified at 2026-10-02T08:57:54.026744+00:00: public commit `5dd3293b9936669ba7a8e25935de8dd6b918fafc`, 273 files, parent and GitHub tree compliant after audits. Evidence `evidence/2026-10-02/public-audit/smc-publication.json`. Two complete audio builds validated, none installed.
 
 
-## 2026-10-02T10:33:39.076776+00:00 — E59 — file PCM logicielle
+## 2026-10-02T09:43:49.512960+00:00 — E55/E56 — PCM memory and live check
 
-- Objectif : remplacer les calculs de soumission instables sans perdre les écritures partielles ou la fin de flux.
-- Action : composant C original sans MMIO/allocation ; états physiques/logiques séparés, blocs complets publiables, reste non publié, plan de silence au drain, deltas en frames bornés avant conversion. Erreurs sans mutation.
-- Observation : test indépendant de contenu sur 512 tailles et deux files entrelacées ; 54 008 opérations, 24 544 033 frames logiques comparées, 4 333 refus attendus. Aucun diagnostic ASan/UBSan.
-- Échec conservé : LeakSanitizer indisponible sur ce Mac ; premier lancement arrêté avant les cas, option désactivée puis tests réussis.
-- Résultat : analyse Clang sans diagnostic ; objet PPC64 freestanding puis module de liaison avec __KERNEL__ contre audio-poll, sans avertissement, fonctions et vermagic vérifiés. Sources/build noyau montés en lecture seule. Aucun module chargé.
-- Limites : algorithme de file testé, pas protocole de registres ni achèvement DMA. Le pilote historique conserve E58 tant que son adaptateur ne remplace pas pointer/ack ; reset ALSA, drain réel et prélecture à vérifier.
-- Suite : intégrer le contrat de file aux callbacks tout en conservant la séparation entre tests logiciels et preuves matérielles. Aucun contrôle vivant supplémentaire.
+- Objective: remove the erroneous CPU remapping of DMA buffers and clarify their owner.
+- Action: fix 0011 after 0008–0010, ALSA constraints, managed buffers, barriers, channel stop before freeing and bounds validation. No loading.
+- Observation: 20 resource scenarios and 12 callbacks pass under ASan/UBSan; 16,369 sizes examined, 512 accepted without overflow. Removal of the private cache function, not a hardware coherence test.
+- Result: audio-pcm kernel and 70 modules compiled without warnings, ELF/vermagic and patch reconstruction verified. Check tool extended to a mode without a XeLL image; full obsidian4 path still valid.
+- Separate direct measurement: at 2026-10-02T09:40:09.815799+00:00, SSH responds under obsidian4, uptime 5,139.44 s, zero failed units, 720p framebuffer. Visual responsiveness not verified.
+- User feedback: available again; no physical action needed for this work.
+- Limits: no sound, no real DMA validation; old timer not armed, callback synchronization and protocol to be resolved. Next step: progress notifications and stream lifetime, off-hardware.
 
-Publication E59 vérifiée à 2026-10-02T10:36:04.104109+00:00 : commit public `3a98dcf5b0977a33251748255f186c25cfcf2da0`, 324 fichiers, parent et arbre GitHub conformes après audits. Preuve : `evidence/2026-10-02/public-audit/queue-publication.json`. File PCM testée et liée pour PowerPC, non intégrée au pilote et non chargée.
-
-
-## 2026-10-02T10:56:46.731605+00:00 — E60/E61 — adaptateur audio et contrôle vivant
-
-- Objectif : retirer la publication instable de pointer et intégrer les engagements ALSA sans perdre le rollback.
-- Action : correctif 0013 avec ack transactionnel, SYNC_APPLPTR/NO_REWINDS, démarrage différé jusqu'au premier bloc, drain avec silence, position logique en cache et RESET limité aux files préparées vides. Reprise de prepare après STOP, suivi et fermeture synchronisée conservés.
-- Observation : quinze scénarios passent avec callbacks réels et trois fonctions ALSA extraites, dont 512 tailles et fermeture concurrente contrôlée. Vingt scénarios de ressources ; file : 54 008 opérations, 24 544 033 frames comparées.
-- Échecs conservés : comparaison signée du code ALSA refusée par le banc ; montage Docker de fichiers nouveaux impossible sous source en lecture seule ; paramètre current en collision avec macro noyau lors de la compilation intégrée. Corrections de portée explicite, aucun échec masqué comme succès.
-- Résultat : construction audio-submit terminée code 0 à 2026-10-02T10:52:58.835912+00:00, zéro avertissement, 70 modules PowerPC et vermagic vérifiés. Reconstruction du patch et identité du composant canonique contrôlées.
-- Limite : fin du dernier descripteur non décodée ; un résiduel nul inchangé ne vaut pas preuve de lecture. Stagnation simulée se termine volontairement en XRUN. Drain sonore, longueur/adresses DMA, prélecture, initialisation HDMI et comportement réel restent ouverts. Aucun chargement ni démarrage de cette variante.
-- Mesure E61 distincte : SSH à 10:49:58 UTC, obsidian4, uptime 9 327,35 s, aucune unité en échec listée, framebuffer 720p. Pas de test visuel ; configuration console inchangée.
-- Suite : résoudre le dernier bloc et confronter le protocole aux références avant toute activation. Publication uniquement depuis l'export audité.
-
-Publication E60/E61 vérifiée à 2026-10-02T10:58:31.472464+00:00 : commit public `f8989261de3589ec3b3c3276b9e4ef66646795f3`, 342 fichiers, parent et arbre GitHub conformes après audits. Preuve : `evidence/2026-10-02/public-audit/adapter-publication.json`. Noyau audio-submit compilé, non installé ; fin du dernier descripteur toujours non décodée.
+E55/E56 publication verified at 2026-10-02T09:45:58.581719+00:00: public commit `74ba6693755aaef77e96d016bbcbc6e7cf473713`, 287 files, parent and GitHub tree compliant after audits. Evidence: `evidence/2026-10-02/public-audit/pcm-publication.json`. audio-pcm candidate not installed.
 
 
-## 2026-10-02T11:13:34.630501+00:00 — E62 — historique, longueurs et piste SiS
+## 2026-10-02T10:04:39.273970+00:00 — E57 — per-output audio tracking
 
-- Objectif : avancer sur la fin de lecture matérielle et les divergences de format audio.
-- Analyse primaire : historique LibXenon retrouvé par API, dont correction explicite taille−1 vers taille en 2010 et index de dernier bloc complet en 2011. Comparaison des définitions SiS7012 de Linux et des mots Xenon : dix correspondances d'offset/masque dans le banc.
-- Résultat de recherche : LVBCI/PICB de la référence ICH4 concernent le transfert mémoire, pas une preuve de FIFO audio vide. Application à Xbox non validée ; read-modify-write du contrôle peut acquitter des statuts sous cette hypothèse. Ne pas annoncer un drain résolu.
-- Action : correctif 0014 à longueur littérale et géométrie exacte. Test du prepare réel avant/après sur 512 tailles, 16 384 entrées par variante : tous les comptes candidats sont alignés sur quatre octets ; sous cette interprétation, l'ancien code omet 32 octets par anneau. Aucune perte réelle mesurée.
-- Régression : quinze callbacks, vingt ressources passent sous ASan/UBSan ; fonctions LibXenon réelles ambiguës pour les 32 mots synthétiques à résiduel nul. Première extraction des macros mal séparée par un saut de ligne, échec conservé puis corrigé.
-- Construction : deux codes zéro avec avertissements réels de clock skew sous partage Mac/Linux. Troisième construction sur volume Linux dédiée terminée 2026-10-02T11:09:56.522693+00:00, zéro avertissement. Export après fin du processus ; noyau et 70 modules ELF/vermagic vérifiés. Contrôle intermédiaire explicitement marqué provisoire, pas preuve de fin du deuxième build.
-- Limites : aucune interaction console, état vivant toujours E61. Ni son, ni décodeur de fin activé. Correspondance source/registre et FIFO à tester séparément ; aucune identification définitive du contrôleur comme SiS7012.
-- Suite : séparer contrôle et acquittement ; préparer une observation ciblée réversible avant la progression DMA et l'audio réel. Publication après audit.
-
-Publication E62 vérifiée à 2026-10-02T11:15:01.783984+00:00 : commit public `cbd5b02b2d87b4dbaddf23ebcfdf91a172e719e7`, 362 fichiers, parent et arbre GitHub conformes après audits. Preuve : `evidence/2026-10-02/public-audit/protocol-publication.json`. Candidat audio-bytes compilé, non installé ; hypothèse SiS et fin de sortie sonore non mesurées.
+- Objective: correctly start and synchronize playback tracking.
+- Observation: START does not arm the timer; two direct calls to the old callback with an identical position produce two false notifications. Off-hardware reproduction, not a live reading.
+- Action: per-output hrtimer, modulo progression and period remainder, XRUN if the observation is too late, notification outside the driver lock, sync_stop/hw_free wait for the callback.
+- Host result: 15 timer scenarios, 20 resource and 15 PCM scenarios pass under ASan/UBSan; pthread case with a notification held during close. Geometry: 512 sizes accepted out of 16,369, with no overflow among them.
+- Failures kept: two signed comparisons in the first bench; incorrect --output option for the geometry bench. Fixed, recipes updated.
+- Configuration: old kernel without HIGH_RES_TIMERS, incompatible with the nominal rate for the smallest buffers. Enabled in the candidate copy, and open refused if high resolution is inactive. Two intermediate builds succeeded; final build started at 2026-10-02T09:59:37Z, still running at the time of the reading.
+- Limits: timing model and a single deterministic interleaving; no SMP/latency/DMA validation. No installation or new Xbox interaction. Next focus: publishing samples via ack, then the hardware protocol.
 
 
-## 2026-10-02T12:06:27Z — E63/E64 — contrôle audio et première observation des registres
+## 2026-10-02T10:16:13.670215+00:00 — end of E57 and E58 audit
 
-- Objectif : éviter les acquittements involontaires et distinguer absence de pilote Linux d'un état matériel réellement arrêté.
-- E63, code/modèle : correctif 0015. START/STOP masquent les statuts W1C supposés et les IRQ ; prepare acquitte explicitement. 4 096 transitions par variante : 3 584 pertes modélisées avant, zéro après ; quinze callbacks, vingt ressources et 16 384 descripteurs passent. Aucun fait W1C vivant revendiqué.
-- Compilation : module PowerPC64 big-endian, vermagic audio-bytes, sans avertissement. La cible isolée avait échoué faute de dépendances ALSA ; cible modules complète réussie, échec conservé. Aucun nouveau vmlinux ni chargement.
-- E64, mesure standard : PCI 1414:580c, aucun pilote, enable=0 mais command=0x0006. Accès SSH vérifié sous obsidian4 ; pages de 64 Kio.
-- Revue de la sonde avant MMIO : sysfs mappe la page contenant le BAR. Correction du décalage 0x1600, test de 31 744 géométries et sept cas invalides. Le binaire antérieur n'a pas accédé au matériel. Compilation C d'origine avait nécessité _Noreturn pour lever une erreur de flot d'initialisation ; conservée.
-- Outillage : deux tentatives de compilateur croisé ont échoué ; le constructeur Docker historique avait conservé ARM malgré --platform. Base amd64 explicite et assertion d'architecture réussissent. Une relance du test descripteur utilisait un ancien nom de dossier inexistant ; chemin réel submission identifié, test final réussi. Un processus d'outil local a refusé sa création ; shell absolu sans login fonctionne, dépôt accessible par son chemin de projet et son chemin résolu my_repos. Aucun de ces échecs n'est un résultat matériel.
-- Binaire ELF32 statique vérifié, quatre lwz et huit eieio dans la séquence ; empreinte distante identique. Exécution sans argument confirme l'usage avant accès matériel.
-- Mesure MMIO : trois captures réussies de quatre registres, entre 12:05:30 et 12:06:27 UTC. Contrôles 0x1d08001c pour les deux canaux ; index analogique 0x00008000, numérique 0x00009616 ; identiques. Douze lectures au total, aucune écriture ni commande SMC, pas de son lancé. SSH reste accessible, aucune réaction visuelle observée.
-- Limite : la décomposition SiS donne RUN apparent et statut sans halted, malgré des index égaux et résiduel nul. Valeurs stables ne prouvent pas un moteur arrêté ; bit 15 des index inexpliqué. Aucune confirmation de W1C ou fin FIFO. Ne pas transformer le modèle logiciel en identification matérielle.
-- Suite : concevoir arrêt/reset et confirmation bornés avant toute activation audio. Documenter et publier depuis l'export audité ; firmware stock et démarrage existant conservés.
+- E57 result: high-resolution build finished with code 0; 70 modules, ELF/vermagic and hashes verified, no warnings. The existing process was followed until it finished, without restarting it. No deployment.
+- E58 objective: understand audio publication before migrating to ack.
+- Host observation: three identical requests alternate the queue over 96 cases. The real ALSA helpers reproduce a signed overflow for a synthetic native 64-bit value; reachability by current 32-bit applications not demonstrated. Publication of a partially committed block interpreted under the last-valid-descriptor hypothesis.
+- Analysis: ack must preserve rollback, boundary wraparound, full buffer, partial writes, drain and reset. Simply moving the writes would not suffice.
+- Reference examined: xenon-emu/xenon at commit 0284bbe6c8125935d97bf54ab3132089c6c65c8b; audio class without descriptor consumption, hence no protocol validation.
+- Next: document and publish after audit; design submission/end of stream, without enabling the still-incomplete audio kernels. Last hardware reading unchanged: E56.
 
-Publication E63/E64 vérifiée à 2026-10-02T12:11:33.298267+00:00 : commit public `962219272919b6446c7593b5fd5ced9f9fce8656`, 396 fichiers, parent et arbre GitHub conformes après audits. Preuve : `evidence/2026-10-02/public-audit/control-publication.json`. Contrôle audio testé sous modèle ; trois observations matérielles sans écriture, aucun son activé.
+E57/E58 publication verified at 2026-10-02T10:19:25.216637+00:00: public commit `987fea14abdeb6059b4b8d4a6b1215345cefabbe`, 312 files, parent and GitHub tree compliant after audits. Evidence: `evidence/2026-10-02/public-audit/poll-publication.json`. audio-poll kernel compiled, not installed; submission still to be fixed.
 
 
-## 2026-10-02T12:48:41Z — E65/E66 — premier STOP audio et contrat mémoire ALSA
+## 2026-10-02T10:33:39.076776+00:00 — E59 — software PCM queue
 
-- Objectif : établir un indicateur d'arrêt vivant avant de remplacer les descripteurs ou rendre des tampons réutilisables.
-- Analyse : le candidat 0015 demande STOP sans vérifier halted. Le pilote intel8x0 attend ce statut dans une boucle non bornée ; ne pas transposer cette attente. Documentation primaire ICH4 revue, identité Xbox distincte conservée.
-- Outil : stop_analog_once refuse toute variation des deux contrôles E64 ; une seule écriture possible 0x00080000 à +8. Aucun START, reset, PCI ou SMC. Filtre et emprise de l'écriture testés sur mémoire ordinaire, 64 altérations d'un bit refusées, ASan/UBSan. ELF32 vérifié et une stw alignée inspectée avec barrières.
-- Échecs d'outillage : compteur du banc inutilisé sous Werror, puis extraction de désassemblage cherchant sync au lieu du libellé hwsync. Corrigés et conservés avant l'exécution console.
-- Précontrôle : empreinte transférée identique, exécution sans argument code 2, obsidian4 répond. Plan d'essai et récupération documentés avant écriture.
-- Mesure directe : 12:47:31 UTC, STOP analogique exécuté une fois ; contrôle 0x1d08001c → 0x0008001d, index 0x00008000 → 0. Numérique 0x1d08001c / 0x00009616 inchangé. Code 0, six lectures et une écriture.
-- Suivi direct : 12:48:41 UTC, analogique 0x0000001d / 0, numérique inchangé ; quatre lectures et aucune écriture. SSH répond, uptime 16 464,45 s, aucun service en échec listé, framebuffer 720p. Pas de test visuel. Aucun redémarrage.
-- Interprétation : retrait RUN et apparition du bit DCH appuient le découpage ; bits supposés W1C conservés par zéro. Acquittement par un, reset, transactions en vol, FIFO et canal numérique non prouvés. Champ intermédiaire devenu zéro au suivi, délai/rôle précis inconnus. Analogique laissé STOP, aucun retour automatique à RUN.
-- E66, hors console : extraction de snd_pcm_sync_stop, do_hw_free et snd_pcm_lib_free_pages. 144 cas passent ; 24 détachements après erreur d'un callback, dont 12 allocations dynamiques réellement libérées dans le modèle. Préallocations seulement détachées et réutilisables ; pas une revendication de bug ALSA ou de libération physique systématique du tampon du candidat.
-- Décision : ne pas considérer return -ETIMEDOUT comme une protection du tampon géré. La stratégie d'arrêt doit couvrir le contrat de libération/réutilisation et une éventuelle isolation ; prochains essais acquittement/reset ciblés avant intégration.
+- Objective: replace the unstable submission calculations without losing partial writes or end of stream.
+- Action: original C component without MMIO/allocation; separate physical/logical states, publishable complete blocks, unpublished remainder, silence plan at drain, frame deltas bounded before conversion. Errors without mutation.
+- Observation: independent content test over 512 sizes and two interleaved queues; 54,008 operations, 24,544,033 logical frames compared, 4,333 expected refusals. No ASan/UBSan diagnostics.
+- Failure kept: LeakSanitizer unavailable on this Mac; first run stopped before the cases, option disabled, then tests succeeded.
+- Result: Clang analysis without diagnostics; freestanding PPC64 object, then link module with __KERNEL__ against audio-poll, no warnings, functions and vermagic verified. Kernel sources/build mounted read-only. No module loaded.
+- Limits: queue algorithm tested, not the register protocol or DMA completion. The historical driver retains E58 as long as its adapter does not replace pointer/ack; ALSA reset, real drain and prefetch to be verified.
+- Next: integrate the queue contract into the callbacks while keeping the separation between software tests and hardware evidence. No additional live check.
 
-Publication E65/E66 vérifiée à 2026-10-02T12:57:15.785188+00:00 : commit public `6d597f74c644f253f889d7c78e3f05f3113af2c9`, 410 fichiers, parent et arbre GitHub conformes après audits. Preuve : `evidence/2026-10-02/public-audit/stop-publication.json`. STOP analogique observé ; contrat mémoire ALSA testé, aucun son activé.
+E59 publication verified at 2026-10-02T10:36:04.104109+00:00: public commit `3a98dcf5b0977a33251748255f186c25cfcf2da0`, 324 files, parent and GitHub tree compliant after audits. Evidence: `evidence/2026-10-02/public-audit/queue-publication.json`. PCM queue tested and linked for PowerPC, not integrated into the driver and not loaded.
 
 
-## 2026-10-02 — E67/E68 — acquittements analogiques et demande de reset
+## 2026-10-02T10:56:46.731605+00:00 — E60/E61 — audio adapter and live check
 
-- Objectif : éprouver les bits W1C supposés après le STOP E65, avant activation audio.
-- État initial revérifié : analogique 0x0000001d / index zéro, numérique 0x1d08001c / 0x00009616. Une lecture de quatre mots, sans écriture.
-- Outil original à quatre opérations fixes, jamais enchaînées automatiquement. Filtre exact sur quatre mots, 512 variations d'un bit refusées sous ASan/UBSan, quatre emprises de quatre octets vérifiées. ELF32 compilé, stw alignée et barrières relues ; empreinte transférée identique, test sans argument avant accès.
-- E67 : écritures 4, 8, 16 dans des appels distincts, avec examen du résultat à chaque fois. Statut 0x1d → 0x19 → 0x11 → 0x01, index et canal numérique inchangés. Trois écritures, 24 lectures. Tous les codes zéro ; comportement W1C des trois bits observé au repos. Le sens des événements sous flux n'est pas prouvé.
-- E68 : une écriture reset 0x02000000 depuis le statut arrêté ; lecture suivante 0x01, numérique inchangé. Huit lectures, une écriture, code zéro. Résultat compatible avec auto-effacement ; aucune transition intermédiaire ni effet sur un registre non nul observé, donc reset interne complet non démontré. Aucun START, son ou nouveau descripteur.
-- Suite : conserver l'arrêt et les preuves ; intégrer seulement des conditions d'arrêt/gestion de mémoire justifiées. Les contrôles temporels doivent distinguer les horloges des deux machines.
+- Objective: remove the unstable pointer publication and integrate ALSA commitments without losing rollback.
+- Action: fix 0013 with transactional ack, SYNC_APPLPTR/NO_REWINDS, start deferred until the first block, drain with silence, cached logical position and RESET limited to empty prepared queues. Resumption of prepare after STOP, tracking and synchronized close retained.
+- Observation: fifteen scenarios pass with real callbacks and three extracted ALSA functions, including 512 sizes and a controlled concurrent close. Twenty resource scenarios; queue: 54,008 operations, 24,544,033 frames compared.
+- Failures kept: signed comparison in the ALSA code rejected by the bench; Docker mount of new files impossible under a read-only source; parameter current colliding with a kernel macro during the integrated compilation. Fixes with explicit scope, no failure disguised as success.
+- Result: audio-submit build finished with code 0 at 2026-10-02T10:52:58.835912+00:00, zero warnings, 70 PowerPC modules and vermagic verified. Patch reconstruction and identity of the canonical component checked.
+- Limit: completion of the last descriptor not decoded; an unchanged zero residual is not evidence of a read. Simulated stagnation deliberately ends in XRUN. Audible drain, DMA length/addresses, prefetch, HDMI initialization and real behavior remain open. No loading or booting of this variant.
+- Separate E61 measurement: SSH at 10:49:58 UTC, obsidian4, uptime 9,327.35 s, no failed unit listed, 720p framebuffer. No visual test; console configuration unchanged.
+- Next: resolve the last block and check the protocol against the references before any activation. Publication only from the audited export.
 
-## 2026-10-02 — E69/E70 — dérive de cadence et noyau de correction optionnelle
+E60/E61 publication verified at 2026-10-02T10:58:31.472464+00:00: public commit `f8989261de3589ec3b3c3276b9e4ef66646795f3`, 342 files, parent and GitHub tree compliant after audits. Evidence: `evidence/2026-10-02/public-audit/adapter-publication.json`. audio-submit kernel compiled, not installed; completion of the last descriptor still not decoded.
 
-- Déclencheur : différence répétée entre horodatages console et Mac dans les preuves audio. Hypothèse de fréquence de conversion incorrecte, à mesurer plutôt qu'ajuster la date.
-- E69 : sept échanges SSH persistants pendant environ 60 s, allers-retours de 1,37–1,94 ms. Lecture des horloges brute, monotone, civile, du clocksource et des trois propriétés DT. Pas de reconfiguration.
-- Mesure : 50 MHz annoncés, clocksource timebase ; 59,8864 s brutes Xbox pour 60,0354–60,0384 s Mac. Rapport 0,9974687–0,9975187, fréquence relative compatible 49,8734–49,8759 MHz. Heure console en retard d'environ 44,28 s en fin de capture. Mac non étalonné ; pas de mesure électrique.
-- Sources : LibXenon fixe 3 192 000 000 / 64 = 49 875 000 ; fichier épinglé vérifié via API GitHub après échec du fetch web brut. DTS noyau/XeLL à 50 MHz, generic_calibrate_decr lit cette propriété. Le simple objcopy zImage.xenon n'incorpore pas automatiquement le DTS local. Une recherche par wildcard inexistant a échoué ; fichiers exacts retrouvés sans interpréter l'échec comme absence de source.
-- Outil reproductible measure-clock-drift.py : capture bornée, analyse hors console, préservation des sorties et diagnostics privés. Sept cas synthétiques/rejets passent ; capture réelle courte de trois points vérifie le collecteur, sans remplacer la référence de 60 s.
-- État NTP : timedatectl rapporte CanNTP/NTP/NTPSynchronized=yes. Cela ne suffit pas à contredire la comparaison directe et la dérive brute ; aucun changement NTP tenté.
-- E70 : patch 0016 indépendant, option précoce xenon_tb_hz limitée à 49 875 000 ou 50 000 000 Hz. Sans option, configuration firmware conservée. Conversion logicielle seulement ; aucune programmation PLL/alimentation. Une mesure sur cet exemplaire ne justifie pas de forcer toutes les révisions.
-- Construction distincte depuis obsidian4, sans les patches audio : vmlinux, modules et zImage.xenon codes zéro sans avertissement. obsidian-clock, 65 modules ELF/vermagic et six sections de charge utile vérifiés ; symbole du parseur et option présents, patch reconstruit identiquement.
-- Limites : correction non installée/non démarrée. Initramfs et entrée USB encore à préparer, mesure après reboot indispensable. Ne pas transformer la compilation en amélioration de cadence déjà obtenue ; conserver les horodatages historiques et signaler leur origine.
 
-Publication E67–E70 vérifiée à 2026-10-02T13:27:32.850304+00:00 : commit public `db44cdd3e537a6d0a2dd13ac565a939f9b90e043`, 442 fichiers, parent et arbre GitHub conformes après audits. Preuve : `evidence/2026-10-02/public-audit/timebase-publication.json`. Acquittements analogiques observés ; cadence mesurée et noyau de correction compilé, non installé.
+## 2026-10-02T11:13:34.630501+00:00 — E62 — history, lengths and SiS lead
 
-Confirmation complémentaire E69 : /proc/cpuinfo annonce effectivement timebase=50000000 et aucune propriété ibm,extended-timebase-frequency prioritaire n’est présente. Lecture seule ; preuve clock-calibration/effective-timebase.json, conservée pour la prochaine publication.
+- Objective: make progress on hardware playback completion and audio format divergences.
+- Primary analysis: LibXenon history retrieved via the API, including an explicit size−1 to size correction in 2010 and a last-complete-block index in 2011. Comparison of Linux's SiS7012 definitions with the Xenon words: ten offset/mask matches in the bench.
+- Research result: LVBCI/PICB in the ICH4 reference concern the memory transfer, not evidence of an empty audio FIFO. Application to the Xbox not validated; a read-modify-write of the control register may acknowledge statuses under this hypothesis. Do not announce a resolved drain.
+- Action: fix 0014 with literal length and exact geometry. Test of the real prepare before/after over 512 sizes, 16,384 entries per variant: all candidate counts are aligned to four bytes; under this interpretation, the old code omits 32 bytes per ring. No real loss measured.
+- Regression: fifteen callbacks and twenty resources pass under ASan/UBSan; real LibXenon functions ambiguous for the 32 synthetic words with zero residual. First macro extraction badly split by a line break; failure kept, then fixed.
+- Build: two zero exit codes with real clock skew warnings under Mac/Linux sharing. Third build on a dedicated Linux volume finished 2026-10-02T11:09:56.522693+00:00, zero warnings. Export after the process ended; kernel and 70 modules ELF/vermagic verified. Intermediate check explicitly marked provisional, not evidence that the second build finished.
+- Limits: no console interaction, live state still E61. Neither sound nor end decoder enabled. Source/register correspondence and FIFO to be tested separately; no definitive identification of the controller as SiS7012.
+- Next: separate control and acknowledgment; prepare a targeted reversible observation before DMA progression and real audio. Publication after audit.
 
-## 2026-10-02 — E71 — ensemble de démarrage obsidian_clock préparé
+E62 publication verified at 2026-10-02T11:15:01.783984+00:00: public commit `cbd5b02b2d87b4dbaddf23ebcfdf91a172e719e7`, 362 files, parent and GitHub tree compliant after audits. Evidence: `evidence/2026-10-02/public-audit/protocol-publication.json`. audio-bytes candidate compiled, not installed; SiS hypothesis and end of audio output not measured.
 
-- Objectif : rendre le candidat E70 testable sans remplacer obsidian4 ni modifier le défaut.
-- Précontrôle vivant : SSH sous obsidian4, racine interne ext4, clé ARCH vfat séparée et non montée, aucun service en échec listé.
-- Archive de 65 modules et noyau vérifiée avant transfert puis après réception. Nouveau répertoire /var/tmp ; depmod avec Module.symvers sans diagnostic. mkinitcpio limité à cette version et --nopost, aucun preset rejoué.
-- Initramfs 16 171 806 octets ; extraction puis comparaison des 43 modules inclus, vérification ELF32 PowerPC de six exécutables et confinement des chemins résolus. La commande lsinitcpio d’analyse émet un avertissement TERM sans effet sur le build ; TERM=dumb pour la suite.
-- Neuf fichiers USB relevés en lecture seule. Ajout de l’entrée obsidian_clock (168 octets) avec même racine et xenon_tb_hz=49875000. 65 modules dans un répertoire distinct ; fichiers USB nouveaux contrôlés avant remplacement du menu. Ancien menu sauvegardé ; huit autres fichiers aux mêmes empreintes.
-- Synchronisation, démontage, remontage en lecture seule et relecture du candidat/anciens fichiers : contrôles conformes. Copie Mac de l’initramfs vérifiée également. SSH final sous obsidian4, aucun service en échec, clé démontée ; horodatage hôte 13:38:34 UTC.
-- Aucun redémarrage demandé par script, aucune NAND ni opération audio. Action physique proposée à l’utilisateur : Rock Band Blitz/USB, entrée obsidian_clock, Ethernet après le bureau. Résultat de démarrage encore inconnu.
-- Preuves dans timebase-boot/ ; procédures archivées en texte, pas des étapes à rejouer aveuglément. Suite : vérifier le nouveau noyau puis refaire E69 et comparer les intervalles de cadence.
 
-Publication E71 vérifiée à 2026-10-02T13:43:05.979127+00:00 : commit public `47b0a02d8820d009aa6cde4741a925b6e6018cae`, 452 fichiers, parent et arbre GitHub conformes après audits. Preuve : `evidence/2026-10-02/public-audit/timebase-boot-publication.json`. Ensemble de démarrage prêt ; essai physique encore attendu.
+## 2026-10-02T12:06:27Z — E63/E64 — audio control and first register observation
+
+- Objective: avoid unintended acknowledgments and distinguish the absence of a Linux driver from a hardware state that is actually stopped.
+- E63, code/model: fix 0015. START/STOP mask the presumed W1C statuses and the IRQs; prepare acknowledges explicitly. 4,096 transitions per variant: 3,584 modeled losses before, zero after; fifteen callbacks, twenty resources and 16,384 descriptors pass. No live W1C fact claimed.
+- Compilation: PowerPC64 big-endian module, audio-bytes vermagic, no warnings. The isolated target had failed for lack of ALSA dependencies; full modules target succeeded, failure kept. No new vmlinux or loading.
+- E64, standard measurement: PCI 1414:580c, no driver, enable=0 but command=0x0006. SSH access verified under obsidian4; 64 KiB pages.
+- Review of the probe before MMIO: sysfs maps the page containing the BAR. Fix of the 0x1600 offset, test of 31,744 geometries and seven invalid cases. The earlier binary did not access the hardware. The original C compilation had required _Noreturn to clear an initialization flow error; kept.
+- Tooling: two cross-compiler attempts failed; the historical Docker builder had kept ARM despite --platform. Explicit amd64 base and architecture assertion succeed. A rerun of the descriptor test used an old, nonexistent folder name; real submission path identified, final test succeeded. A local tool process refused its creation; an absolute non-login shell works, repository accessible via its project path and its resolved my_repos path. None of these failures is a hardware result.
+- Static ELF32 binary verified, four lwz and eight eieio in the sequence; remote hash identical. Running without arguments confirms the usage message before any hardware access.
+- MMIO measurement: three successful captures of four registers, between 12:05:30 and 12:06:27 UTC. Controls 0x1d08001c for both channels; analog index 0x00008000, digital 0x00009616; identical. Twelve reads in total, no write or SMC command, no sound started. SSH remains accessible, no visual reaction observed.
+- Limit: the SiS breakdown gives apparent RUN and a status without halted, despite equal indices and zero residual. Stable values do not prove a stopped engine; bit 15 of the indices unexplained. No confirmation of W1C or FIFO completion. Do not turn the software model into a hardware identification.
+- Next: design bounded stop/reset and confirmation before any audio activation. Document and publish from the audited export; stock firmware and existing boot retained.
+
+E63/E64 publication verified at 2026-10-02T12:11:33.298267+00:00: public commit `962219272919b6446c7593b5fd5ced9f9fce8656`, 396 files, parent and GitHub tree compliant after audits. Evidence: `evidence/2026-10-02/public-audit/control-publication.json`. Audio control tested under the model; three hardware observations without writes, no sound enabled.
+
+
+## 2026-10-02T12:48:41Z — E65/E66 — first audio STOP and ALSA memory contract
+
+- Objective: establish a live stop indicator before replacing descriptors or making buffers reusable.
+- Analysis: candidate 0015 requests STOP without checking halted. The intel8x0 driver waits for this status in an unbounded loop; do not transpose this wait. Primary ICH4 documentation reviewed, Xbox identity kept distinct.
+- Tool: stop_analog_once refuses any variation of the two E64 controls; only one possible write, 0x00080000 at +8. No START, reset, PCI or SMC. Filter and write footprint tested on ordinary memory, 64 single-bit alterations refused, ASan/UBSan. ELF32 verified and one aligned stw inspected with barriers.
+- Tooling failures: unused bench counter under Werror, then disassembly extraction looking for sync instead of the hwsync mnemonic. Fixed and kept before the console run.
+- Pre-check: transferred hash identical, run without arguments code 2, obsidian4 responds. Test plan and recovery documented before writing.
+- Direct measurement: 12:47:31 UTC, analog STOP executed once; control 0x1d08001c → 0x0008001d, index 0x00008000 → 0. Digital 0x1d08001c / 0x00009616 unchanged. Code 0, six reads and one write.
+- Direct follow-up: 12:48:41 UTC, analog 0x0000001d / 0, digital unchanged; four reads and no write. SSH responds, uptime 16,464.45 s, no failed service listed, 720p framebuffer. No visual test. No reboot.
+- Interpretation: removal of RUN and appearance of the DCH bit support the breakdown; presumed W1C bits preserved by writing zero. Acknowledgment by writing one, reset, in-flight transactions, FIFO and digital channel not proven. Intermediate field became zero at the follow-up, precise delay/role unknown. Analog left in STOP, no automatic return to RUN.
+- E66, off-console: extraction of snd_pcm_sync_stop, do_hw_free and snd_pcm_lib_free_pages. 144 cases pass; 24 detachments after a callback error, including 12 dynamic allocations actually freed in the model. Preallocations only detached and reusable; not a claim of an ALSA bug or of systematic physical freeing of the candidate's buffer.
+- Decision: do not treat return -ETIMEDOUT as protection of the managed buffer. The stop strategy must cover the free/reuse contract and possible isolation; next, targeted acknowledgment/reset trials before integration.
+
+E65/E66 publication verified at 2026-10-02T12:57:15.785188+00:00: public commit `6d597f74c644f253f889d7c78e3f05f3113af2c9`, 410 files, parent and GitHub tree compliant after audits. Evidence: `evidence/2026-10-02/public-audit/stop-publication.json`. Analog STOP observed; ALSA memory contract tested, no sound enabled.
+
+
+## 2026-10-02 — E67/E68 — analog acknowledgments and reset request
+
+- Objective: test the presumed W1C bits after the E65 STOP, before audio activation.
+- Initial state re-verified: analog 0x0000001d / index zero, digital 0x1d08001c / 0x00009616. One read of four words, no write.
+- Original tool with four fixed operations, never chained automatically. Exact filter on four words, 512 single-bit variations refused under ASan/UBSan, four four-byte footprints verified. ELF32 compiled, aligned stw and barriers reviewed; transferred hash identical, no-argument test before access.
+- E67: writes 4, 8, 16 in separate invocations, with the result examined each time. Status 0x1d → 0x19 → 0x11 → 0x01, index and digital channel unchanged. Three writes, 24 reads. All exit codes zero; W1C behavior of the three bits observed at rest. The meaning of the events during streaming is not proven.
+- E68: one reset write 0x02000000 from the stopped status; next read 0x01, digital unchanged. Eight reads, one write, code zero. Result consistent with self-clearing; no intermediate transition or effect on a non-zero register observed, so a complete internal reset is not demonstrated. No START, sound or new descriptor.
+- Next: keep the stop and the evidence; integrate only justified stop/memory-management conditions. Timing checks must distinguish the clocks of the two machines.
+
+## 2026-10-02 — E69/E70 — rate drift and optional correction kernel
+
+- Trigger: repeated difference between console and Mac timestamps in the audio evidence. Hypothesis of an incorrect conversion frequency, to be measured rather than adjusting the date.
+- E69: seven persistent SSH exchanges over about 60 s, round trips of 1.37–1.94 ms. Reading of the raw, monotonic, civil and clocksource clocks and of the three DT properties. No reconfiguration.
+- Measurement: 50 MHz advertised, timebase clocksource; 59.8864 raw Xbox seconds for 60.0354–60.0384 Mac seconds. Ratio 0.9974687–0.9975187, compatible relative frequency 49.8734–49.8759 MHz. Console time about 44.28 s behind at the end of the capture. Mac not calibrated; no electrical measurement.
+- Sources: LibXenon sets 3,192,000,000 / 64 = 49,875,000; pinned file verified via the GitHub API after the raw web fetch failed. Kernel/XeLL DTS at 50 MHz, generic_calibrate_decr reads this property. The plain objcopy to zImage.xenon does not automatically embed the local DTS. A search using a nonexistent wildcard failed; exact files found without interpreting the failure as absence of the source.
+- Reproducible tool measure-clock-drift.py: bounded capture, off-console analysis, preservation of outputs and private diagnostics. Seven synthetic/rejection cases pass; a short real capture of three points verifies the collector, without replacing the 60 s reference.
+- NTP state: timedatectl reports CanNTP/NTP/NTPSynchronized=yes. This is not enough to contradict the direct comparison and the raw drift; no NTP change attempted.
+- E70: independent patch 0016, early option xenon_tb_hz limited to 49,875,000 or 50,000,000 Hz. Without the option, the firmware configuration is retained. Software conversion only; no PLL/power programming. A measurement on this unit does not justify forcing all revisions.
+- Separate build from obsidian4, without the audio patches: vmlinux, modules and zImage.xenon exit codes zero without warnings. obsidian-clock, 65 modules ELF/vermagic and six payload sections verified; parser symbol and option present, patch rebuilt identically.
+- Limits: correction not installed/not booted. Initramfs and USB entry still to be prepared; measurement after reboot essential. Do not turn the compilation into an already-achieved rate improvement; keep historical timestamps and flag their origin.
+
+E67–E70 publication verified at 2026-10-02T13:27:32.850304+00:00: public commit `db44cdd3e537a6d0a2dd13ac565a939f9b90e043`, 442 files, parent and GitHub tree compliant after audits. Evidence: `evidence/2026-10-02/public-audit/timebase-publication.json`. Analog acknowledgments observed; rate measured and correction kernel compiled, not installed.
+
+Additional E69 confirmation: /proc/cpuinfo does report timebase=50000000 and no overriding ibm,extended-timebase-frequency property is present. Read-only; evidence clock-calibration/effective-timebase.json, kept for the next publication.
+
+## 2026-10-02 — E71 — obsidian_clock boot set prepared
+
+- Objective: make the E70 candidate testable without replacing obsidian4 or modifying the default.
+- Live pre-check: SSH under obsidian4, internal ext4 root, separate ARCH vfat USB drive not mounted, no failed service listed.
+- Archive of 65 modules and kernel verified before transfer and after receipt. New /var/tmp directory; depmod with Module.symvers without diagnostics. mkinitcpio limited to this version and --nopost, no preset replayed.
+- Initramfs 16,171,806 bytes; extraction then comparison of the 43 included modules, ELF32 PowerPC verification of six executables and confinement of resolved paths. The lsinitcpio analysis command emits a TERM warning with no effect on the build; TERM=dumb from then on.
+- Nine USB files recorded read-only. Addition of the obsidian_clock entry (168 bytes) with the same root and xenon_tb_hz=49875000. 65 modules in a separate directory; new USB files checked before replacing the menu. Old menu backed up; eight other files with the same hashes.
+- Sync, unmount, read-only remount and reread of the candidate/old files: checks pass. Mac copy of the initramfs also verified. Final SSH under obsidian4, no failed service, drive unmounted; host timestamp 13:38:34 UTC.
+- No reboot requested by script, no NAND or audio operation. Physical action proposed to the user: Rock Band Blitz/USB, obsidian_clock entry, Ethernet after the desktop. Boot result still unknown.
+- Evidence in timebase-boot/; procedures archived as text, not steps to be replayed blindly. Next: verify the new kernel, then redo E69 and compare the rate intervals.
+
+E71 publication verified at 2026-10-02T13:43:05.979127+00:00: public commit `47b0a02d8820d009aa6cde4741a925b6e6018cae`, 452 files, parent and GitHub tree compliant after audits. Evidence: `evidence/2026-10-02/public-audit/timebase-boot-publication.json`. Boot set ready; physical trial still pending.

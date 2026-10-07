@@ -1,0 +1,117 @@
+XBOX 360 — USB DRIVE PREPARED ON OCTOBER 1, 2026
+
+Confirmed state
+- Photo: dashboard and kernel 2.0.17559.0.
+- Network: XBOX_DASHBOARD_IP; Microsoft MAC; no remote access confirmed.
+- SanDisk 3.2Gen1 drive, 123060879360 bytes, erasure explicitly authorized.
+- Formatting done: MBR + FAT32, volume ARCH.
+- 21 files copied and compared by SHA-256 against the local sources, total 325050095 bytes.
+- ABadAvatar v1.3-beta, FreeMyXe 1.1, XeLL ea6de0b, ArchPOWER Xenon 2026.06.02.
+- FreeMyXe remains in manual mode. No NAND flash file provided.
+- kboot.conf adapted to archisolabel=ARCH; uda1 path by default, uda0 and uda as alternatives.
+- Linux boot confirmed by photo IMG_1367: ArchPOWER 6.18.11-xenon, root on tty1.
+- ABadAvatar and FreeMyXe worked, then XeLL booted Linux.
+
+On the Xbox
+1. Unplug Ethernet before triggering the exploit and do not use Xbox Live.
+2. Disable automatic profile sign-in if it is enabled, then power off.
+3. Insert the prepared drive and power back on. Stay on the profile selection,
+   without signing in to the ABadAvatar profile and without leaving this screen.
+4. When FreeMyXe appears, choose to launch XeLL.
+5. XeLL shows a Linux menu and tries the first choice after 15 seconds.
+   If the file is not found, try the uda0 then uda entries.
+   Watch the screen before any other operation or permanent installation.
+
+Do not copy updxell.bin or updflash.bin to this drive: these names trigger
+a flash update in XeLL and are not part of this preparation.
+
+The detailed traces and hashes are kept in work/xbox360/research.
+The Xbox360-Linux-preparation.zip archive remains the initial archive of the components;
+the physical drive additionally contains the extracted Linux and the corrected kboot.conf.
+
+Sources
+https://github.com/bibarub/Xbox360BadUpdate/releases/tag/avatar-v1.3-beta
+https://github.com/FreeMyXe/FreeMyXe/releases/tag/1.1
+https://github.com/Free60Project/xell-reloaded
+https://github.com/vmo64/archpower-linux-installer-360/releases/tag/0.0.1-alpha
+
+LINUX NETWORK PROGRESS
+Photo: enp1s7 link at 100 Mbit/s. Candidate host XBOX_LINUX_IP, Microsoft MAC, SSH OpenSSH_10.2 reachable. Connection without authentication refused; Linux identity to confirm after connecting. Local script for installing the SSH key prepared; waiting for it to be run on the console. No permanent installation done.
+
+UPDATE: BOOT WITHOUT KEYBOARD
+The USB keyboard repeats keys, which blocks input. Hardware or driver cause
+not determined. Workaround prepared, not a driver fix.
+- Live image rebuilt with /root/.ssh/authorized_keys (0600, uid/gid 0).
+- Metadata of the 70,202 existing paths verified; SSH files unchanged.
+- New image copied to the SanDisk and verified by SHA-256.
+- airootfs.sha512 file recomputed.
+- FreeMyXe_auto.txt = xell; kboot.conf boots linux_usb_uda0 after 3 seconds.
+- Previous manual settings replaced; no new formatting.
+- The initial image and the original files remain backed up on the Mac.
+- Reboot and SSH connection with this new image still to be verified.
+Documented method: https://wiki.archlinux.org/title/Archiso#Access_the_installation_via_SSH
+
+To resume: power off the Xbox, plug in the drive leaving the keyboard
+and Ethernet unplugged, boot and wait for Linux. Plug Ethernet back in
+only once the ArchPOWER terminal is displayed, then notify the assistant.
+
+CURRENT STATE — AFTER THE BOOT WITHOUT KEYBOARD
+Key-authenticated SSH confirmed on XBOX_LINUX_IP. uname: Linux 6.18.11-xenon ppc64. Hitachi disk /dev/sda 120034123776 bytes; SanDisk /dev/sdb 123060879360 bytes. The user explicitly authorized erasing the Hitachi for Linux. This erasure has NOT been performed.
+Network access was lost during the read backup of the system partitions. The 1 MiB disk header is backed up and verified; the avatar backup is incomplete. The Rock Band Blitz demo and BadUpdate 1.3 are downloaded and prepared on the Mac but their transfer to the Xbox did not complete. They are NOT yet tested on the console.
+Next step: restore the connection and check the state of Linux on screen, then test the fallback boot with no dependency on the avatars before reformatting the Hitachi.
+
+UPDATE — ROCK BAND BLITZ TEST PREPARED
+After reboot, SSH works again on XBOX_LINUX_IP. sis190 driver confirmed. GRO temporarily disabled and transfer limited to 16 Mbit/s; no new watchdog observed during this transfer. This does not prove a permanent fix.
+Rock Band Blitz Trial and the BadUpdate 1.3 files are copied to the drive. The eight SHA-256 match the files prepared on the Mac. FreeMyXe default.xex verified unchanged and XeLL automatic launch kept.
+The ABadAvatar profile was moved from Content/E0002FF78DFBDE7B to Recovery/Avatar-profile/E0002FF78DFBDE7B on the drive, to allow testing the game without triggering Avatar. This move is reversible; the other Avatar files remain available.
+User step: power off/on without Ethernet, drive plugged in, then My Games → Rock Band Blitz (demo), wait a few seconds on the title screen and press A. Plug Ethernet back in only once ArchPOWER has booted.
+This new boot is NOT yet tested. The internal disk remains intact, the persistent installation has not been done.
+Source: https://github.com/grimdoomer/Xbox360BadUpdate/wiki/Rock-Band-Blitz
+
+INTERNAL INSTALLATION IN PROGRESS
+Booting via Rock Band Blitz succeeded according to the user, then SSH was verified on the rebooted Linux.
+Backup of the system regions now complete and verified on the drive: Xbox360-system-backup/header.bin and avatar-system.bin.gz, along with SHA256SUMS. This is not a complete backup of the disk.
+The authorized Hitachi disk has now been repartitioned and formatted: sda1 ext4 109.8 GiB UUID=e9584d6f-d7ed-40ba-80a2-6834f8d91f31; sda2 swap 2 GiB UUID=59f3e035-07cf-404f-8f89-48012d60ee21. The earlier mentions of "disk intact" no longer apply.
+System copy in progress. Xenon kernel: EXT4_FS_SECURITY and EXT4_FS_POSIX_ACL disabled. The capabilities of newuidmap/newgidmap are not supported; resume prepared excluding this attribute without adding setuid bits.
+The installed Linux boot has NOT yet been validated.
+
+DISK INSTALLATION READY — FIRST BOOT TO BE VERIFIED
+The system is installed on /dev/sda1 (ext4), with 2 GiB of swap on /dev/sda2. About 1.3 GiB used; 101 GiB available. Hostname: xbox-linux.
+Copy resumed successfully without the two unsupported file capabilities; the other metadata were preserved. The kernel limitations are documented in /root/XENON-LIMITATIONS.txt on the Xbox.
+Key-based SSH tested successfully in the installed system (temporary server on port 2222, stopped after the test). SSH password and interactive authentication disabled. Host keys kept for the next boot.
+Initramfs generated successfully, including fsck.ext4 and the disk detection rules. USB files compared with those on the disk. kboot configuration enabled: linux_hdd by default, 10-second delay; old live entries kept.
+SHA256 initramfs: f01d99340d4e1539c0f4c52721f44fa715db0218b62cc94950040f28d53d3b09
+SHA256 kernel: a499ab2816bd5a94843442b0a8b89d18af4c1f98f4f264a83b0da5940c8bed66
+The console must now be rebooted to validate mounting the disk as root; this test has NOT yet been done.
+Procedure: boot without Ethernet, keep the drive, launch Rock Band Blitz and choose USB if a storage device is requested. Wait for Linux, then plug Ethernet back in. Do not reformat the disk from the Xbox menu.
+Recovery: the Recovery/kboot-live-before-install.conf file on the drive makes it possible to return to the live Linux by copying it back to the root under the name kboot.conf. The verified partial system backups remain in Xbox360-system-backup on the drive.
+The keyboard has not been fixed; access over SSH still works around its key-repeat problem.
+
+FIRST BOOT FROM DISK CONFIRMED
+SSH authenticated; root /dev/sda1 ext4, name xbox-linux; 2 GiB swap active. Framebuffer display xenosdrmfb 1280x720, /dev/fb0 and /dev/dri/card0. Xbox controller detected by xpad, /dev/input/js0 and event0.
+New request: graphical desktop controllable with the controller. Installation of the graphical packages in progress, with a consistent system update and the linux-xenon/headers kernel kept at 6.18.11-1. Download limited to 2 MiB/s; package signatures still mandatory. Interface prepared, not yet launched or validated.
+
+REMOTE ACCESS INTERRUPTED DURING THE DESKTOP UPDATE
+The Xbox answers ping on XBOX_LINUX_IP but closes SSH connections before identification. The downloads and their validation had finished and the packages were being installed; their completion cannot yet be verified. The change in OpenSSH's restart mechanism is a possible cause. At the local root prompt, the command "systemctl restart sshd" makes it possible to try to restore access without rebooting the console. The desktop is prepared but not yet launched or verified. Do not cut the power during a possible ongoing transaction.
+
+GRAPHICAL DESKTOP INSTALLED AND STARTED
+SSH access was restored after changing the keyboard's port and restarting sshd locally. The pacman transaction finished with Result=success. No failed systemd service.
+The IceWM desktop runs at 1280 × 720 with a custom home screen, PCManFM, a terminal and an on-screen keyboard. The Xorg modesetting driver works without 3D acceleration; the first fbdev attempt failed and was removed. The desktop processes run under the ordinary xbox account, and the original permissions of the Xorg launcher were restored.
+The screenshot was verified. Two real tests succeeded: input via XTest in a terminal, then clicks on the on-screen keyboard with the text received and Enter validated.
+Automatic desktop launch after Linux boot configured. The initial console boot still requires Rock Band Blitz and the USB drive: this is not yet a direct boot into Linux at power-on.
+Planned controls: left stick = pointer; A = click; X = right click; B = Esc; Y = on-screen keyboard; right stick = scrolling; START = home; RB = Enter; LB = delete; BACK = Tab.
+To confirm physically: the controller. The internal receiver 045e:0291 is bound to the xpad driver but no js0 device was present at the last check. The input engine tests are validated; the actual operation of the buttons/sticks is still pending the controller being powered on/connected and feedback from the user.
+Resource state: about 129 MiB of RAM available, 67 MiB of swap used, 100 GiB free on the internal disk.
+A local pacman hook will restart SSH after its next updates in order to prevent the same loss of access.
+
+1080P STUDY AND INDEPENDENT BOOT — OCTOBER 1, 2026
+Result: desktop kept at 1280 × 720 at 60 Hz. The switch to 1920 × 1080 was requested on the XRandR output None-1; response "cannot find mode 1920x1080". No persistent resolution change was applied.
+Analysis of the available code: xenos_load reads D1GRPH_X_END/Y_END and builds fixed_mode; the DRM connector exposes this mode inherited from the loader. The libxenon mode list examined contains no 1920 × 1080. A real addition would require HDMI/ANA/HANA video programming and adapting the driver, with hardware validation. Changing only the framebuffer size does not guarantee a 1080p output.
+Sources: https://github.com/Free60Project/linux-kernel-xbox360 and https://github.com/Free60Project/libxenon/blob/master/libxenon/drivers/xenos/xenos_videomodes.h
+Boot: BadUpdate acts after the authenticated Xbox boot and does not persist after power-off. The internal disk is already dedicated to Linux; erasing the NAND does not constitute a Linux installation and would remove the current boot path. No new secure boot bypass was discovered in this study.
+The known route to launch XeLL/Linux independently of the dashboard is a compatible RGH hardware modification, followed by a boot image adapted to the console. The exact motherboard and a hardware recovery method must be identified before any firmware write. ABadAvatar can further automate the triggering but retains a dependency on the Xbox system.
+Sources: https://github.com/grimdoomer/Xbox360BadUpdate; https://github.com/FreeMyXe/FreeMyXe; https://free60.org/Hacks/Reset_Glitch_Hack/; https://github.com/15432/RGH3
+The present Linux kernel exposes neither /proc/mtd nor /dev/mtd. No complete NAND backup was therefore obtained in this session. The earlier backups are disk regions, not a NAND backup. No NAND flashing or erasure performed.
+
+HARDWARE AUDIT AND CONFIRMED FREEZE
+Twelve PCI functions, six CPU threads, kernel configuration and topology collected on the Mac. The NAND controller is visible but its driver does not provide MTD. A later read-only attempt on the documented flash window caused the network to be lost; user confirms frozen picture. No erase/flash sent; no validated NAND image obtained. Manual reboot requested, recovery not yet verified. The detailed dossier is in Xbox360-analyse-materielle/Rapport.txt.
