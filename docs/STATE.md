@@ -86,6 +86,6 @@ The Rust XEX2 inspector works on synthetic structural fixtures. No legitimate ga
 - Direct flash BAR1 reading hung the console. Never rerun the archived probe without resolving the mechanism. XeLL HTTP page-size analysis alone does not validate a raw NAND backup, ECC, or bad-block handling.
 - Motherboard revision, NAND geometry, independent recovery, 1080p, GPU acceleration, reliable audio, and owned-game analysis remain unfinished.
 
-## Publication
+## Repository and publication
 
-The most recently verified public commit before this update is `47b0a02d8820d009aa6cde4741a925b6e6018cae` (452 files), covering E71. The user has requested a detailed English-only repository update including the subsequent findings. Publish through the controlled export; never push private research history. [PUBLICATION](PUBLICATION.md) and dated audit receipts are authoritative for the actual published state.
+The GitHub repository is private. On 2026-10-07 the full English research history, including E72 and E73, was merged into `main`; the earlier public-export history (last export commit `47b0a02d8820d009aa6cde4741a925b6e6018cae`, 452 files, covering E71) is the merge's first parent. `research/bootstrap` remains on GitHub, fully merged. New work goes on `main`, with branch work in worktrees. The controlled public export is historical; see [PUBLICATION](PUBLICATION.md) for the history and the dated audit receipts.

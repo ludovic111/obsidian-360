@@ -51,10 +51,10 @@ Read [calibration analysis](docs/TIMEBASE-CALIBRATION.md), [boot preparation](do
 - `docs/`: technical analysis, results, chronology, recovery limits, and next steps.
 - `evidence/`: dated observations and SHA-256 lists. A historical capture is not a live-state assertion.
 - `desktop/`: Python controller-oriented launcher and desktop configuration.
-- `tools/`: local SSH wrapper, collectors, artifact verifiers, and publication checks.
+- `tools/`: local SSH wrapper, collectors, artifact verifiers, and the historical public-export tools.
 - `research/`: original research components, candidate patches, host tests, and source provenance.
 - `game-analysis/`: original software-format inspection tools.
-- `research/archive/`: historical installation/staging procedures stored as text, excluded from the public export.
+- `research/archive/`: historical installation/staging procedures stored as text, kept as records (they were excluded from the former public export).
 - `research/blocked/`: the probe that hung the console, retained for analysis, not execution.
 - `.local/` and `private/`: ignored local material, access configuration, private captures, and non-redistributable files.
 
@@ -67,4 +67,4 @@ python3 desktop/xbox_desktop.py --self-test
 
 SSH requires the operator's existing private configuration and key outside Git. It does not discover unrelated machines and keeps host-key verification. The desktop self-test does not simulate physical controller use. Refer to the [test guide](research/tests/README.md) for source-dependent C/ALSA/PCI tests and the [build guide](docs/BUILD-AND-RECOVERY.md) for kernel prerequisites.
 
-No universal installer is provided. Boot files, firmware, games, disc images, console secrets, and third-party binaries are not bundled. Public snapshots pass content/history checks described in [PUBLICATION](docs/PUBLICATION.md); licensing and attribution are detailed in [THIRD_PARTY](THIRD_PARTY.md).
+No universal installer is provided. Boot files, firmware, games, disc images, console secrets, and third-party binaries are not bundled. The repository is private and `main` carries the full research history; [PUBLICATION](docs/PUBLICATION.md) describes that history and the former public export. Licensing and attribution are detailed in [THIRD_PARTY](THIRD_PARTY.md).

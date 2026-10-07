@@ -1,26 +1,45 @@
-# Controlled publication
+# Repository and publication history
 
-## Verified publication
+## Current status
+
+The repository [ludovic111/obsidian-360](https://github.com/ludovic111/obsidian-360) is **private**. Since 2026-10-07, `main` carries the full research history, and all work happens there; branch work is done in separate worktrees and merged back into `main`. The former research branch `research/bootstrap` remains on GitHub, fully merged into `main`. Do not delete branches, tags or history on GitHub, and do not force-push.
+
+Being private does not relax the content rules: SSH keys, CPU/DVD keys, keyvaults, NAND or firmware dumps, game executables and other non-redistributable material stay out of Git (`.local/` and `private/` are ignored). Because `main` now carries the research history, it also contains material the public export used to exclude or redact: installation archives, the blocking probe, the installation history, and unredacted captures that include the console's MAC address and LAN addresses.
+
+## History
+
+1. **2026-10-01 (UTC): first public export.** A reviewed text-only export of the local research repository was published as a new, independent history: root commit `f9da49e7cc39a3bf06983e97b9fffe73a8e63606`, 187 files (E40).
+2. **2026-10-02: export updates.** Each research milestone up to E71 was re-exported, audited and pushed on top of that history; the last export commit is `47b0a02d8820d009aa6cde4741a925b6e6018cae` (452 files). The verified publication log is kept below.
+3. **Later: repository made private.** The repository was renamed to lowercase obsidian-360 and made private; `main`'s documentation was updated for this on 2026-10-07.
+4. **2026-10-07: research history merged into `main`.** The English research line (`research/bootstrap`, up to E73) was merged into `main`. The export history is the merge's first parent and `research/bootstrap` its second, so no published commit was rewritten. The merged tree is the research tree, plus `PUBLICATION-MANIFEST.json`.
+
+## Historical: the controlled public export (2026-10-01 to 2026-10-02)
+
+Everything in this section describes the export process as it ran while the repository was public. It is kept as a record and is no longer the publication procedure.
+
+`PUBLICATION-MANIFEST.json` at the repository root is the manifest of the last audited export tree (selected files, before/after hashes, exclusions and transformations). It describes that export, not the current tree, and is kept unchanged at its path because `tools/audit-public.py` reads it from there. `tools/export-public.py` and `tools/audit-public.py` are historical tools: run against the current `main`, the audit would report a mismatch by design. No CI runs them.
+
+The repository was created as a public repository (originally under an uppercase name). First commit: `f9da49e7cc39a3bf06983e97b9fffe73a8e63606`, no parent, 187 files. The GitHub API confirmed public visibility, the main branch, the commit SHA, and equality of the remote tree with the audited export. Evidence: `evidence/2026-10-01/publication/verification.json`.
 
 October 2 update: public commit `2d31efbd2230c28dfd23ad199ffab231c7a12b12`, direct child of f9da49e, 203 files. XEX2 inspector, tests and the history audit tool included; API verification of the commit and tree succeeded. The pre-push audit covered both commits and 213 reachable text objects. See `evidence/2026-10-02/public-audit/publication.json`.
 
-The repository [ludovic111/obsidian-360](https://github.com/ludovic111/obsidian-360) is created as a public repository (originally under an uppercase name; it has since been made private). First commit: `f9da49e7cc39a3bf06983e97b9fffe73a8e63606`, no parent, 187 files. The GitHub API confirms public visibility, the main branch, the commit SHA, and equality of the remote tree with the audited export. Evidence: `evidence/2026-10-01/publication/verification.json`.
+Two captures were derived to mask the MAC address. Seventeen paths were excluded from the initial selection, including the original SHA manifest (replaced by the one for the derivatives), the binary acquisitions, the archives, and third-party excerpts kept locally. Upstream public attributions were preserved; no private Git identity of the operator was in the export history.
 
-Two captures were derived to mask the MAC address. Seventeen paths were excluded from the initial selection, including the original SHA manifest (replaced by the one for the derivatives), the binary acquisitions, the archives, and third-party excerpts kept locally. Upstream public attributions are preserved; no private Git identity of the operator is in the new history.
+The export was prepared in a separate local publication checkout, `.local/public-export-reviewed-20261001`, with its own Git and its origin remote, while the research repository itself had no remote. Each update re-prepared and audited an export without mixing the two histories. That checkout is historical; it is no longer used to publish.
 
-The local publication checkout is `.local/public-export-reviewed-20261001`, with its own Git and its origin remote. The main research repository has no remote: do not infer that subsequent local changes are published automatically. Re-prepare and audit an export for each update, without mixing the two histories.
+The user authorized a public GitHub publication in objective v2. The research history was then kept local because it contains personal traces and metadata; it was later pushed to the private repository and merged into `main` (see History).
 
-The user authorizes a public GitHub publication in objective v2. The local research repository and its history are retained: they contain personal traces and metadata that must not be pushed as is.
+The export was prepared in a separate ignored directory with `tools/export-public.py`. It took only tracked text files and excluded binary acquisitions, installation archives, the blocking probe, old session transcripts, and some third-party excerpts whose license was still to be checked. A local policy provided the replacements for private names, paths and contact details; it was never exported. The public manifest lists the excluded files, the before/after hashes and the reported transformations, without publishing the removed values.
 
-The initial export is prepared in a separate ignored directory with `tools/export-public.py`. It takes only tracked text files and excludes binary acquisitions, installation archives, the blocking probe, old session transcripts, and some third-party excerpts whose license is still to be checked. A local policy provides the replacements for private names, paths and contact details. It is never exported. The public manifest lists the excluded files, the before/after hashes and the reported transformations, without publishing the removed values.
+The checksums of the public evidence were recomputed for the published derivatives; they did not replace the hashes of the local originals. A document citing excluded evidence referred to a local experiment, not a file downloadable from GitHub at the time.
 
-The checksums of the public evidence are recomputed for the published derivatives; they do not replace the hashes of the local originals. A document that cites excluded evidence refers to a local experiment, not a file downloadable from GitHub. The export keeps these historical references so as not to misrepresent the scope of the work.
+Before the first public commit, the process was: inspect the selection, scan for secrets and personal information, verify that no proprietary binary/dump was included, then create a fresh history with a project identity. Before each subsequent push: redo the audit of the files and of all added reachable objects. The research branch was not pushed, `--mirror` was not used, and old tags were not sent.
 
-Before the first public commit: inspect the selection, scan for secrets and personal information, verify that no proprietary binary/dump is included, then create a fresh history with a project identity. Before each subsequent push: redo the audit of the files and of all added reachable objects. Never push the local `research/bootstrap` branch, never use `--mirror`, and never send the old tags.
+The built-in scanner detected several obvious patterns and the local policy; it did not replace human/agent review of the selected files. No NAND image, game, key or firmware needs to be published to explain the results.
 
-The built-in scanner detects several obvious patterns and the local policy; it does not replace human/agent review of the selected files. The excluded files remain kept locally to continue the research. No NAND image, game, key or firmware needs to be published to explain the results.
+For each update, `tools/audit-public.py --repo EXPORT_GIT_PATH --policy LOCAL_POLICY_PATH` checked the tracked/non-ignored selection, the manifest and evidence hashes, then the reachable blobs, commits and tags of that public history. It ran before the public commit and after the commit, before the push. A newly prepared export directory was synchronized only after checking the public checkout and its remote parent. The audit program neither commits nor pushes.
 
-For each update, `tools/audit-public.py --repo EXPORT_GIT_PATH --policy LOCAL_POLICY_PATH` checks the tracked/non-ignored selection, the manifest and evidence hashes, then the reachable blobs, commits and tags of that public history. Run it before the public commit and after the commit, before the push. A newly prepared export directory is synchronized only after checking the public checkout and its remote parent. The audit program neither commits nor pushes.
+### Verified export log
 
 E43–E46 update: `ec431c9c7e114e11074628d0fb95358d1128a752`, 221 files, third public commit. Audit before commit and then before push succeeded (240 text objects); API verification of the tree and parent succeeded. Evidence `evidence/2026-10-02/public-audit/optical-publication.json`.
 

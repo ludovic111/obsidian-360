@@ -24,3 +24,5 @@ __pycache__/
 *.iso
 *.sfs
 *.pkg.tar.*
+# Agent worktrees
+.claude/worktrees/

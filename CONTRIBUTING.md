@@ -13,7 +13,7 @@ A useful experiment submission includes:
 1. A precise question and a falsifiable expectation.
 2. The initial hardware/software state and source identities.
 3. The exact action, duration and access limits, and what would stop the experiment.
-4. Machine-readable observations and checksums, with private identifiers removed in the publication derivative.
+4. Machine-readable observations and checksums, with private identifiers removed wherever they are not needed for the result.
 5. The result, competing explanations, recovery steps, and a justified next action.
 
 A passing model is evidence about that model and the exercised code. It is not proof of undocumented silicon behavior, DMA completion, electrical safety, or general compatibility across Xbox 360 revisions.
