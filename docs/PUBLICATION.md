@@ -2,9 +2,9 @@
 
 ## Current status
 
-The repository [ludovic111/obsidian-360](https://github.com/ludovic111/obsidian-360) is **private**. Since 2026-10-07, `main` carries the full research history, and all work happens there; branch work is done in separate worktrees and merged back into `main`. The former research branch `research/bootstrap` remains on GitHub, fully merged into `main`. Do not delete branches, tags or history on GitHub, and do not force-push.
+The repository [ludovic111/obsidian-360](https://github.com/ludovic111/obsidian-360) is **public**. Since 2026-10-07, `main` carries the full research history, and all work happens there; branch work is done in separate worktrees and merged back into `main`. `main` is the only branch on GitHub; the former research branch `research/bootstrap` is fully merged into it.
 
-Being private does not relax the content rules: SSH keys, CPU/DVD keys, keyvaults, NAND or firmware dumps, game executables and other non-redistributable material stay out of Git (`.local/` and `private/` are ignored). Because `main` now carries the research history, it also contains material the public export used to exclude or redact: installation archives, the blocking probe, the installation history, and unredacted captures that include the console's MAC address and LAN addresses.
+SSH keys, CPU/DVD keys, keyvaults, NAND or firmware dumps, game executables and other non-redistributable material stay out of Git (`.local/` and `private/` are ignored). Because `main` carries the research history, it also contains material the former public export excluded: installation archives, the blocking probe and the installation history. Device identifiers in those files and in the captures (the console's MAC address, disk and USB serial numbers, LAN addresses) are replaced by placeholders such as `REDACTED_MAC_ADDRESS`, `REDACTED_DISK_SERIAL`, `REDACTED_USB_SERIAL` and `XBOX_LINUX_IP`; see History, step 6.
 
 ## History
 
@@ -12,6 +12,8 @@ Being private does not relax the content rules: SSH keys, CPU/DVD keys, keyvault
 2. **2026-10-02: export updates.** Each research milestone up to E71 was re-exported, audited and pushed on top of that history; the last export commit is `47b0a02d8820d009aa6cde4741a925b6e6018cae` (452 files). The verified publication log is kept below.
 3. **Later: repository made private.** The repository was renamed to lowercase obsidian-360 and made private; `main`'s documentation was updated for this on 2026-10-07.
 4. **2026-10-07: research history merged into `main`.** The English research line (`research/bootstrap`, up to E73) was merged into `main`. The export history is the merge's first parent and `research/bootstrap` its second, so no published commit was rewritten. The merged tree is the research tree, plus `PUBLICATION-MANIFEST.json`.
+5. **By 2026-10-12: repository made public again.** The full research history on `main` became public.
+6. **2026-10-12: device identifiers redacted from every commit.** Before promotion, the history was rewritten once with `git filter-repo`: the console's MAC address (including the `enx...` interface name the 2026-10-01 export had missed), the internal disk and USB drive serial numbers and the console's LAN addresses were replaced by placeholders in every commit, the SHA-256 values of the two affected captures were updated so every `SHA256SUMS` list still verifies, and commit author emails were normalized to a GitHub no-reply address. File contents are otherwise unchanged. **Every commit SHA changed**: the commit SHAs quoted below and in `evidence/*/public-audit/*.json` (for example `f9da49e` and `47b0a02`) identify the history as it was before this rewrite and no longer resolve in this repository.
 
 ## Historical: the controlled public export (2026-10-01 to 2026-10-02)
 

@@ -2,7 +2,7 @@
 
 ## Immediate priorities
 
-1. Done on 2026-10-07: the English research history, including E72's PCI contract result and E73's measured clock correction, is merged into `main` of the private repository. Keep committing new results to `main`; see [PUBLICATION](PUBLICATION.md).
+1. Done on 2026-10-07: the English research history, including E72's PCI contract result and E73's measured clock correction, is merged into `main` (the repository is public since 2026-10-12). Keep committing new results to `main`; see [PUBLICATION](PUBLICATION.md).
 2. Extend the clock validation beyond one 60-second window under representative load. Keep host and console timestamps distinct. Diagnose the approximately 243-second civil-time offset separately; a corrected raw cadence does not set the date.
 3. Design actual audio memory retention/isolation when STOP is not confirmed. E66 rules out relying on a callback error to retain ALSA buffers. E72 rules out treating the generic non-PCIe pending-transaction helper as a completion measurement. Cover samples, descriptors, mmap, reconfiguration, teardown, failed probe, and module reload.
 4. Resolve audio final-descriptor completion, FIFO drain, address limits, reset semantics, interrupt ownership, and inherited channel state before playback. The new boot invalidates the old STOP/ACK preconditions; any hardware experiment needs a new initial-state check.
